@@ -16,6 +16,7 @@ export default function Home() {
   const [scheme, setScheme] = useState<ColorScheme>(defaultScheme);
   const [fonts, setFonts] = useState<FontPairing>(defaultFonts);
   const [logo, setLogo] = useState<LogoConfig>(defaultLogo);
+  const [inverted, setInverted] = useState(false);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -86,6 +87,14 @@ export default function Home() {
 
   const activeSlide = slides[activeSlideIndex];
 
+  const effectiveScheme: ColorScheme = inverted
+    ? {
+        ...scheme,
+        background: scheme.textPrimary,
+        textPrimary: scheme.background,
+      }
+    : scheme;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-200 px-6 py-4">
@@ -117,8 +126,10 @@ export default function Home() {
             <ThemePicker
               selectedScheme={scheme}
               selectedFonts={fonts}
+              inverted={inverted}
               onSchemeChange={setScheme}
               onFontsChange={setFonts}
+              onInvertChange={setInverted}
             />
 
             <LogoSettings
@@ -230,7 +241,7 @@ export default function Home() {
                   >
                     <SlideCanvas
                       slide={activeSlide}
-                      scheme={scheme}
+                      scheme={effectiveScheme}
                       fonts={fonts}
                       logo={logo}
                       slideNumber={activeSlideIndex + 1}
@@ -267,7 +278,7 @@ export default function Home() {
           >
             <SlideCanvas
               slide={slide}
-              scheme={scheme}
+              scheme={effectiveScheme}
               fonts={fonts}
               logo={logo}
               slideNumber={index + 1}

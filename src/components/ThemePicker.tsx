@@ -6,15 +6,19 @@ import { colorSchemes, fontPairings } from "@/lib/themes";
 interface ThemePickerProps {
   selectedScheme: ColorScheme;
   selectedFonts: FontPairing;
+  inverted: boolean;
   onSchemeChange: (scheme: ColorScheme) => void;
   onFontsChange: (fonts: FontPairing) => void;
+  onInvertChange: (inverted: boolean) => void;
 }
 
 export function ThemePicker({
   selectedScheme,
   selectedFonts,
+  inverted,
   onSchemeChange,
   onFontsChange,
+  onInvertChange,
 }: ThemePickerProps) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4">
@@ -73,6 +77,29 @@ export function ThemePicker({
             </option>
           ))}
         </select>
+      </div>
+
+      <div className="mt-4">
+        <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+          Colors
+        </label>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => onInvertChange(!inverted)}
+            className={`relative w-12 h-7 rounded-full transition-colors ${
+              inverted ? "bg-pink-500" : "bg-gray-300"
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform ${
+                inverted ? "translate-x-5" : "translate-x-0"
+              }`}
+            />
+          </button>
+          <span className="text-sm text-gray-600">
+            {inverted ? "Inverted" : "Normal"}
+          </span>
+        </div>
       </div>
     </div>
   );

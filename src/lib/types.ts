@@ -63,6 +63,13 @@ export interface LogoConfig {
   shape: string;
 }
 
+export interface ThemeConfig {
+  scheme: ColorScheme;
+  fonts: FontPairing;
+  logo: LogoConfig;
+  inverted: boolean;
+}
+
 export const defaultLogo: LogoConfig = {
   letter: "k",
   shape: "blob",
