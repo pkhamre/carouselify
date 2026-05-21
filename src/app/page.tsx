@@ -92,6 +92,8 @@ export default function Home() {
         ...scheme,
         background: scheme.textPrimary,
         textPrimary: scheme.background,
+        textOnAccent: scheme.bgOnAccent,
+        bgOnAccent: scheme.textPrimary,
       }
     : scheme;
 

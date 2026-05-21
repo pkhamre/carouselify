@@ -26,14 +26,6 @@ export const colorSchemes: ColorScheme[] = [
     bgOnAccent: "#EDF2EE",
   },
   {
-    name: "Midnight",
-    background: "#1A1A2E",
-    accent: "#E94560",
-    textPrimary: "#EAEAEA",
-    textOnAccent: "#1A1A2E",
-    bgOnAccent: "#1A1A2E",
-  },
-  {
     name: "Sand",
     background: "#F5F0E8",
     accent: "#C9802C",
