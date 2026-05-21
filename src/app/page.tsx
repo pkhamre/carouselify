@@ -2,7 +2,8 @@
 
 import { useState, useRef, useCallback } from "react";
 import type { Slide, SlideType, ColorScheme, FontPairing, LogoConfig } from "@/lib/types";
-import { defaultScheme, defaultFonts, defaultLogo } from "@/lib/themes";
+import { defaultScheme, defaultFonts } from "@/lib/themes";
+import { defaultLogo } from "@/lib/types";
 import { createDefaultSlides, createSlide } from "@/lib/utils";
 import { SlideCanvas } from "@/components/slides/SlideCanvas";
 import { SlideEditor } from "@/components/SlideEditor";
@@ -134,11 +135,6 @@ export default function Home() {
               onInvertChange={setInverted}
             />
 
-            <LogoSettings
-              logo={logo}
-              onChange={setLogo}
-            />
-
             <div className="bg-white rounded-xl border border-gray-200 p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold text-gray-900">
@@ -256,7 +252,11 @@ export default function Home() {
           </div>
 
           <div className="col-span-4">
-            <div className="sticky top-6">
+            <div className="sticky top-6 space-y-4">
+              <LogoSettings
+                logo={logo}
+                onChange={setLogo}
+              />
               <SlideEditor
                 slide={activeSlide}
                 onUpdate={(slide) => updateSlide(activeSlideIndex, slide)}

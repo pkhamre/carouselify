@@ -60,7 +60,6 @@ export interface FontPairing {
 
 export interface LogoConfig {
   letter: string;
-  shape: string;
 }
 
 export interface ThemeConfig {
@@ -71,6 +70,5 @@ export interface ThemeConfig {
 }
 
 export const defaultLogo: LogoConfig = {
-  letter: "k",
-  shape: "blob",
+  letter: "p",
 };

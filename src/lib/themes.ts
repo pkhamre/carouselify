@@ -123,7 +123,3 @@ export const fontPairings: FontPairing[] = [
 
 export const defaultScheme = colorSchemes[0];
 export const defaultFonts = fontPairings[0];
-export const defaultLogo = {
-  letter: "k",
-  shape: "blob" as const,
-};

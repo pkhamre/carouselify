@@ -22,7 +22,7 @@ export function CoverSlideComponent({ slide, scheme, fonts, logo, slideNumber, t
       }}
     >
       <div className="slide-logo">
-        <LogoSVG scheme={scheme} fonts={fonts} letter={logo.letter} shape={logo.shape} />
+        <LogoSVG scheme={scheme} fonts={fonts} letter={logo.letter} />
       </div>
 
       <div className="slide-content">
