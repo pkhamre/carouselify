@@ -83,7 +83,7 @@ export function CtaSlideComponent({
       <div
         className="accent-bar"
         style={{
-          backgroundColor: scheme.textOnAccent,
+          backgroundColor: scheme.bgOnAccent,
           width: `${progress}%`,
         }}
       />
