@@ -17,6 +17,7 @@ export function ContentB1SlideComponent({
   totalSlides,
 }: ContentB1SlideComponentProps) {
   const counter = `${String(slideNumber).padStart(2, "0")} / ${String(totalSlides).padStart(2, "0")}`;
+  const progress = (slideNumber / totalSlides) * 100;
 
   return (
     <div
@@ -78,7 +79,10 @@ export function ContentB1SlideComponent({
 
       <div
         className="accent-bar"
-        style={{ backgroundColor: scheme.accent }}
+        style={{
+          backgroundColor: scheme.accent,
+          width: `${progress}%`,
+        }}
       />
     </div>
   );

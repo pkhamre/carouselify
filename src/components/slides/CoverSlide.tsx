@@ -5,9 +5,13 @@ interface CoverSlideComponentProps {
   slide: CoverSlide;
   scheme: ColorScheme;
   fonts: FontPairing;
+  slideNumber: number;
+  totalSlides: number;
 }
 
-export function CoverSlideComponent({ slide, scheme, fonts }: CoverSlideComponentProps) {
+export function CoverSlideComponent({ slide, scheme, fonts, slideNumber, totalSlides }: CoverSlideComponentProps) {
+  const progress = (slideNumber / totalSlides) * 100;
+
   return (
     <div
       className="slide-canvas"
@@ -58,7 +62,10 @@ export function CoverSlideComponent({ slide, scheme, fonts }: CoverSlideComponen
 
       <div
         className="accent-bar"
-        style={{ backgroundColor: scheme.accent }}
+        style={{
+          backgroundColor: scheme.accent,
+          width: `${progress}%`,
+        }}
       />
     </div>
   );

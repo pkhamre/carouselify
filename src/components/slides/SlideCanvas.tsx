@@ -22,7 +22,15 @@ export function SlideCanvas({
 }: SlideCanvasProps) {
   switch (slide.type) {
     case "cover":
-      return <CoverSlideComponent slide={slide} scheme={scheme} fonts={fonts} />;
+      return (
+        <CoverSlideComponent
+          slide={slide}
+          scheme={scheme}
+          fonts={fonts}
+          slideNumber={slideNumber}
+          totalSlides={totalSlides}
+        />
+      );
     case "content-b1":
       return (
         <ContentB1SlideComponent

@@ -17,6 +17,7 @@ export function CtaSlideComponent({
   totalSlides,
 }: CtaSlideComponentProps) {
   const counter = `${String(slideNumber).padStart(2, "0")} / ${String(totalSlides).padStart(2, "0")}`;
+  const progress = (slideNumber / totalSlides) * 100;
 
   return (
     <div
@@ -81,7 +82,10 @@ export function CtaSlideComponent({
 
       <div
         className="accent-bar"
-        style={{ backgroundColor: scheme.textOnAccent }}
+        style={{
+          backgroundColor: scheme.textOnAccent,
+          width: `${progress}%`,
+        }}
       />
     </div>
   );
