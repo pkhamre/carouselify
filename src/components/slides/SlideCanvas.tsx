@@ -1,4 +1,4 @@
-import type { Slide, ColorScheme, FontPairing } from "@/lib/types";
+import type { Slide, ColorScheme, FontPairing, LogoConfig } from "@/lib/types";
 import { CoverSlideComponent } from "./CoverSlide";
 import { ContentB1SlideComponent } from "./ContentB1Slide";
 import { ContentB2SlideComponent } from "./ContentB2Slide";
@@ -9,6 +9,7 @@ interface SlideCanvasProps {
   slide: Slide;
   scheme: ColorScheme;
   fonts: FontPairing;
+  logo: LogoConfig;
   slideNumber: number;
   totalSlides: number;
 }
@@ -17,6 +18,7 @@ export function SlideCanvas({
   slide,
   scheme,
   fonts,
+  logo,
   slideNumber,
   totalSlides,
 }: SlideCanvasProps) {
@@ -27,6 +29,7 @@ export function SlideCanvas({
           slide={slide}
           scheme={scheme}
           fonts={fonts}
+          logo={logo}
           slideNumber={slideNumber}
           totalSlides={totalSlides}
         />
@@ -37,6 +40,7 @@ export function SlideCanvas({
           slide={slide}
           scheme={scheme}
           fonts={fonts}
+          logo={logo}
           slideNumber={slideNumber}
           totalSlides={totalSlides}
         />
@@ -47,6 +51,7 @@ export function SlideCanvas({
           slide={slide}
           scheme={scheme}
           fonts={fonts}
+          logo={logo}
           slideNumber={slideNumber}
           totalSlides={totalSlides}
         />
@@ -57,6 +62,7 @@ export function SlideCanvas({
           slide={slide}
           scheme={scheme}
           fonts={fonts}
+          logo={logo}
           slideNumber={slideNumber}
           totalSlides={totalSlides}
         />
@@ -67,6 +73,7 @@ export function SlideCanvas({
           slide={slide}
           scheme={scheme}
           fonts={fonts}
+          logo={logo}
           slideNumber={slideNumber}
           totalSlides={totalSlides}
         />

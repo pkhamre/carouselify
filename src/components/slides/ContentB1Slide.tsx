@@ -1,10 +1,11 @@
-import type { ContentB1Slide, ColorScheme, FontPairing } from "@/lib/types";
+import type { ContentB1Slide, ColorScheme, FontPairing, LogoConfig } from "@/lib/types";
 import { LogoSVG } from "@/components/LogoSVG";
 
 interface ContentB1SlideComponentProps {
   slide: ContentB1Slide;
   scheme: ColorScheme;
   fonts: FontPairing;
+  logo: LogoConfig;
   slideNumber: number;
   totalSlides: number;
 }
@@ -13,6 +14,7 @@ export function ContentB1SlideComponent({
   slide,
   scheme,
   fonts,
+  logo,
   slideNumber,
   totalSlides,
 }: ContentB1SlideComponentProps) {
@@ -28,7 +30,7 @@ export function ContentB1SlideComponent({
       }}
     >
       <div className="slide-logo">
-        <LogoSVG scheme={scheme} />
+        <LogoSVG scheme={scheme} letter={logo.letter} shape={logo.shape} />
       </div>
 
       <div className="slide-content">

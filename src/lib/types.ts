@@ -57,3 +57,13 @@ export interface FontPairing {
   body: string;
   googleFontsUrl: string;
 }
+
+export interface LogoConfig {
+  letter: string;
+  shape: string;
+}
+
+export const defaultLogo: LogoConfig = {
+  letter: "k",
+  shape: "blob",
+};

@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import type { Slide, SlideType, ColorScheme, FontPairing } from "@/lib/types";
-import { defaultScheme, defaultFonts } from "@/lib/themes";
+import type { Slide, SlideType, ColorScheme, FontPairing, LogoConfig } from "@/lib/types";
+import { defaultScheme, defaultFonts, defaultLogo } from "@/lib/themes";
 import { createDefaultSlides, createSlide } from "@/lib/utils";
 import { SlideCanvas } from "@/components/slides/SlideCanvas";
 import { SlideEditor } from "@/components/SlideEditor";
 import { ThemePicker } from "@/components/ThemePicker";
+import { LogoSettings } from "@/components/LogoSettings";
 import { exportAsPNG, exportAsPDF, downloadBlob } from "@/lib/export";
 import "@/components/slides/slideStyles.css";
 
@@ -14,6 +15,7 @@ export default function Home() {
   const [slides, setSlides] = useState<Slide[]>(createDefaultSlides);
   const [scheme, setScheme] = useState<ColorScheme>(defaultScheme);
   const [fonts, setFonts] = useState<FontPairing>(defaultFonts);
+  const [logo, setLogo] = useState<LogoConfig>(defaultLogo);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -117,6 +119,11 @@ export default function Home() {
               selectedFonts={fonts}
               onSchemeChange={setScheme}
               onFontsChange={setFonts}
+            />
+
+            <LogoSettings
+              logo={logo}
+              onChange={setLogo}
             />
 
             <div className="bg-white rounded-xl border border-gray-200 p-4">
@@ -225,6 +232,7 @@ export default function Home() {
                       slide={activeSlide}
                       scheme={scheme}
                       fonts={fonts}
+                      logo={logo}
                       slideNumber={activeSlideIndex + 1}
                       totalSlides={slides.length}
                     />
@@ -261,6 +269,7 @@ export default function Home() {
               slide={slide}
               scheme={scheme}
               fonts={fonts}
+              logo={logo}
               slideNumber={index + 1}
               totalSlides={slides.length}
             />

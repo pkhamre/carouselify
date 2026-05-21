@@ -1,15 +1,16 @@
-import type { CoverSlide, ColorScheme, FontPairing } from "@/lib/types";
+import type { CoverSlide, ColorScheme, FontPairing, LogoConfig } from "@/lib/types";
 import { LogoSVG } from "@/components/LogoSVG";
 
 interface CoverSlideComponentProps {
   slide: CoverSlide;
   scheme: ColorScheme;
   fonts: FontPairing;
+  logo: LogoConfig;
   slideNumber: number;
   totalSlides: number;
 }
 
-export function CoverSlideComponent({ slide, scheme, fonts, slideNumber, totalSlides }: CoverSlideComponentProps) {
+export function CoverSlideComponent({ slide, scheme, fonts, logo, slideNumber, totalSlides }: CoverSlideComponentProps) {
   const progress = (slideNumber / totalSlides) * 100;
 
   return (
@@ -21,7 +22,7 @@ export function CoverSlideComponent({ slide, scheme, fonts, slideNumber, totalSl
       }}
     >
       <div className="slide-logo">
-        <LogoSVG scheme={scheme} />
+        <LogoSVG scheme={scheme} letter={logo.letter} shape={logo.shape} />
       </div>
 
       <div className="slide-content">

@@ -1,10 +1,11 @@
-import type { CtaSlide, ColorScheme, FontPairing } from "@/lib/types";
+import type { CtaSlide, ColorScheme, FontPairing, LogoConfig } from "@/lib/types";
 import { LogoSVG } from "@/components/LogoSVG";
 
 interface CtaSlideComponentProps {
   slide: CtaSlide;
   scheme: ColorScheme;
   fonts: FontPairing;
+  logo: LogoConfig;
   slideNumber: number;
   totalSlides: number;
 }
@@ -13,6 +14,7 @@ export function CtaSlideComponent({
   slide,
   scheme,
   fonts,
+  logo,
   slideNumber,
   totalSlides,
 }: CtaSlideComponentProps) {
@@ -28,7 +30,7 @@ export function CtaSlideComponent({
       }}
     >
       <div className="slide-logo">
-        <LogoSVG scheme={scheme} isInverted />
+        <LogoSVG scheme={scheme} letter={logo.letter} shape={logo.shape} isInverted />
       </div>
 
       <div className="slide-content">
