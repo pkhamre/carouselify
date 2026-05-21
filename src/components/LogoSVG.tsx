@@ -1,7 +1,8 @@
-import type { ColorScheme } from "@/lib/types";
+import type { ColorScheme, FontPairing } from "@/lib/types";
 
 interface LogoSVGProps {
   scheme: ColorScheme;
+  fonts: FontPairing;
   letter: string;
   shape?: string;
   isInverted?: boolean;
@@ -18,7 +19,7 @@ const shapePaths: Record<string, string> = {
   heart: "M55 95C55 95 10 65 10 38C10 22 22 10 38 10C47 10 52 15 55 20C58 15 63 10 72 10C88 10 100 22 100 38C100 65 55 95 55 95Z",
 };
 
-export function LogoSVG({ scheme, letter, shape = "blob", isInverted = false }: LogoSVGProps) {
+export function LogoSVG({ scheme, fonts, letter, shape = "blob", isInverted = false }: LogoSVGProps) {
   const strokeColor = isInverted ? scheme.textOnAccent : scheme.accent;
   const letterColor = isInverted ? scheme.textOnAccent : scheme.accent;
   const path = shapePaths[shape] || shapePaths.blob;
@@ -41,7 +42,7 @@ export function LogoSVG({ scheme, letter, shape = "blob", isInverted = false }: 
         x="55"
         y="68"
         textAnchor="middle"
-        fontFamily="Fraunces, serif"
+        fontFamily={fonts.display}
         fontSize="48"
         fontWeight="900"
         fill={letterColor}
