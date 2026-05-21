@@ -59,13 +59,6 @@ export const fontPairings: FontPairing[] = [
       "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap",
   },
   {
-    name: "Trustworthy",
-    display: "Libre Baskerville",
-    body: "Source Sans 3",
-    googleFontsUrl:
-      "https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&display=swap",
-  },
-  {
     name: "Friendly",
     display: "Bitter",
     body: "Nunito Sans",
@@ -73,11 +66,18 @@ export const fontPairings: FontPairing[] = [
       "https://fonts.googleapis.com/css2?family=Bitter:wght@400;700;900&family=Nunito+Sans:wght@400;500;600;700&display=swap",
   },
   {
-    name: "Elegant",
-    display: "Cormorant Garamond",
-    body: "Outfit",
+    name: "Playful",
+    display: "Fredoka",
+    body: "Lexend Deca",
     googleFontsUrl:
-      "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700;900&family=Outfit:wght@400;500;600;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&family=Lexend+Deca:wght@400;500;600;700&display=swap",
+  },
+  {
+    name: "Bold",
+    display: "Righteous",
+    body: "Quicksand",
+    googleFontsUrl:
+      "https://fonts.googleapis.com/css2?family=Righteous&family=Quicksand:wght@400;500;600;700&display=swap",
   },
 ];
 

@@ -15,7 +15,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,700&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&family=Bitter:wght@400;700;900&family=Nunito+Sans:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;700;900&family=Outfit:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,700&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;500;600;700&family=Bitter:wght@400;700;900&family=Nunito+Sans:wght@400;500;600;700&family=Fredoka:wght@400;700&family=Lexend+Deca:wght@400;500;600;700&family=Righteous&family=Quicksand:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
       </head>
