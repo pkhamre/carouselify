@@ -114,10 +114,10 @@ export const fontPairings: FontPairing[] = [
   },
   {
     name: "Bold",
-    display: "Righteous",
-    body: "Quicksand",
+    display: "Caprasimo",
+    body: "Poppins",
     googleFontsUrl:
-      "https://fonts.googleapis.com/css2?family=Righteous&family=Quicksand:wght@400;500;600;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Caprasimo&family=Poppins:wght@400;500;600;700&display=swap",
   },
 ];
 

@@ -233,9 +233,6 @@ export default function Home() {
                       transform: "scale(0.5)",
                       transformOrigin: "top left",
                     }}
-                    ref={(el) => {
-                      slideRefs.current[activeSlideIndex] = el;
-                    }}
                   >
                     <SlideCanvas
                       slide={activeSlide}
@@ -273,9 +270,7 @@ export default function Home() {
           <div
             key={`export-${slide.id}`}
             ref={(el) => {
-              if (index !== activeSlideIndex) {
-                slideRefs.current[index] = el;
-              }
+              slideRefs.current[index] = el;
             }}
           >
             <SlideCanvas
