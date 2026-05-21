@@ -32,20 +32,20 @@ export function ContentB2SlideComponent({
       </div>
 
       <div className="slide-content">
-        <div className="content-spacer-top" />
-
-        <h1
-          className="content-h1"
-          style={{
-            fontFamily: fonts.display,
-            color: scheme.textPrimary,
-          }}
-        >
-          {slide.h1}
-        </h1>
+        <div className="punchline-spacer-top">
+          <h1
+            className="content-h1"
+            style={{
+              fontFamily: fonts.display,
+              color: scheme.textPrimary,
+            }}
+          >
+            {slide.h1}
+          </h1>
+        </div>
 
         <h2
-          className="content-h2"
+          className="punchline"
           style={{
             fontFamily: fonts.display,
             color: scheme.accent,
@@ -54,17 +54,17 @@ export function ContentB2SlideComponent({
           {slide.h2}
         </h2>
 
-        <div className="content-spacer-mid" />
-
-        <p
-          className="content-body"
-          style={{
-            fontFamily: fonts.body,
-            color: scheme.textPrimary,
-          }}
-        >
-          {slide.body}
-        </p>
+        <div className="punchline-spacer-bottom">
+          <p
+            className="content-body"
+            style={{
+              fontFamily: fonts.body,
+              color: scheme.textPrimary,
+            }}
+          >
+            {slide.body}
+          </p>
+        </div>
       </div>
 
       <div

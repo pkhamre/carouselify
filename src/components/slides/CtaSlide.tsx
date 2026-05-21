@@ -32,10 +32,10 @@ export function CtaSlideComponent({
       </div>
 
       <div className="slide-content">
-        <div className="cta-spacer-top" />
+        <div className="punchline-spacer-top" />
 
         <h1
-          className="cta-h1"
+          className="punchline"
           style={{
             fontFamily: fonts.display,
             color: scheme.textOnAccent,
@@ -44,30 +44,28 @@ export function CtaSlideComponent({
           {slide.h1}
         </h1>
 
-        <div className="cta-spacer-mid" />
+        <div className="punchline-spacer-bottom">
+          <div
+            className="cta-pill"
+            style={{
+              backgroundColor: scheme.bgOnAccent,
+              color: scheme.textPrimary,
+              fontFamily: fonts.body,
+            }}
+          >
+            {slide.ctaText}
+          </div>
 
-        <div
-          className="cta-pill"
-          style={{
-            backgroundColor: scheme.bgOnAccent,
-            color: scheme.textPrimary,
-            fontFamily: fonts.body,
-          }}
-        >
-          {slide.ctaText}
+          <p
+            className="cta-body"
+            style={{
+              fontFamily: fonts.body,
+              color: scheme.textOnAccent,
+            }}
+          >
+            {slide.body}
+          </p>
         </div>
-
-        <div className="cta-spacer-bottom" />
-
-        <p
-          className="cta-body"
-          style={{
-            fontFamily: fonts.body,
-            color: scheme.textOnAccent,
-          }}
-        >
-          {slide.body}
-        </p>
       </div>
 
       <div

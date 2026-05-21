@@ -32,20 +32,20 @@ export function ListSlideComponent({
       </div>
 
       <div className="slide-content">
-        <div className="content-spacer-top" />
-
-        <p
-          className="content-intro"
-          style={{
-            fontFamily: fonts.body,
-            color: scheme.textPrimary,
-          }}
-        >
-          {slide.intro}
-        </p>
+        <div className="punchline-spacer-top">
+          <p
+            className="content-intro"
+            style={{
+              fontFamily: fonts.body,
+              color: scheme.textPrimary,
+            }}
+          >
+            {slide.intro}
+          </p>
+        </div>
 
         <h2
-          className="content-h2"
+          className="punchline"
           style={{
             fontFamily: fonts.display,
             color: scheme.accent,
@@ -54,27 +54,27 @@ export function ListSlideComponent({
           {slide.h2}
         </h2>
 
-        <div className="content-spacer-mid" />
-
-        <ul className="bullet-list">
-          {slide.items.map((item, i) => (
-            <li key={i} className="bullet-item">
-              <span
-                className="bullet-marker"
-                style={{ backgroundColor: scheme.accent }}
-              />
-              <span
-                className="bullet-text"
-                style={{
-                  fontFamily: fonts.body,
-                  color: scheme.textPrimary,
-                }}
-              >
-                {item}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <div className="punchline-spacer-bottom">
+          <ul className="bullet-list">
+            {slide.items.map((item, i) => (
+              <li key={i} className="bullet-item">
+                <span
+                  className="bullet-marker"
+                  style={{ backgroundColor: scheme.accent }}
+                />
+                <span
+                  className="bullet-text"
+                  style={{
+                    fontFamily: fonts.body,
+                    color: scheme.textPrimary,
+                  }}
+                >
+                  {item}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       <div

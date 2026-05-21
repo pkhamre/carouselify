@@ -42,41 +42,45 @@
   letter-spacing: 0.05em;
 }
 
-/* Cover slide */
-.cover-spacer-top {
-  flex: 1.2;
+/* Shared punchline styles */
+.punchline {
+  font-size: 72px;
+  font-weight: 900;
+  line-height: 1.05;
+  margin: 0;
+  padding: 60px 0;
 }
 
+.punchline-spacer-top {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.punchline-spacer-bottom {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Cover slide */
 .cover-h1 {
   font-size: 56px;
   font-weight: 900;
   line-height: 1.1;
-  margin: 0 0 8px 0;
-}
-
-.cover-h2 {
-  font-size: 68px;
-  font-weight: 900;
-  line-height: 1.05;
-  margin: 0 0 0 0;
-}
-
-.cover-spacer-mid {
-  flex: 0.8;
+  margin: 0 0 12px 0;
 }
 
 .cover-caption {
   font-size: 22px;
   font-weight: 600;
   line-height: 1.5;
-  margin: 0;
+  margin: 12px 0 0 0;
 }
 
 /* Content slides */
-.content-spacer-top {
-  flex: 0.5;
-}
-
 .content-intro {
   font-size: 26px;
   font-weight: 600;
@@ -88,32 +92,21 @@
   font-size: 56px;
   font-weight: 900;
   line-height: 1.1;
-  margin: 0 0 8px 0;
-}
-
-.content-h2 {
-  font-size: 80px;
-  font-weight: 900;
-  line-height: 1.0;
-  margin: 0 0 0 0;
-}
-
-.content-spacer-mid {
-  flex: 0.3;
+  margin: 0 0 12px 0;
 }
 
 .content-body {
   font-size: 24px;
   font-weight: 600;
   line-height: 1.55;
-  margin: 0;
+  margin: 16px 0 0 0;
 }
 
 /* List slide */
 .bullet-list {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 16px 0 0 0;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -140,19 +133,11 @@
 }
 
 /* CTA slide */
-.cta-spacer-top {
-  flex: 1;
-}
-
 .cta-h1 {
-  font-size: 68px;
+  font-size: 72px;
   font-weight: 900;
-  line-height: 1.1;
+  line-height: 1.05;
   margin: 0;
-}
-
-.cta-spacer-mid {
-  flex: 0.5;
 }
 
 .cta-pill {
@@ -162,15 +147,12 @@
   padding: 18px 40px;
   display: inline-block;
   width: fit-content;
-}
-
-.cta-spacer-bottom {
-  flex: 0.4;
+  margin: 24px 0 0;
 }
 
 .cta-body {
   font-size: 24px;
   font-weight: 600;
   line-height: 1.55;
-  margin: 0;
+  margin: 24px 0 0 0;
 }

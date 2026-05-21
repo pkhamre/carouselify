@@ -25,20 +25,20 @@ export function CoverSlideComponent({ slide, scheme, fonts, slideNumber, totalSl
       </div>
 
       <div className="slide-content">
-        <div className="cover-spacer-top" />
-
-        <h1
-          className="cover-h1"
-          style={{
-            fontFamily: fonts.display,
-            color: scheme.textPrimary,
-          }}
-        >
-          {slide.h1}
-        </h1>
+        <div className="punchline-spacer-top">
+          <h1
+            className="cover-h1"
+            style={{
+              fontFamily: fonts.display,
+              color: scheme.textPrimary,
+            }}
+          >
+            {slide.h1}
+          </h1>
+        </div>
 
         <h2
-          className="cover-h2"
+          className="punchline"
           style={{
             fontFamily: fonts.display,
             color: scheme.accent,
@@ -47,17 +47,17 @@ export function CoverSlideComponent({ slide, scheme, fonts, slideNumber, totalSl
           {slide.h2}
         </h2>
 
-        <div className="cover-spacer-mid" />
-
-        <p
-          className="cover-caption"
-          style={{
-            fontFamily: fonts.body,
-            color: scheme.textPrimary,
-          }}
-        >
-          {slide.caption}
-        </p>
+        <div className="punchline-spacer-bottom">
+          <p
+            className="cover-caption"
+            style={{
+              fontFamily: fonts.body,
+              color: scheme.textPrimary,
+            }}
+          >
+            {slide.caption}
+          </p>
+        </div>
       </div>
 
       <div
