@@ -28,10 +28,11 @@
 - Desktop: 3-column grid (left + preview + right). Mobile below `lg` (1024px): tabbed layout with fixed bottom tab bar.
 
 ## Export (html-to-image)
-- **Important: first call warms font cache, second call produces real output** — always call `toPng()` twice on the same element.
+- **Font embedding**: `getFontEmbedCSS()` is called once per export batch to pre-compute font CSS with base64-embedded font files. The result is passed as `fontEmbedCSS` option to `toPng()`. This avoids silent font failures during live export.
 - Options used: `width: 1080, height: 1080, pixelRatio: 1, cacheBust: true, preferredFontFormat: 'woff2'`.
 - Capture source: hidden off-screen div (`position: fixed; left: -9999px; pointer-events: none`) at native 1080×1080.
 - Output: `carouselify-01.png`, `carouselify-02.png`, etc.
+- **PostHog analytics** (optional): export events tracked if `NEXT_PUBLIC_POSTHOG_KEY` is set. See `src/lib/analytics.ts`.
 
 ## Build & deploy
 - `NEXT_BASE_PATH` env var for subdirectory deploys (must be set at build + runtime).
@@ -45,6 +46,7 @@
 | `src/app/page.tsx` | All state, layout, tab bar, export hidden container |
 | `src/lib/types.ts` | All types, `defaultLogo` |
 | `src/lib/themes.ts` | `colorSchemes[0]` = Ocean, `fontPairings` |
+| `src/lib/analytics.ts` | PostHog analytics init + `captureExport` |
 | `src/lib/export.ts` | `exportSlideAsPNG` — the double-toPng workaround lives here |
 | `src/components/slides/slideStyles.css` | All slide CSS (punchline, CTA pill, logo positions, etc.) |
 

@@ -11,6 +11,7 @@ import { ThemePicker } from "@/components/ThemePicker";
 import { LogoSettings } from "@/components/LogoSettings";
 import { ComingSoonCard } from "@/components/ComingSoonCard";
 import { exportSlideAsPNG } from "@/lib/export";
+import { captureExport } from "@/lib/analytics";
 import "@/components/slides/slideStyles.css";
 
 export default function Home() {
@@ -80,6 +81,7 @@ export default function Home() {
       if (!el) continue;
       await exportSlideAsPNG(el, i);
     }
+    captureExport(slides.length);
   };
 
   const activeSlide = slides[activeSlideIndex];
