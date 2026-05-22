@@ -63,10 +63,7 @@ export function createDefaultSlides(): Slide[] {
     createSlide("content-b1", 1),
     createSlide("content-b2", 2),
     createSlide("list", 3),
-    createSlide("content-b2", 4),
-    createSlide("content-b1", 5),
-    createSlide("content-b2", 6),
-    createSlide("cta", 7),
+    createSlide("cta", 4),
   ];
 }
 

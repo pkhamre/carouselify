@@ -46,14 +46,14 @@ export default function Home() {
 
   const removeSlide = useCallback(
     (index: number) => {
-      if (slides.length <= 5) return;
-      if (index === 0 || index === slides.length - 1) return;
       setSlides((prev) => prev.filter((_, i) => i !== index));
-      if (activeSlideIndex >= index && activeSlideIndex > 0) {
-        setActiveSlideIndex((prev) => prev - 1);
-      }
+      setActiveSlideIndex((prev) => {
+        if (prev === index) return Math.max(0, index - 1);
+        if (prev > index) return prev - 1;
+        return prev;
+      });
     },
-    [slides.length, activeSlideIndex]
+    []
   );
 
   const reorderSlide = useCallback(
@@ -71,6 +71,7 @@ export default function Home() {
   );
 
   const handleExportPNG = async () => {
+    if (slides.length < 1) return;
     for (let i = 0; i < slideRefs.current.length; i++) {
       const el = slideRefs.current[i];
       if (!el) continue;
@@ -80,6 +81,7 @@ export default function Home() {
   };
 
   const handleExportPDF = async () => {
+    if (slides.length < 1) return;
     const elements = slideRefs.current.filter(Boolean) as HTMLElement[];
     if (elements.length === 0) return;
     const blob = await exportAsPDF(elements);
@@ -108,16 +110,16 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={handleExportPNG}
+              onClick={handleExportPDF}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Export PNG
+              Export PDF
             </button>
             <button
-              onClick={handleExportPDF}
+              onClick={handleExportPNG}
               className="px-4 py-2 text-sm font-medium text-white bg-pink-600 rounded-lg hover:bg-pink-700 transition-colors"
             >
-              Export PDF
+              Export PNG
             </button>
           </div>
         </div>
@@ -192,17 +194,15 @@ export default function Home() {
                           ↓
                         </button>
                       )}
-                      {index > 0 && index < slides.length - 1 && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeSlide(index);
-                          }}
-                          className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-red-500"
-                        >
-                          ×
-                        </button>
-                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeSlide(index);
+                        }}
+                        className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-red-500"
+                      >
+                        ×
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -215,35 +215,43 @@ export default function Home() {
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold text-gray-900">Preview</h3>
                 <span className="text-xs text-gray-500">
-                  Slide {activeSlideIndex + 1} of {slides.length}
+                  {slides.length > 0
+                    ? `Slide ${activeSlideIndex + 1} of ${slides.length}`
+                    : "No slides"}
                 </span>
               </div>
               <div className="flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
-                <div
-                  style={{
-                    width: "100%",
-                    maxWidth: 540,
-                    aspectRatio: "1",
-                  }}
-                >
+                {slides.length > 0 ? (
                   <div
                     style={{
-                      width: 1080,
-                      height: 1080,
-                      transform: "scale(0.5)",
-                      transformOrigin: "top left",
+                      width: "100%",
+                      maxWidth: 540,
+                      aspectRatio: "1",
                     }}
                   >
-                    <SlideCanvas
-                      slide={activeSlide}
-                      scheme={effectiveScheme}
-                      fonts={fonts}
-                      logo={logo}
-                      slideNumber={activeSlideIndex + 1}
-                      totalSlides={slides.length}
-                    />
+                    <div
+                      style={{
+                        width: 1080,
+                        height: 1080,
+                        transform: "scale(0.5)",
+                        transformOrigin: "top left",
+                      }}
+                    >
+                      <SlideCanvas
+                        slide={activeSlide}
+                        scheme={effectiveScheme}
+                        fonts={fonts}
+                        logo={logo}
+                        slideNumber={activeSlideIndex + 1}
+                        totalSlides={slides.length}
+                      />
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex items-center justify-center h-[270px] text-gray-400 text-sm">
+                    Add a slide to get started
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -254,12 +262,18 @@ export default function Home() {
                 logo={logo}
                 onChange={setLogo}
               />
-              <SlideEditor
-                slide={activeSlide}
-                onUpdate={(slide) => updateSlide(activeSlideIndex, slide)}
-                onTypeChange={(type) => changeSlideType(activeSlideIndex, type)}
-                slideIndex={activeSlideIndex}
-              />
+              {slides.length > 0 ? (
+                <SlideEditor
+                  slide={activeSlide}
+                  onUpdate={(slide) => updateSlide(activeSlideIndex, slide)}
+                  onTypeChange={(type) => changeSlideType(activeSlideIndex, type)}
+                  slideIndex={activeSlideIndex}
+                />
+              ) : (
+                <div className="bg-white rounded-xl border border-gray-200 p-6 text-center text-gray-400 text-sm">
+                  Add a slide above to start editing
+                </div>
+              )}
             </div>
           </div>
         </div>

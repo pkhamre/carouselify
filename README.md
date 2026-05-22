@@ -9,7 +9,7 @@ Create beautiful, design-consistent LinkedIn carousels in minutes. Built with Ne
 - **4 font pairings** — Original, Classic Editorial, Friendly, Playful
 - **Customizable logo** — Choose any letter with a blob-shaped brand mark
 - **Inverted color mode** — Toggle to swap background and text colors
-- **Flexible slide count** — 5 to 12 slides with add, remove, and reorder
+- **Flexible slide count** — Up to 12 slides with add, remove, and reorder
 - **Export** — Download as individual PNG files or a single PDF
 - **1080×1080px canvas** — Optimized for LinkedIn's square format, exported at 2x for crisp display
 - **Progress bar** — Bottom accent bar scales with slide position
