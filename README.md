@@ -18,7 +18,7 @@ Create beautiful, design-consistent LinkedIn carousels in minutes. Built with Ne
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20.9+ (or Docker for containerized development)
 - npm
 
 ### Installation
@@ -42,6 +42,35 @@ Open [http://localhost:3000](http://localhost:3000).
 npm run build
 npm start
 ```
+
+---
+
+### Docker (Alternative)
+
+#### Development (hot-reload)
+
+```bash
+docker compose up --build
+```
+
+Open [http://localhost:3000](http://localhost:3000). Code changes are reflected immediately via mounted volumes.
+
+#### Production
+
+```bash
+docker build --target runner -t linkedin-carousel:latest .
+docker run -p 3000:3000 linkedin-carousel:latest
+```
+
+The production image uses Next.js [standalone output](https://nextjs.org/docs/pages/building-your-application/deploying#docker-image) for a minimal footprint and runs as a non-root `nextjs` user.
+
+| Stage | Purpose |
+|-------|---------|
+| `base` | `node:24-alpine` foundation |
+| `deps` | Install dependencies (`npm ci`) |
+| `dev` | Hot-reload dev server with source mounts |
+| `builder` | Compile with `NEXT_OUTPUT=standalone` |
+| `runner` | Minimal production image (non-root) |
 
 ## Usage
 
