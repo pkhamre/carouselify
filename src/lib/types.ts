@@ -59,10 +59,12 @@ export interface FontPairing {
 }
 
 export type LogoShape = "blob-1" | "blob-2" | "blob-3" | "blob-4" | "blob-5";
+export type LogoPosition = "top-left" | "top-center" | "top-right" | "bottom-right";
 
 export interface LogoConfig {
   letter: string;
   shape: LogoShape;
+  position: LogoPosition;
 }
 
 export interface ThemeConfig {
@@ -75,4 +77,5 @@ export interface ThemeConfig {
 export const defaultLogo: LogoConfig = {
   letter: "p",
   shape: "blob-1",
+  position: "top-right",
 };

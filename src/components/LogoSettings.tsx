@@ -3,6 +3,13 @@
 import type { LogoConfig } from "@/lib/types";
 import { logoShapeOrder, logoShapePaths } from "@/lib/logoShapes";
 
+const logoPositionOptions: Array<{ value: LogoConfig["position"]; label: string }> = [
+  { value: "top-left", label: "Upper left" },
+  { value: "top-center", label: "Upper center" },
+  { value: "top-right", label: "Upper right" },
+  { value: "bottom-right", label: "Bottom right" },
+];
+
 interface LogoSettingsProps {
   logo: LogoConfig;
   onChange: (logo: LogoConfig) => void;
@@ -43,6 +50,26 @@ export function LogoSettings({ logo, onChange }: LogoSettingsProps) {
             <svg width="24" height="24" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d={logoShapePaths[shape]} stroke="currentColor" strokeWidth="8" className="text-gray-700 dark:text-gray-300" />
             </svg>
+          </button>
+        ))}
+      </div>
+
+      <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mt-4 mb-2">
+        Placement
+      </label>
+      <div className="grid grid-cols-2 gap-2">
+        {logoPositionOptions.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => onChange({ ...logo, position: option.value })}
+            className={`px-2.5 py-2 text-xs rounded-lg border transition-colors ${
+              logo.position === option.value
+                ? "border-pink-500 bg-pink-50 dark:bg-pink-900/30 text-pink-700 dark:text-pink-200"
+                : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-700 dark:text-gray-300"
+            }`}
+          >
+            {option.label}
           </button>
         ))}
       </div>

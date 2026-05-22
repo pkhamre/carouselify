@@ -29,7 +29,7 @@ export function ContentB1SlideComponent({
         fontFamily: fonts.body,
       }}
     >
-      <div className="slide-logo">
+      <div className={`slide-logo slide-logo-${logo.position}`}>
         <LogoSVG scheme={scheme} fonts={fonts} letter={logo.letter} shape={logo.shape} />
       </div>
 
