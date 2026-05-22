@@ -59,11 +59,8 @@ export function ListSlideComponent({
         <div className="punchline-spacer-bottom">
           <ul className="bullet-list">
             {slide.items.map((item, i) => (
-              <li key={i} className="bullet-item">
-                <span
-                  className="bullet-marker"
-                  style={{ backgroundColor: scheme.accent }}
-                />
+              <li key={i} className="bullet-item" style={{ color: scheme.accent }}>
+                <span className="bullet-char">●</span>
                 <span
                   className="bullet-text"
                   style={{
