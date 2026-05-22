@@ -222,17 +222,19 @@ export default function Home() {
                     : "No slides"}
                 </span>
               </div>
-              <div className="mx-auto max-w-[540px] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden transition-colors">
+              <div className="mx-auto max-w-[540px] bg-gray-100 dark:bg-gray-800 rounded-lg transition-colors" style={{ aspectRatio: "1", position: "relative", overflow: "hidden" }}>
                 {slides.length > 0 ? (
-                  <div style={{ aspectRatio: "1" }}>
-                    <div
-                      style={{
-                        width: 1080,
-                        height: 1080,
-                        transform: "scale(0.5)",
-                        transformOrigin: "top left",
-                      }}
-                    >
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: 1080,
+                      height: 1080,
+                      transform: "scale(0.5)",
+                      transformOrigin: "top left",
+                    }}
+                  >
                       <SlideCanvas
                         slide={activeSlide}
                         scheme={effectiveScheme}
@@ -242,7 +244,6 @@ export default function Home() {
                         totalSlides={slides.length}
                       />
                     </div>
-                  </div>
                 ) : (
                   <div className="flex items-center justify-center h-[270px] text-gray-400 dark:text-gray-500 text-sm">
                     Add a slide to get started
@@ -295,10 +296,9 @@ export default function Home() {
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <div className="mx-auto max-w-[360px] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden transition-colors">
+                <div className="flex-1 max-w-[360px] bg-gray-100 dark:bg-gray-800 rounded-lg transition-colors" style={{ aspectRatio: "1", position: "relative", overflow: "hidden" }}>
                   {slides.length > 0 ? (
-                    <div style={{ aspectRatio: "1" }}>
-                      <div style={{ width: 1080, height: 1080, transform: "scale(0.333)", transformOrigin: "top left" }}>
+                    <div style={{ position: "absolute", top: 0, left: 0, width: 1080, height: 1080, transform: "scale(0.333)", transformOrigin: "top left" }}>
                         <SlideCanvas
                           slide={activeSlide}
                           scheme={effectiveScheme}
@@ -308,7 +308,6 @@ export default function Home() {
                           totalSlides={slides.length}
                         />
                       </div>
-                    </div>
                   ) : (
                     <div className="flex items-center justify-center h-[120px] text-gray-400 dark:text-gray-500 text-sm">
                       Add a slide to get started
