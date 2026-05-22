@@ -17,6 +17,7 @@ export default function RootLayout({
         <link
           href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,700&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;500;600;700&family=Bitter:wght@400;700;900&family=Nunito+Sans:wght@400;500;600;700&family=Fredoka:wght@400;700&family=Lexend+Deca:wght@400;500;600;700&display=swap"
           rel="stylesheet"
+          crossOrigin="anonymous"
         />
       </head>
       <body className="antialiased">{children}</body>
