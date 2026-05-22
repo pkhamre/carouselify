@@ -112,13 +112,6 @@ export const fontPairings: FontPairing[] = [
     googleFontsUrl:
       "https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&family=Lexend+Deca:wght@400;500;600;700&display=swap",
   },
-  {
-    name: "Bold",
-    display: "Caprasimo",
-    body: "Poppins",
-    googleFontsUrl:
-      "https://fonts.googleapis.com/css2?family=Caprasimo&family=Poppins:wght@400;500;600;700&display=swap",
-  },
 ];
 
 export const defaultScheme = colorSchemes[0];

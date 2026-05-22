@@ -6,8 +6,8 @@ Create beautiful, design-consistent LinkedIn carousels in minutes. Built with Ne
 
 - **4 slide types** — Cover, Content (Big Punchline / Two-part Headline), Bullet List, CTA/Closing
 - **10 color schemes** — Original, Ocean, Forest, Sand, Citrus, Bubblegum, Electric Mint, Lavender Pop, Tangerine Dream, Cerulean
-- **5 font pairings** — Original, Classic Editorial, Friendly, Playful, Bold
-- **Customizable logo** — Choose any letter (up to 2 chars) and 8 shape presets (Blob, Circle, Square, Rounded, Diamond, Hexagon, Star, Heart)
+- **4 font pairings** — Original, Classic Editorial, Friendly, Playful
+- **Customizable logo** — Choose any letter with a blob-shaped brand mark
 - **Inverted color mode** — Toggle to swap background and text colors
 - **Flexible slide count** — 5 to 12 slides with add, remove, and reorder
 - **Export** — Download as individual PNG files or a single PDF
