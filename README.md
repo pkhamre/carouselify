@@ -4,14 +4,14 @@ Create beautiful, design-consistent LinkedIn carousels in minutes. Built with Ne
 
 ## Features
 
-- **4 slide types** — Cover, Content (Big Punchline / Two-part Headline), Bullet List, CTA/Closing
+- **5 slide types** — Cover, Content (Big Punchline / Two-part Headline), Bullet List, CTA/Closing
 - **10 color schemes** — Original, Ocean, Forest, Citrus, Bubblegum, Electric Mint, Lavender Pop, Tangerine Dream, Cerulean, Custom
 - **4 font pairings** — Original, Classic Editorial, Friendly, Playful
-- **Customizable logo** — Choose any letter with a blob-shaped brand mark
+- **Customizable logo** — Choose any letter, blob shape, and position (top-left, top-center, top-right, bottom-right); toggle visibility on/off
 - **Inverted color mode** — Toggle to swap background and text colors
 - **Flexible slide count** — Up to 12 slides with add, remove, and reorder
-- **Export** — Download as individual PNG files or a single PDF
-- **1080×1080px canvas** — Optimized for LinkedIn's square format, exported at 2x for crisp display
+- **Export** — Download as individual PNG files
+- **1080×1080px canvas** — Optimized for LinkedIn's square format
 - **Progress bar** — Bottom accent bar scales with slide position
 
 ## Getting Started
@@ -105,12 +105,12 @@ The production image uses Next.js [standalone output](https://nextjs.org/docs/pa
 ## Usage
 
 1. **Pick a theme** — Choose a color scheme and font pairing from the sidebar
-2. **Customize your logo** — Set the letter and shape for the top-right brand mark
+2. **Customize your logo** — Set the letter, shape, and position; toggle visibility on/off
 3. **Edit slides** — Click through slides in the sidebar and edit content in the right panel
-4. **Change slide types** — Use the dropdown to switch between Cover, Content, List, and CTA
-5. **Add/remove slides** — Use the + Add button or × to manage slide count (5–12)
+4. **Change slide types** — Use the dropdown to switch between Cover, Content B1, Content B2, List, and CTA
+5. **Add/remove slides** — Use the + Add button or × to manage slide count (max 12)
 6. **Reorder** — Use ↑/↓ arrows to rearrange slides
-7. **Export** — Click "Export PNG" for individual images or "Export PDF" for a combined document
+7. **Export** — Click "Export PNG" for individual images
 
 ## Slide Types
 
@@ -129,11 +129,11 @@ The carousel follows strict design rules for consistency:
 - **1080×1080px** square canvas with 72px outer margins
 - **Punchlines** (H2) are always 72px, vertically centered with 60px padding
 - **Progress bar** at the bottom scales from first to last slide
-- **Logo** positioned top-right, 110×110px
+- **Logo** configurable position (top-left, top-center, top-right, bottom-right), 110×110px, show/hide toggle
 - **Slide counter** in `NN / TT` format on all slides except the cover
 - **Max ~30 words per slide** — the design forces brevity
 
-See [DESIGN.md](DESIGN.md) for the full design specification.
+See [PROMPT.md](PROMPT.md) for a content writing guide with field descriptions.
 
 ## Project Structure
 
@@ -159,7 +159,7 @@ src/
     ├── types.ts            # TypeScript types
     ├── themes.ts           # Color schemes + font pairings
     ├── utils.ts            # Slide factory + helpers
-    └── export.ts           # PNG + PDF export utilities
+    └── export.ts           # PNG export utilities
 ```
 
 ## Tech Stack
@@ -167,8 +167,7 @@ src/
 - **Next.js 15** — App Router, Turbopack
 - **TypeScript** — Full type safety
 - **Tailwind CSS** — App UI styling
-- **html2canvas** — Canvas-to-image export
-- **jsPDF** — PDF generation
+- **html-to-image** — Canvas-to-image export
 
 ## License
 
