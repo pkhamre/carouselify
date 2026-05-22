@@ -21,6 +21,7 @@ export default function Home() {
   const [inverted, setInverted] = useState(false);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [darkMode, setDarkMode] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"preview" | "edit" | "design">("preview");
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const updateSlide = useCallback((index: number, updatedSlide: Slide) => {
@@ -126,7 +127,7 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="max-w-[1600px] mx-auto p-6">
+      <div className="hidden lg:block max-w-[1600px] mx-auto p-6 pb-6">
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-3 space-y-4">
             <ThemePicker
@@ -221,15 +222,9 @@ export default function Home() {
                     : "No slides"}
                 </span>
               </div>
-              <div className="flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden transition-colors">
+              <div className="mx-auto max-w-[540px] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden transition-colors">
                 {slides.length > 0 ? (
-                  <div
-                    style={{
-                      width: "100%",
-                      maxWidth: 540,
-                      aspectRatio: "1",
-                    }}
-                  >
+                  <div style={{ aspectRatio: "1" }}>
                     <div
                       style={{
                         width: 1080,
@@ -278,6 +273,170 @@ export default function Home() {
               )}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile content */}
+      <div className="lg:hidden space-y-4 p-6 pb-24">
+        {mobileTab === "preview" && (
+          <>
+            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">Preview</h3>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {slides.length > 0 ? `Slide ${activeSlideIndex + 1} of ${slides.length}` : "No slides"}
+                </span>
+              </div>
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={() => setActiveSlideIndex((p) => Math.max(0, p - 1))}
+                  disabled={activeSlideIndex <= 0}
+                  className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed bg-white dark:bg-gray-800 shrink-0"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <div className="mx-auto max-w-[360px] bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden transition-colors">
+                  {slides.length > 0 ? (
+                    <div style={{ aspectRatio: "1" }}>
+                      <div style={{ width: 1080, height: 1080, transform: "scale(0.333)", transformOrigin: "top left" }}>
+                        <SlideCanvas
+                          slide={activeSlide}
+                          scheme={effectiveScheme}
+                          fonts={fonts}
+                          logo={logo}
+                          slideNumber={activeSlideIndex + 1}
+                          totalSlides={slides.length}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-[120px] text-gray-400 dark:text-gray-500 text-sm">
+                      Add a slide to get started
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => setActiveSlideIndex((p) => Math.min(slides.length - 1, p + 1))}
+                  disabled={activeSlideIndex >= slides.length - 1}
+                  className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed bg-white dark:bg-gray-800 shrink-0"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                </button>
+              </div>
+              <div className="mt-3">
+                <button
+                  onClick={handleExportPNG}
+                  disabled={slides.length < 1}
+                  className="w-full px-4 py-3 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Export PNG
+                </button>
+              </div>
+            </div>
+            <ComingSoonCard />
+          </>
+        )}
+
+        {mobileTab === "edit" && (
+          <>
+            <div className="space-y-4">
+              <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Slides</h3>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Total: {slides.length}</span>
+                  <button
+                    onClick={addSlide}
+                    disabled={slides.length >= 12}
+                    className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-700 dark:text-gray-300"
+                  >
+                    + Add
+                  </button>
+                </div>
+                <div className="space-y-1 max-h-[200px] overflow-y-auto">
+                  {slides.map((slide, index) => (
+                    <div
+                      key={slide.id}
+                      className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
+                        index === activeSlideIndex
+                          ? "bg-sky-50 dark:bg-sky-900/30 border border-sky-200 dark:border-sky-800"
+                          : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                      }`}
+                      onClick={() => { setActiveSlideIndex(index); setMobileTab("edit"); }}
+                    >
+                      <span className="text-xs font-mono text-gray-400 dark:text-gray-500 w-5">{index + 1}</span>
+                      <span className="flex-1 text-sm text-gray-700 dark:text-gray-300 truncate">
+                        {slide.type === "cover" && slide.h1}
+                        {slide.type === "content-b1" && slide.h2}
+                        {slide.type === "content-b2" && slide.h2}
+                        {slide.type === "list" && slide.h2}
+                        {slide.type === "cta" && slide.h1}
+                      </span>
+                      <div className="flex items-center gap-0.5">
+                        {index > 0 && (
+                          <button onClick={(e) => { e.stopPropagation(); reorderSlide(index, "up"); }} className="w-5 h-5 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">↑</button>
+                        )}
+                        {index < slides.length - 1 && (
+                          <button onClick={(e) => { e.stopPropagation(); reorderSlide(index, "down"); }} className="w-5 h-5 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">↓</button>
+                        )}
+                        <button onClick={(e) => { e.stopPropagation(); removeSlide(index); }} className="w-5 h-5 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-red-500">×</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {slides.length > 0 ? (
+                <SlideEditor
+                  slide={activeSlide}
+                  onUpdate={(slide) => updateSlide(activeSlideIndex, slide)}
+                  onTypeChange={(type) => changeSlideType(activeSlideIndex, type)}
+                  slideIndex={activeSlideIndex}
+                />
+              ) : (
+                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 text-center text-gray-400 dark:text-gray-500 text-sm transition-colors">
+                  Add a slide above to start editing
+                </div>
+              )}
+            </div>
+            <ComingSoonCard />
+          </>
+        )}
+
+        {mobileTab === "design" && (
+          <>
+            <div className="space-y-4">
+              <ThemePicker
+                selectedScheme={scheme}
+                selectedFonts={fonts}
+                inverted={inverted}
+                onSchemeChange={setScheme}
+                onFontsChange={setFonts}
+                onInvertChange={setInverted}
+              />
+              <LogoSettings logo={logo} onChange={setLogo} />
+            </div>
+            <ComingSoonCard />
+          </>
+        )}
+      </div>
+
+      {/* Mobile bottom tab bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+        <div className="flex">
+          {(["preview", "edit", "design"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setMobileTab(tab)}
+              className={`flex-1 py-3 text-xs font-medium text-center transition-colors ${
+                mobileTab === tab
+                  ? "text-sky-600 border-t-2 border-sky-600 bg-sky-50 dark:bg-sky-900/20"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+              }`}
+            >
+              {tab === "preview" && "Preview"}
+              {tab === "edit" && "Edit"}
+              {tab === "design" && "Design"}
+            </button>
+          ))}
         </div>
       </div>
 
