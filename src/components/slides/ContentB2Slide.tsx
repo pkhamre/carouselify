@@ -29,9 +29,11 @@ export function ContentB2SlideComponent({
         fontFamily: fonts.body,
       }}
     >
-      <div className={`slide-logo slide-logo-${logo.position}`}>
-        <LogoSVG scheme={scheme} fonts={fonts} letter={logo.letter} shape={logo.shape} />
-      </div>
+      {logo.showLogo && (
+        <div className={`slide-logo slide-logo-${logo.position}`}>
+          <LogoSVG scheme={scheme} fonts={fonts} letter={logo.letter} shape={logo.shape} />
+        </div>
+      )}
 
       <div className="slide-content">
         <div className="punchline-spacer-top">

@@ -10,7 +10,7 @@ import { SlideEditor } from "@/components/SlideEditor";
 import { ThemePicker } from "@/components/ThemePicker";
 import { LogoSettings } from "@/components/LogoSettings";
 import { ComingSoonCard } from "@/components/ComingSoonCard";
-import { exportAsPNG, exportAsPDF, downloadBlob } from "@/lib/export";
+import { exportSlideAsPNG } from "@/lib/export";
 import "@/components/slides/slideStyles.css";
 
 export default function Home() {
@@ -77,17 +77,8 @@ export default function Home() {
     for (let i = 0; i < slideRefs.current.length; i++) {
       const el = slideRefs.current[i];
       if (!el) continue;
-      const blob = await exportAsPNG(el);
-      downloadBlob(blob, `carousel-slide-${i + 1}.png`);
+      await exportSlideAsPNG(el, i);
     }
-  };
-
-  const handleExportPDF = async () => {
-    if (slides.length < 1) return;
-    const elements = slideRefs.current.filter(Boolean) as HTMLElement[];
-    if (elements.length === 0) return;
-    const blob = await exportAsPDF(elements);
-    downloadBlob(blob, "carouselify.pdf");
   };
 
   const activeSlide = slides[activeSlideIndex];
@@ -124,12 +115,6 @@ export default function Home() {
               ) : (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
               )}
-            </button>
-            <button
-              onClick={handleExportPDF}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              Export PDF
             </button>
             <button
               onClick={handleExportPNG}
@@ -296,13 +281,22 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="sr-only" aria-hidden="true">
+      <div
+        style={{
+          position: "fixed",
+          left: "-9999px",
+          top: 0,
+          pointerEvents: "none",
+        }}
+        aria-hidden="true"
+      >
         {slides.map((slide, index) => (
           <div
             key={`export-${slide.id}`}
             ref={(el) => {
               slideRefs.current[index] = el;
             }}
+            style={{ width: 1080, height: 1080 }}
           >
             <SlideCanvas
               slide={slide}

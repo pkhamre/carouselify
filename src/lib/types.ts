@@ -65,6 +65,7 @@ export interface LogoConfig {
   letter: string;
   shape: LogoShape;
   position: LogoPosition;
+  showLogo: boolean;
 }
 
 export interface ThemeConfig {
@@ -78,4 +79,5 @@ export const defaultLogo: LogoConfig = {
   letter: "p",
   shape: "blob-1",
   position: "top-right",
+  showLogo: true,
 };
