@@ -39,19 +39,12 @@ export function ThemePicker({
                   : "border-gray-100 hover:border-gray-200"
               }`}
             >
-              <div className="flex gap-0.5">
-                <div
-                  className="w-5 h-5 rounded-full border border-gray-200"
-                  style={{ backgroundColor: scheme.background }}
-                />
-                <div
-                  className="w-5 h-5 rounded-full border border-gray-200"
-                  style={{ backgroundColor: scheme.accent }}
-                />
-                <div
-                  className="w-5 h-5 rounded-full border border-gray-200"
-                  style={{ backgroundColor: scheme.textPrimary }}
-                />
+              <div
+                className="w-7 h-2.5 rounded-sm overflow-hidden border border-gray-200 flex"
+              >
+                <div className="flex-1" style={{ backgroundColor: scheme.background }} />
+                <div className="flex-1" style={{ backgroundColor: scheme.accent }} />
+                <div className="flex-1" style={{ backgroundColor: scheme.textPrimary }} />
               </div>
               <span className="text-[10px] text-gray-600">{scheme.name}</span>
             </button>
