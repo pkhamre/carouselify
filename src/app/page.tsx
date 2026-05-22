@@ -9,6 +9,7 @@ import { SlideCanvas } from "@/components/slides/SlideCanvas";
 import { SlideEditor } from "@/components/SlideEditor";
 import { ThemePicker } from "@/components/ThemePicker";
 import { LogoSettings } from "@/components/LogoSettings";
+import { ComingSoonCard } from "@/components/ComingSoonCard";
 import { exportAsPNG, exportAsPDF, downloadBlob } from "@/lib/export";
 import "@/components/slides/slideStyles.css";
 
@@ -273,6 +274,7 @@ export default function Home() {
 
           <div className="col-span-4">
             <div className="sticky top-6 space-y-4">
+              <ComingSoonCard />
               <LogoSettings
                 logo={logo}
                 onChange={setLogo}

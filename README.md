@@ -57,6 +57,22 @@ If you use a reverse proxy (Nginx/Caddy/Traefik), forward both:
 - `/carouselify`
 - `/carouselify/_next/*`
 
+### Static Export Build (no Node.js server)
+
+Generate a fully static site in `out/`:
+
+```bash
+NEXT_BASE_PATH=/carouselify NEXT_OUTPUT=export npm run build
+```
+
+Then deploy the `out/` directory to your static host or web server document root.
+
+Notes:
+
+- Keep `NEXT_BASE_PATH` the same between build and hosting path.
+- For root hosting, omit `NEXT_BASE_PATH`.
+- Static export artifact is `out/` (not `.next/`).
+
 ---
 
 ### Docker (Alternative)
