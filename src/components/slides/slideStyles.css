@@ -135,10 +135,12 @@
   font-size: 24px;
   font-weight: 700;
   border-radius: 999px;
-  padding: 20px 40px;
+  height: 64px;
+  padding: 0 40px;
   display: inline-block;
   width: fit-content;
-  line-height: 1;
+  line-height: 64px;
+  white-space: nowrap;
   text-align: center;
   margin: 32px 0;
 }

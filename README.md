@@ -1,11 +1,11 @@
-# LinkedIn Carousel Generator
+# carouselify
 
 Create beautiful, design-consistent LinkedIn carousels in minutes. Built with Next.js 15, following a strict design system extracted from professional carousels.
 
 ## Features
 
 - **4 slide types** — Cover, Content (Big Punchline / Two-part Headline), Bullet List, CTA/Closing
-- **10 color schemes** — Original, Ocean, Forest, Sand, Citrus, Bubblegum, Electric Mint, Lavender Pop, Tangerine Dream, Cerulean
+- **10 color schemes** — Original, Ocean, Forest, Citrus, Bubblegum, Electric Mint, Lavender Pop, Tangerine Dream, Cerulean, Custom
 - **4 font pairings** — Original, Classic Editorial, Friendly, Playful
 - **Customizable logo** — Choose any letter with a blob-shaped brand mark
 - **Inverted color mode** — Toggle to swap background and text colors
@@ -43,6 +43,20 @@ npm run build
 npm start
 ```
 
+### Production Build in a Subdirectory (recommended for `/carouselify`)
+
+Set `NEXT_BASE_PATH` at build and runtime so routes and static assets are prefixed correctly.
+
+```bash
+NEXT_BASE_PATH=/carouselify npm run build
+NEXT_BASE_PATH=/carouselify npm start
+```
+
+If you use a reverse proxy (Nginx/Caddy/Traefik), forward both:
+
+- `/carouselify`
+- `/carouselify/_next/*`
+
 ---
 
 ### Docker (Alternative)
@@ -59,7 +73,7 @@ Open [http://localhost:3000](http://localhost:3000). Code changes are reflected 
 
 ```bash
 docker build --target runner -t linkedin-carousel:latest .
-docker run -p 3000:3000 linkedin-carousel:latest
+docker run -p 3000:3000 -e NEXT_BASE_PATH=/carouselify linkedin-carousel:latest
 ```
 
 The production image uses Next.js [standalone output](https://nextjs.org/docs/pages/building-your-application/deploying#docker-image) for a minimal footprint and runs as a non-root `nextjs` user.
