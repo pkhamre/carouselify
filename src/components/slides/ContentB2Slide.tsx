@@ -30,7 +30,7 @@ export function ContentB2SlideComponent({
       }}
     >
       <div className="slide-logo">
-        <LogoSVG scheme={scheme} fonts={fonts} letter={logo.letter} />
+        <LogoSVG scheme={scheme} fonts={fonts} letter={logo.letter} shape={logo.shape} />
       </div>
 
       <div className="slide-content">

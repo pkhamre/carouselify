@@ -1,17 +1,18 @@
-import type { ColorScheme, FontPairing } from "@/lib/types";
+import type { ColorScheme, FontPairing, LogoShape } from "@/lib/types";
+import { logoShapePaths } from "@/lib/logoShapes";
 
 interface LogoSVGProps {
   scheme: ColorScheme;
   fonts: FontPairing;
   letter: string;
+  shape?: LogoShape;
   isInverted?: boolean;
 }
 
-const blobPath = "M55 8C35 8 18 22 15 42C12 62 22 82 38 92C54 102 78 98 92 82C106 66 102 38 82 22C72 14 63 8 55 8Z";
-
-export function LogoSVG({ scheme, fonts, letter, isInverted = false }: LogoSVGProps) {
+export function LogoSVG({ scheme, fonts, letter, shape = "blob-1", isInverted = false }: LogoSVGProps) {
   const strokeColor = isInverted ? scheme.textOnAccent : scheme.accent;
   const letterColor = isInverted ? scheme.textOnAccent : scheme.accent;
+  const blobPath = logoShapePaths[shape];
 
   return (
     <svg

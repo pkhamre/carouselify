@@ -58,8 +58,11 @@ export interface FontPairing {
   googleFontsUrl: string;
 }
 
+export type LogoShape = "blob-1" | "blob-2" | "blob-3" | "blob-4" | "blob-5";
+
 export interface LogoConfig {
   letter: string;
+  shape: LogoShape;
 }
 
 export interface ThemeConfig {
@@ -71,4 +74,5 @@ export interface ThemeConfig {
 
 export const defaultLogo: LogoConfig = {
   letter: "p",
+  shape: "blob-1",
 };

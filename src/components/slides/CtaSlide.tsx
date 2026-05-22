@@ -30,7 +30,7 @@ export function CtaSlideComponent({
       }}
     >
       <div className="slide-logo">
-        <LogoSVG scheme={scheme} fonts={fonts} letter={logo.letter} isInverted />
+        <LogoSVG scheme={scheme} fonts={fonts} letter={logo.letter} shape={logo.shape} isInverted />
       </div>
 
       <div className="slide-content">
