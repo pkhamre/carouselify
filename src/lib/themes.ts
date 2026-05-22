@@ -26,14 +26,6 @@ export const colorSchemes: ColorScheme[] = [
     bgOnAccent: "#EDF2EE",
   },
   {
-    name: "Sand",
-    background: "#F5F0E8",
-    accent: "#C9802C",
-    textPrimary: "#1E1A14",
-    textOnAccent: "#F5F0E8",
-    bgOnAccent: "#F5F0E8",
-  },
-  {
     name: "Citrus",
     background: "#FFFBEC",
     accent: "#F5A800",
@@ -80,6 +72,14 @@ export const colorSchemes: ColorScheme[] = [
     textPrimary: "#1E1B18",
     textOnAccent: "#EEF6FF",
     bgOnAccent: "#EEF6FF",
+  },
+  {
+    name: "Custom",
+    background: "#EDEAE3",
+    accent: "#F23D6D",
+    textPrimary: "#1E1B18",
+    textOnAccent: "#EDEAE3",
+    bgOnAccent: "#EDEAE3",
   },
 ];
 

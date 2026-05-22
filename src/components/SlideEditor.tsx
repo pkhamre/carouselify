@@ -25,7 +25,7 @@ function TextField({
 }) {
   return (
     <div className="mb-3">
-      <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+      <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
         {label}
       </label>
       {multiline ? (
@@ -33,14 +33,14 @@ function TextField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           rows={3}
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
+          className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
         />
       ) : (
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
         />
       )}
     </div>
@@ -64,7 +64,7 @@ function ListItemEditor({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={`Item ${index + 1}`}
-        className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+        className="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
       />
     </div>
   );
@@ -80,15 +80,15 @@ export function SlideEditor({ slide, onUpdate, onTypeChange, slideIndex }: Slide
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4">
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-gray-900">
+        <h3 className="font-semibold text-gray-900 dark:text-gray-100">
           Slide {slideIndex + 1}
         </h3>
         <select
           value={slide.type}
           onChange={(e) => onTypeChange(e.target.value as SlideType)}
-          className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+          className="px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-pink-500"
         >
           {SLIDE_TYPES.map((type) => (
             <option key={type} value={type}>

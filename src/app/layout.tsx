@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "LinkedIn Carousel Generator",
+  title: "carouselify",
   description: "Create beautiful LinkedIn carousels with a modern design system",
 };
 

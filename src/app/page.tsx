@@ -19,6 +19,7 @@ export default function Home() {
   const [logo, setLogo] = useState<LogoConfig>(defaultLogo);
   const [inverted, setInverted] = useState(false);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [darkMode, setDarkMode] = useState(false);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const updateSlide = useCallback((index: number, updatedSlide: Slide) => {
@@ -85,7 +86,7 @@ export default function Home() {
     const elements = slideRefs.current.filter(Boolean) as HTMLElement[];
     if (elements.length === 0) return;
     const blob = await exportAsPDF(elements);
-    downloadBlob(blob, "linkedin-carousel.pdf");
+    downloadBlob(blob, "carouselify.pdf");
   };
 
   const activeSlide = slides[activeSlideIndex];
@@ -101,17 +102,31 @@ export default function Home() {
     : scheme;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 transition-colors">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">LinkedIn Carousel Generator</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Create beautiful carousels in minutes</p>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">carouselify</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Create beautiful carousels in minutes</p>
           </div>
           <div className="flex items-center gap-3">
             <button
+              onClick={() => {
+                setDarkMode(!darkMode);
+                document.documentElement.classList.toggle("dark");
+              }}
+              className="w-9 h-9 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              title="Toggle dark mode"
+            >
+              {darkMode ? (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+              )}
+            </button>
+            <button
               onClick={handleExportPDF}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               Export PDF
             </button>
@@ -137,15 +152,15 @@ export default function Home() {
               onInvertChange={setInverted}
             />
 
-            <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-gray-900">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                   Slides ({slides.length})
                 </h3>
                 <button
                   onClick={addSlide}
                   disabled={slides.length >= 12}
-                  className="text-xs px-2 py-1 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-gray-700 dark:text-gray-300"
                 >
                   + Add
                 </button>
@@ -156,15 +171,15 @@ export default function Home() {
                     key={slide.id}
                     className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
                       index === activeSlideIndex
-                        ? "bg-pink-50 border border-pink-200"
-                        : "hover:bg-gray-50"
+                        ? "bg-pink-50 dark:bg-pink-900/30 border border-pink-200 dark:border-pink-800"
+                        : "hover:bg-gray-50 dark:hover:bg-gray-800"
                     }`}
                     onClick={() => setActiveSlideIndex(index)}
                   >
-                    <span className="text-xs font-mono text-gray-400 w-5">
+                    <span className="text-xs font-mono text-gray-400 dark:text-gray-500 w-5">
                       {index + 1}
                     </span>
-                    <span className="flex-1 text-sm text-gray-700 truncate">
+                    <span className="flex-1 text-sm text-gray-700 dark:text-gray-300 truncate">
                       {slide.type === "cover" && slide.h1}
                       {slide.type === "content-b1" && slide.h2}
                       {slide.type === "content-b2" && slide.h2}
@@ -178,7 +193,7 @@ export default function Home() {
                             e.stopPropagation();
                             reorderSlide(index, "up");
                           }}
-                          className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600"
+                          className="w-5 h-5 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                         >
                           ↑
                         </button>
@@ -189,7 +204,7 @@ export default function Home() {
                             e.stopPropagation();
                             reorderSlide(index, "down");
                           }}
-                          className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600"
+                          className="w-5 h-5 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                         >
                           ↓
                         </button>
@@ -199,7 +214,7 @@ export default function Home() {
                           e.stopPropagation();
                           removeSlide(index);
                         }}
-                        className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-red-500"
+                        className="w-5 h-5 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-red-500"
                       >
                         ×
                       </button>
@@ -211,16 +226,16 @@ export default function Home() {
           </div>
 
           <div className="col-span-5">
-            <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sticky top-6 transition-colors">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-gray-900">Preview</h3>
-                <span className="text-xs text-gray-500">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">Preview</h3>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
                   {slides.length > 0
                     ? `Slide ${activeSlideIndex + 1} of ${slides.length}`
                     : "No slides"}
                 </span>
               </div>
-              <div className="flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
+              <div className="flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden transition-colors">
                 {slides.length > 0 ? (
                   <div
                     style={{
@@ -248,7 +263,7 @@ export default function Home() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center h-[270px] text-gray-400 text-sm">
+                  <div className="flex items-center justify-center h-[270px] text-gray-400 dark:text-gray-500 text-sm">
                     Add a slide to get started
                   </div>
                 )}
@@ -270,7 +285,7 @@ export default function Home() {
                   slideIndex={activeSlideIndex}
                 />
               ) : (
-                <div className="bg-white rounded-xl border border-gray-200 p-6 text-center text-gray-400 text-sm">
+                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 text-center text-gray-400 dark:text-gray-500 text-sm transition-colors">
                   Add a slide above to start editing
                 </div>
               )}
