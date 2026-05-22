@@ -150,6 +150,9 @@
 }
 
 /* CTA slide */
+.cta-punchline {
+  padding-bottom: 40px;
+}
 .cta-pill {
   font-size: 24px;
   font-weight: 700;
@@ -161,7 +164,7 @@
   line-height: 64px;
   white-space: nowrap;
   text-align: center;
-  margin: 32px 0;
+  margin: 0 0 40px 0;
 }
 
 .cta-body {

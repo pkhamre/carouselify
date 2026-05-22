@@ -37,7 +37,7 @@ export function CtaSlideComponent({
         <div className="punchline-spacer-top" />
 
         <h1
-          className="punchline"
+          className="punchline cta-punchline"
           style={{
             fontFamily: fonts.display,
             color: scheme.textOnAccent,
