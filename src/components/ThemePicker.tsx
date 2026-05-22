@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { ColorScheme, FontPairing } from "@/lib/types";
-import { colorSchemes, fontPairings, defaultScheme } from "@/lib/themes";
+import { colorSchemes, fontPairings } from "@/lib/themes";
 
 interface ThemePickerProps {
   selectedScheme: ColorScheme;
@@ -22,9 +22,9 @@ export function ThemePicker({
   onInvertChange,
 }: ThemePickerProps) {
   const isCustom = selectedScheme.name === "Custom";
-  const [customBg, setCustomBg] = useState("#EDEAE3");
-  const [customAccent, setCustomAccent] = useState("#F23D6D");
-  const [customText, setCustomText] = useState("#1E1B18");
+  const [customBg, setCustomBg] = useState("#EAF0F6");
+  const [customAccent, setCustomAccent] = useState("#0A7EAD");
+  const [customText, setCustomText] = useState("#0D1B2A");
 
   const updateCustom = (bg: string, accent: string, text: string) => {
     setCustomBg(bg);
@@ -61,7 +61,7 @@ export function ThemePicker({
               }}
               className={`flex flex-col items-center gap-1.5 p-2 rounded-lg border-2 transition-all ${
                 selectedScheme.name === scheme.name
-                  ? "border-pink-500 bg-pink-50 dark:bg-pink-900/30"
+                  ? "border-sky-600 bg-sky-50 dark:bg-sky-900/30"
                   : "border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600"
               }`}
             >
@@ -125,7 +125,7 @@ export function ThemePicker({
             const fonts = fontPairings.find((f) => f.name === e.target.value);
             if (fonts) onFontsChange(fonts);
           }}
-          className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-pink-500"
+          className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-600"
         >
           {fontPairings.map((fonts) => (
             <option key={fonts.name} value={fonts.name}>
@@ -143,7 +143,7 @@ export function ThemePicker({
           <button
             onClick={() => onInvertChange(!inverted)}
             className={`relative w-12 h-7 rounded-full transition-colors ${
-              inverted ? "bg-pink-500" : "bg-gray-300 dark:bg-gray-600"
+              inverted ? "bg-sky-600" : "bg-gray-300 dark:bg-gray-600"
             }`}
           >
             <span

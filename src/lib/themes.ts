@@ -2,20 +2,20 @@ import type { ColorScheme, FontPairing } from "./types";
 
 export const colorSchemes: ColorScheme[] = [
   {
-    name: "Original",
-    background: "#EDEAE3",
-    accent: "#F23D6D",
-    textPrimary: "#1E1B18",
-    textOnAccent: "#EDEAE3",
-    bgOnAccent: "#EDEAE3",
-  },
-  {
     name: "Ocean",
     background: "#EAF0F6",
     accent: "#0A7EAD",
     textPrimary: "#0D1B2A",
     textOnAccent: "#EAF0F6",
     bgOnAccent: "#EAF0F6",
+  },
+  {
+    name: "Original",
+    background: "#EDEAE3",
+    accent: "#F23D6D",
+    textPrimary: "#1E1B18",
+    textOnAccent: "#EDEAE3",
+    bgOnAccent: "#EDEAE3",
   },
   {
     name: "Forest",
@@ -75,11 +75,11 @@ export const colorSchemes: ColorScheme[] = [
   },
   {
     name: "Custom",
-    background: "#EDEAE3",
-    accent: "#F23D6D",
-    textPrimary: "#1E1B18",
-    textOnAccent: "#EDEAE3",
-    bgOnAccent: "#EDEAE3",
+    background: "#EAF0F6",
+    accent: "#0A7EAD",
+    textPrimary: "#0D1B2A",
+    textOnAccent: "#EAF0F6",
+    bgOnAccent: "#EAF0F6",
   },
 ];
 

@@ -133,7 +133,7 @@ export default function Home() {
             </button>
             <button
               onClick={handleExportPNG}
-              className="px-4 py-2 text-sm font-medium text-white bg-pink-600 rounded-lg hover:bg-pink-700 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors"
             >
               Export PNG
             </button>
@@ -172,7 +172,7 @@ export default function Home() {
                     key={slide.id}
                     className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
                       index === activeSlideIndex
-                        ? "bg-pink-50 dark:bg-pink-900/30 border border-pink-200 dark:border-pink-800"
+                        ? "bg-sky-50 dark:bg-sky-900/30 border border-sky-200 dark:border-sky-800"
                         : "hover:bg-gray-50 dark:hover:bg-gray-800"
                     }`}
                     onClick={() => setActiveSlideIndex(index)}
