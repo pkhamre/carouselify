@@ -10,7 +10,7 @@ import { SlideEditor } from "@/components/SlideEditor";
 import { ThemePicker } from "@/components/ThemePicker";
 import { LogoSettings } from "@/components/LogoSettings";
 import { ComingSoonCard } from "@/components/ComingSoonCard";
-import { exportSlideAsPNG } from "@/lib/export";
+import { exportSlideAsPNG, getFontEmbedCSS } from "@/lib/export";
 import { captureExport } from "@/lib/analytics";
 import "@/components/slides/slideStyles.css";
 
@@ -76,10 +76,13 @@ export default function Home() {
 
   const handleExportPNG = async () => {
     if (slides.length < 1) return;
+    const firstEl = slideRefs.current[0];
+    if (!firstEl) return;
+    const fontEmbedCSS = await getFontEmbedCSS(firstEl);
     for (let i = 0; i < slideRefs.current.length; i++) {
       const el = slideRefs.current[i];
       if (!el) continue;
-      await exportSlideAsPNG(el, i);
+      await exportSlideAsPNG(el, i, fontEmbedCSS);
     }
     captureExport(slides.length);
   };
