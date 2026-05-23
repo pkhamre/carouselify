@@ -10,7 +10,7 @@ import { SlideEditor } from "@/components/SlideEditor";
 import { ThemePicker } from "@/components/ThemePicker";
 import { LogoSettings } from "@/components/LogoSettings";
 import { ComingSoonCard } from "@/components/ComingSoonCard";
-import { exportSlideAsPNG, getFontEmbedCSS } from "@/lib/export";
+import { exportSlideAsPNG, exportSlidesAsPDF, getFontEmbedCSS } from "@/lib/export";
 import { captureExport } from "@/lib/analytics";
 import "@/components/slides/slideStyles.css";
 
@@ -87,6 +87,16 @@ export default function Home() {
     captureExport(slides.length);
   };
 
+  const handleExportPDF = async () => {
+    if (slides.length < 1) return;
+    const firstEl = slideRefs.current[0];
+    if (!firstEl) return;
+    const fontEmbedCSS = await getFontEmbedCSS(firstEl);
+    const elements = slideRefs.current.filter(Boolean) as HTMLElement[];
+    await exportSlidesAsPDF(elements, fontEmbedCSS);
+    captureExport(slides.length);
+  };
+
   const activeSlide = slides[activeSlideIndex];
 
   const effectiveScheme: ColorScheme = inverted
@@ -124,9 +134,15 @@ export default function Home() {
             </button>
             <button
               onClick={handleExportPNG}
-              className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               Export PNG
+            </button>
+            <button
+              onClick={handleExportPDF}
+              className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors"
+            >
+              Export PDF
             </button>
           </div>
         </div>
@@ -327,13 +343,20 @@ export default function Home() {
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </button>
               </div>
-              <div className="mt-3">
+              <div className="mt-3 flex gap-2">
                 <button
                   onClick={handleExportPNG}
                   disabled={slides.length < 1}
-                  className="w-full px-4 py-3 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Export PNG
+                </button>
+                <button
+                  onClick={handleExportPDF}
+                  disabled={slides.length < 1}
+                  className="flex-1 px-4 py-3 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Export PDF
                 </button>
               </div>
             </div>
