@@ -9,9 +9,10 @@ interface MyCarouselsProps {
   onLoad: (data: CarouselData) => void;
   show?: boolean;
   onClose?: () => void;
+  refreshKey?: number;
 }
 
-export function MyCarousels({ onLoad, show, onClose }: MyCarouselsProps) {
+export function MyCarousels({ onLoad, show, onClose, refreshKey }: MyCarouselsProps) {
   const { isAuthenticated } = useAuth();
   const [carousels, setCarousels] = useState<CarouselListItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -28,7 +29,7 @@ export function MyCarousels({ onLoad, show, onClose }: MyCarouselsProps) {
 
   useEffect(() => {
     if (open) fetchList();
-  }, [open, fetchList]);
+  }, [open, fetchList, refreshKey]);
 
   useEffect(() => {
     if (show) setOpen(true);

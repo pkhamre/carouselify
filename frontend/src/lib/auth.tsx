@@ -73,6 +73,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const guestId = getGuestUserId();
     await apiRegister(email, password);
     const res = await apiLogin(email, password);
+    setToken(res.access_token);
+    const me = await getMe();
+    setUser({ id: me.id, email: me.email });
     if (guestId) {
       try {
         await linkGuestAccount(guestId);

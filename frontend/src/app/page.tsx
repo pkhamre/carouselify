@@ -53,6 +53,7 @@ export default function Home() {
   const [showMyCarousels, setShowMyCarousels] = useState(false);
   const [undoStack, setUndoStack] = useState<Slide[][]>([]);
   const [exportProgress, setExportProgress] = useState<{ current: number; total: number } | null>(null);
+  const [carouselRefreshKey, setCarouselRefreshKey] = useState(0);
 
   useEffect(() => {
     const cloneData = sessionStorage.getItem("clone-data");
@@ -348,7 +349,7 @@ export default function Home() {
               </div>
             )}
 
-            <MyCarousels onLoad={handleLoadCarousel} show={showMyCarousels} onClose={() => setShowMyCarousels(false)} />
+            <MyCarousels onLoad={handleLoadCarousel} show={showMyCarousels} onClose={() => setShowMyCarousels(false)} refreshKey={carouselRefreshKey} />
           </div>
 
           <div className="col-span-5">
@@ -426,7 +427,7 @@ export default function Home() {
             carouselData={carouselData}
             savedId={savedCarouselId}
             defaultTitle={savedTitle}
-            onSaved={(id, title) => { setSavedCarouselId(id); setSavedTitle(title); }}
+            onSaved={(id, title) => { setSavedCarouselId(id); setSavedTitle(title); setCarouselRefreshKey(k => k + 1); }}
           />
           <button
             onClick={handleExportPNG}
@@ -499,7 +500,7 @@ export default function Home() {
                   carouselData={carouselData}
                   savedId={savedCarouselId}
                   defaultTitle={savedTitle}
-                  onSaved={(id, title) => { setSavedCarouselId(id); setSavedTitle(title); }}
+                   onSaved={(id, title) => { setSavedCarouselId(id); setSavedTitle(title); setCarouselRefreshKey(k => k + 1); }}
                 />
                 <button
                   onClick={handleExportPNG}
@@ -533,7 +534,7 @@ export default function Home() {
         {mobileTab === "edit" && (
           <>
             <div className="space-y-4">
-              <MyCarousels onLoad={handleLoadCarousel} show={showMyCarousels} onClose={() => setShowMyCarousels(false)} />
+              <MyCarousels onLoad={handleLoadCarousel} show={showMyCarousels} onClose={() => setShowMyCarousels(false)} refreshKey={carouselRefreshKey} />
 
               <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Slides</h3>
