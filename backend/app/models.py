@@ -19,6 +19,7 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     ai_credits_used = Column(Integer, default=0, nullable=False)
     ai_credits_reset_at = Column(DateTime(timezone=True), nullable=True)
     carousels = relationship("Carousel", back_populates="user", cascade="all, delete-orphan")
+    custom_schemes = relationship("CustomScheme", back_populates="user", cascade="all, delete-orphan")
 
 
 class Carousel(Base):
@@ -34,3 +35,19 @@ class Carousel(Base):
     updated_at = Column(DateTime(timezone=True), server_default=text("now()"), onupdate=text("now()"), nullable=False)
 
     user = relationship("User", back_populates="carousels")
+
+
+class CustomScheme(Base):
+    __tablename__ = "custom_scheme"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("user.id", ondelete="CASCADE"), nullable=False, index=True)
+    name = Column(String, nullable=False)
+    background = Column(String, nullable=False)
+    accent = Column(String, nullable=False)
+    text_primary = Column(String, nullable=False)
+    text_on_accent = Column(String, nullable=False)
+    bg_on_accent = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=text("now()"), nullable=False)
+
+    user = relationship("User", back_populates="custom_schemes")

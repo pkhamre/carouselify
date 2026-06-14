@@ -97,3 +97,34 @@ class AiGenerateResponse(BaseModel):
     slides: list
     credits_used: int
     credits_remaining: int
+
+
+class CustomSchemeCreate(BaseModel):
+    name: str
+    background: str
+    accent: str
+    text_primary: str
+    text_on_accent: str
+    bg_on_accent: str
+
+
+class CustomSchemeUpdate(BaseModel):
+    name: str | None = None
+    background: str | None = None
+    accent: str | None = None
+    text_primary: str | None = None
+    text_on_accent: str | None = None
+    bg_on_accent: str | None = None
+
+
+class CustomSchemeOut(BaseModel):
+    id: uuid.UUID
+    name: str
+    background: str
+    accent: str
+    text_primary: str
+    text_on_accent: str
+    bg_on_accent: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
