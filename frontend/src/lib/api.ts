@@ -172,3 +172,40 @@ export function generateSlides(prompt: string, slideCount: number = 5): Promise<
     body: JSON.stringify({ prompt, slide_count: slideCount }),
   });
 }
+
+// Custom Color Schemes
+export interface CustomSchemeOut {
+  id: string;
+  name: string;
+  background: string;
+  accent: string;
+  text_primary: string;
+  text_on_accent: string;
+  bg_on_accent: string;
+  created_at: string;
+}
+
+export interface CustomSchemeCreate {
+  name: string;
+  background: string;
+  accent: string;
+  text_primary: string;
+  text_on_accent: string;
+  bg_on_accent: string;
+}
+
+export function listSchemes(): Promise<CustomSchemeOut[]> {
+  return request("/api/schemes");
+}
+
+export function createScheme(data: CustomSchemeCreate): Promise<CustomSchemeOut> {
+  return request("/api/schemes", { method: "POST", body: JSON.stringify(data) });
+}
+
+export function updateScheme(id: string, data: Partial<CustomSchemeCreate>): Promise<CustomSchemeOut> {
+  return request(`/api/schemes/${id}`, { method: "PUT", body: JSON.stringify(data) });
+}
+
+export function deleteScheme(id: string): Promise<void> {
+  return request(`/api/schemes/${id}`, { method: "DELETE" });
+}
