@@ -1,7 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import type { LogoConfig } from "@/lib/types";
 import { logoShapeOrder, logoShapePaths } from "@/lib/logoShapes";
+import { useAuth } from "@/lib/auth";
+import { uploadLogo } from "@/lib/api";
+import { UpgradePrompt } from "./UpgradePrompt";
 
 const logoPositionOptions: Array<{ value: LogoConfig["position"]; label: string }> = [
   { value: "top-left", label: "Upper left" },
@@ -16,6 +20,25 @@ interface LogoSettingsProps {
 }
 
 export function LogoSettings({ logo, onChange }: LogoSettingsProps) {
+  const { user } = useAuth();
+  const isPremium = user?.isPremium ?? false;
+  const [uploadBusy, setUploadBusy] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadBusy(true);
+    setUploadError("");
+    try {
+      const res = await uploadLogo(file);
+      onChange({ ...logo, customUrl: res.url, isCustom: true });
+    } catch (err: any) {
+      setUploadError(err.message || "Upload failed");
+    }
+    setUploadBusy(false);
+  };
+
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
       <div className="flex items-center justify-between mb-4">
@@ -71,6 +94,40 @@ export function LogoSettings({ logo, onChange }: LogoSettingsProps) {
               </button>
             ))}
           </div>
+
+          {isPremium ? (
+            <>
+              <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mt-4 mb-2">
+                Custom Image
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  onChange={handleUpload}
+                  disabled={uploadBusy}
+                  className="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-sky-50 dark:file:bg-sky-900/30 file:text-sky-700 dark:file:text-sky-200 hover:file:bg-sky-100 dark:hover:file:bg-sky-900/50"
+                />
+              </div>
+              {uploadBusy && <p className="text-xs text-gray-500 mt-1">Uploading...</p>}
+              {uploadError && <p className="text-xs text-red-500 mt-1">{uploadError}</p>}
+              {logo.isCustom && logo.customUrl && (
+                <div className="mt-2">
+                  <img src={logo.customUrl} alt="Custom logo" className="h-10 w-auto object-contain" />
+                  <button
+                    onClick={() => onChange({ ...logo, customUrl: null, isCustom: false })}
+                    className="text-xs text-red-600 hover:text-red-700 mt-1"
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="mt-4">
+              <UpgradePrompt feature="Custom logo upload" compact />
+            </div>
+          )}
 
           <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mt-4 mb-2">
             Placement

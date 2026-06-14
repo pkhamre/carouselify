@@ -66,7 +66,7 @@ export function logout(): Promise<void> {
   return request("/auth/jwt/logout", { method: "POST" });
 }
 
-export function getMe(): Promise<{ id: string; email: string; is_active: boolean; is_superuser: boolean; is_verified: boolean }> {
+export function getMe(): Promise<{ id: string; email: string; is_active: boolean; is_superuser: boolean; is_verified: boolean; isPremium?: boolean }> {
   return request("/auth/me");
 }
 
