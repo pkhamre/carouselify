@@ -55,3 +55,18 @@
 - Google Fonts loaded via `<link>` in `layout.tsx`; html-to-image sometimes needs two passes to embed them (see export above).
 - `transforms: scale()` on slide doesn't affect layout — the 1080×1080 inner element still occupies layout space, clipped by `overflow: hidden` on the wrapper.
 - When adding new slide features, every slide component type must be updated (Cover, ContentB1, ContentB2, List, CTA).
+
+## Backend (FastAPI)
+
+### Commands
+- `docker compose up` — Start all services (postgres, backend, frontend)
+- `docker compose up postgres backend` — Start backend only
+- `cd backend && uvicorn app.main:app --reload` — Dev server (with local postgres)
+- `cd backend && alembic upgrade head` — Run migrations
+
+### Architecture
+- Backend at `backend/`, frontend at `frontend/`
+- Docker Compose orchestrates postgres, backend, frontend
+- Auth via fastapi-users with JWT Bearer tokens
+- API client in `frontend/src/lib/api.ts`
+- Auth context in `frontend/src/lib/auth.tsx`
