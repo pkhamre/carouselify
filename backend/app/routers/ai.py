@@ -65,7 +65,7 @@ async def generate_slides(
 
     client = AsyncOpenAI(api_key=settings.openai_api_key)
     resp = await client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=settings.openai_model,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": f"Generate {body.slide_count} slides about: {body.prompt}"},
