@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
 from app.schemas import UserRead, UserCreate, UserUpdate
 from app.users import fastapi_users, auth_backend
-from app.routers.carousels import router as carousels_router, public_router
+from app.routers.carousels import router as carousels_router, public_router, guest_router
 
 
 @asynccontextmanager
@@ -34,6 +34,7 @@ app.include_router(fastapi_users.get_users_router(UserRead, UserUpdate), prefix=
 app.include_router(fastapi_users.get_reset_password_router(), prefix="/auth", tags=["auth"])
 app.include_router(fastapi_users.get_verify_router(UserRead), prefix="/auth", tags=["auth"])
 app.include_router(carousels_router)
+app.include_router(guest_router)
 app.include_router(public_router)
 
 

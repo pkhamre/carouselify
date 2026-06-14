@@ -12,6 +12,7 @@ from app.database import Base
 class User(SQLAlchemyBaseUserTableUUID, Base):
     __tablename__ = "user"
 
+    is_guest = Column(Boolean, default=False, nullable=False)
     carousels = relationship("Carousel", back_populates="user", cascade="all, delete-orphan")
 
 

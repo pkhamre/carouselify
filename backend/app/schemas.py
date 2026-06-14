@@ -50,6 +50,16 @@ class CarouselListItem(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class GuestResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user_id: str
+
+
+class LinkGuestRequest(BaseModel):
+    guest_user_id: str
+
+
 class ShareResponse(BaseModel):
     url: str
     share_token: uuid.UUID

@@ -1,12 +1,15 @@
+import random
+import string
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi_users.password import PasswordHelper
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
 from app.models import Carousel, User
-from app.schemas import CarouselCreate, CarouselOut, CarouselListItem, CarouselUpdate, ShareResponse
-from app.users import current_active_user
+from app.schemas import CarouselCreate, CarouselOut, CarouselListItem, CarouselUpdate, GuestResponse, LinkGuestRequest, ShareResponse
+from app.users import current_active_user, get_jwt_strategy
 
 router = APIRouter(prefix="/api/carousels", tags=["carousels"])
 
@@ -126,6 +129,60 @@ async def revoke_share(
     carousel.share_token = None
     carousel.is_public = False
     await session.commit()
+
+
+guest_router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+@guest_router.post("/guest", response_model=GuestResponse)
+async def create_guest(
+    session: AsyncSession = Depends(get_session),
+):
+    pw_helper = PasswordHelper()
+    random_pw = "".join(random.choices(string.ascii_letters + string.digits, k=32))
+    guest_email = f"guest-{uuid.uuid4()}@carouselify.local"
+
+    user = User(
+        id=uuid.uuid4(),
+        email=guest_email,
+        hashed_password=pw_helper.hash(random_pw),
+        is_active=True,
+        is_superuser=False,
+        is_verified=False,
+        is_guest=True,
+    )
+    session.add(user)
+    await session.commit()
+
+    strategy = get_jwt_strategy()
+    token = await strategy.write_token(user)
+
+    return GuestResponse(access_token=token, user_id=str(user.id))
+
+
+@guest_router.post("/link-guest")
+async def link_guest(
+    body: LinkGuestRequest,
+    user: User = Depends(current_active_user),
+    session: AsyncSession = Depends(get_session),
+):
+    guest_id = uuid.UUID(body.guest_user_id)
+    if guest_id == user.id:
+        raise HTTPException(400, detail="Cannot link to self")
+
+    result = await session.execute(
+        select(Carousel).where(Carousel.user_id == guest_id)
+    )
+    guest_carousels = result.scalars().all()
+    for c in guest_carousels:
+        c.user_id = user.id
+
+    guest = await session.get(User, guest_id)
+    if guest:
+        await session.delete(guest)
+
+    await session.commit()
+    return {"transferred": len(guest_carousels)}
 
 
 public_router = APIRouter(prefix="/api/s", tags=["public"])
