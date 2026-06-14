@@ -11,7 +11,6 @@ from app.schemas import AiGenerateRequest, AiGenerateResponse, CreditsResponse
 from app.users import current_active_user
 
 router = APIRouter(prefix="/api/ai", tags=["ai"])
-client = AsyncOpenAI(api_key=settings.openai_api_key)
 
 CREDITS_LIMIT = 50
 
@@ -61,6 +60,10 @@ async def generate_slides(
     if used >= CREDITS_LIMIT:
         raise HTTPException(402, detail="Out of credits")
 
+    if not settings.openai_api_key:
+        raise HTTPException(502, detail="OpenAI API key not configured")
+
+    client = AsyncOpenAI(api_key=settings.openai_api_key)
     resp = await client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
