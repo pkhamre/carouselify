@@ -5,14 +5,14 @@ FROM node:24-alpine AS base
 WORKDIR /app
 
 # ============================================================
-# Dependencies stage — install production + dev packages
+# Dependencies stage
 # ============================================================
 FROM base AS deps
 COPY package.json package-lock.json* ./
 RUN npm ci
 
 # ============================================================
-# Development stage — hot-reload dev server with mounted code
+# Development stage
 # ============================================================
 FROM base AS dev
 COPY --from=deps /app/node_modules ./node_modules
@@ -21,7 +21,7 @@ EXPOSE 3000
 CMD ["npm", "run", "dev"]
 
 # ============================================================
-# Builder stage — compile the application for production
+# Builder stage
 # ============================================================
 FROM base AS builder
 ARG NODE_ENV=production
@@ -32,7 +32,7 @@ COPY . .
 RUN npm run build
 
 # ============================================================
-# Runner stage — minimal production image
+# Runner stage
 # ============================================================
 FROM base AS runner
 ENV NODE_ENV=production
