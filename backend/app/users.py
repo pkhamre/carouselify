@@ -1,6 +1,6 @@
 import uuid
 from typing import Optional
-from fastapi import Depends, Request
+from fastapi import Depends, HTTPException, Request, status
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport, JWTStrategy
 from fastapi_users.db import SQLAlchemyUserDatabase
@@ -49,3 +49,10 @@ auth_backend = AuthenticationBackend(
 fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
 
 current_active_user = fastapi_users.current_user(active=True)
+
+premium_user = fastapi_users.current_user(active=True)
+
+async def require_premium(user: User = Depends(premium_user)):
+    if not user.is_premium:
+        raise HTTPException(status.HTTP_402_PAYMENT_REQUIRED, detail="Premium subscription required")
+    return user
