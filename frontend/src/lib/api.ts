@@ -31,7 +31,7 @@ async function request<T>(
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
-  if (!(options.body instanceof FormData)) {
+  if (!(options.body instanceof FormData || options.body instanceof URLSearchParams)) {
     headers["Content-Type"] = "application/json";
   }
   const res = await fetch(`${API_URL}${path}`, { ...options, headers });
