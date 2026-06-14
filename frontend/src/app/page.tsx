@@ -495,29 +495,31 @@ export default function Home() {
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </button>
               </div>
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3 flex flex-col gap-2">
                 <SaveButtonWithToast
                   carouselData={carouselData}
                   savedId={savedCarouselId}
                   defaultTitle={savedTitle}
                    onSaved={(id, title) => { setSavedCarouselId(id); setSavedTitle(title); setCarouselRefreshKey(k => k + 1); }}
                 />
-                <button
-                  onClick={handleExportPNG}
-                  disabled={slides.length < 1 || !!exportProgress}
-                  aria-label="Export all slides as PNG images"
-                  className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {exportProgress ? `${exportProgress.current}/${exportProgress.total}` : "Export PNG"}
-                </button>
-                <button
-                  onClick={handleExportPDF}
-                  disabled={slides.length < 1 || !!exportProgress}
-                  aria-label="Export all slides as PDF"
-                  className="flex-1 px-4 py-3 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {exportProgress ? `${exportProgress.current}/${exportProgress.total}` : "Export PDF"}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleExportPNG}
+                    disabled={slides.length < 1 || !!exportProgress}
+                    aria-label="Export all slides as PNG images"
+                    className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {exportProgress ? `${exportProgress.current}/${exportProgress.total}` : "Export PNG"}
+                  </button>
+                  <button
+                    onClick={handleExportPDF}
+                    disabled={slides.length < 1 || !!exportProgress}
+                    aria-label="Export all slides as PDF"
+                    className="flex-1 px-4 py-3 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {exportProgress ? `${exportProgress.current}/${exportProgress.total}` : "Export PDF"}
+                  </button>
+                </div>
               </div>
             </div>
             {savedCarouselId && (

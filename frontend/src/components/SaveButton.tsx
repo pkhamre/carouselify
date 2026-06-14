@@ -33,14 +33,14 @@ export function SaveButton({ carouselData, savedId, defaultTitle, onSaved }: Sav
   }, [savedId, carouselData, title, onSaved]);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 flex-1 min-w-0">
       <input
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Carousel title"
         aria-label="Carousel title"
-        className="w-40 px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-600 transition-colors"
+        className="flex-1 min-w-0 px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-600 transition-colors"
       />
       <button
         onClick={handleSave}
