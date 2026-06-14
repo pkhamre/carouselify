@@ -22,6 +22,8 @@ async def create_checkout(
     body: CheckoutRequest,
     user: User = Depends(current_active_user),
 ):
+    if not settings.lemon_squeezy_api_key or not settings.lemon_squeezy_product_variant_id:
+        raise HTTPException(502, detail="Lemon Squeezy not configured")
     async with httpx.AsyncClient() as client:
         resp = await client.post(
             f"{LEMON_API}/checkouts",
@@ -57,6 +59,8 @@ async def create_portal(
     body: CheckoutRequest,
     user: User = Depends(current_active_user),
 ):
+    if not settings.lemon_squeezy_api_key:
+        raise HTTPException(502, detail="Lemon Squeezy not configured")
     if not user.lemon_squeezy_customer_id:
         raise HTTPException(400, detail="No subscription found")
 
@@ -85,6 +89,9 @@ async def create_portal(
 
 @router.post("/webhook")
 async def webhook_handler(request: Request, session: AsyncSession = Depends(get_session)):
+    if not settings.lemon_squeezy_webhook_secret:
+        raise HTTPException(502, detail="Lemon Squeezy not configured")
+
     raw_body = await request.body()
     signature = request.headers.get("x-signature", "")
 
