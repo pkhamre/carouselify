@@ -17,8 +17,8 @@ RUN npm ci
 FROM base AS dev
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-EXPOSE 3000
-CMD ["npm", "run", "dev"]
+EXPOSE 4000
+CMD ["npm", "run", "dev", "--", "-p", "4000"]
 
 # ============================================================
 # Builder stage
@@ -42,5 +42,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 USER nextjs
-EXPOSE 3000
+EXPOSE 4000
+ENV PORT=4000
 CMD ["node", "server.js"]

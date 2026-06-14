@@ -1,13 +1,13 @@
 # carouselify — agent guidance
 
 ## Commands
-- `cd frontend && npm run dev` — Turbopack dev server
+- `cd frontend && npm run dev -- -p 4000` — Turbopack dev server (port 4000)
 - `cd frontend && npm run build` — production build (primary verification; no separate typecheck step)
-- `cd frontend && npm run start` — production server
+- `cd frontend && npm run start -- -p 4000` — production server (port 4000)
 - `cd frontend && npm run lint` — ESLint via `next lint`
-- `docker compose up --build` — Start all services (postgres, backend, frontend)
+- `docker compose up --build` — Start all services (backend, frontend)
 - `docker compose up --build -d backend` — Build and start backend only
-- `docker compose down -v` — Wipe postgres volume (needed when models change since dev uses `create_all`)
+- `docker compose down -v` — Wipe SQLite data volume (needed when models change since dev uses `create_all`)
 
 ## Architecture
 - Monorepo: `frontend/` (Next.js 15 App Router) + `backend/` (FastAPI) + root `docker-compose.yml`.
@@ -57,11 +57,11 @@
 - Static export artifact is `frontend/out/`; `.next/` + `out/` are gitignored.
 - Docker: multi-stage `frontend/Dockerfile` (node:24-alpine, non-root `nextjs` user).
 
-## Backend (FastAPI + PostgreSQL)
+## Backend (FastAPI + SQLite)
 
 ### Dev
-- Postgres runs in Docker (`postgres:18-alpine`). Volume mounts at `/var/lib/postgresql` (NOT `/var/lib/postgresql/data` — PG 18+ requires versioned subdir).
-- Dev uses `Base.metadata.create_all` in lifespan (not Alembic migrations). Drop volume with `docker compose down -v` when models change.
+- SQLite file at `backend/carouselify.db` (auto-created). Wipe by deleting the file or running `docker compose down -v`.
+- Dev uses `Base.metadata.create_all` in lifespan (not Alembic migrations). Drop data volume with `docker compose down -v` when models change.
 - `docker compose up --build -d backend` after code changes.
 
 ### Auth
@@ -132,6 +132,6 @@
 - Google Fonts loaded via `<link>` in `layout.tsx`; html-to-image sometimes needs two passes to embed.
 - `transform: scale()` on slide doesn't affect layout — 1080×1080 inner element still occupies layout space, clipped by `overflow: hidden`.
 - `URLSearchParams` body in `api.ts` must NOT have `Content-Type` overwritten (the `request` helper exempts `URLSearchParams` alongside `FormData`).
-- Postgres 18+ volume must mount at `/var/lib/postgresql` (not `/var/lib/postgresql/data`). Old volume with wrong path needs `docker compose down -v`.
+- SQLite: concurrent writes use WAL mode for better concurrency. Single-writer lock applies under heavy load.
 - `get_register_router`, `get_users_router`, `get_verify_router` in fastapi-users 14+ require schema arguments.
 - PostHog is optional — only activates if `NEXT_PUBLIC_POSTHOG_KEY` is set.

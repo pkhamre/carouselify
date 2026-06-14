@@ -1,6 +1,6 @@
 # carouselify
 
-Create beautiful, design-consistent LinkedIn carousels in minutes. Built with a monorepo architecture: Next.js 15 frontend + FastAPI backend + PostgreSQL.
+Create beautiful, design-consistent LinkedIn carousels in minutes. Built with a monorepo architecture: Next.js 15 frontend + FastAPI backend + SQLite.
 
 ## Features
 
@@ -28,13 +28,13 @@ Create beautiful, design-consistent LinkedIn carousels in minutes. Built with a 
 - Docker and Docker Compose (recommended)
 - Node.js 20.9+ and Python 3.12+ (for local dev without Docker)
 
-### Quick Start (Docker)
+## Quick Start (Docker)
 
 ```bash
 docker compose up --build
 ```
 
-Open [http://localhost:3000](http://localhost:3000). This starts postgres, the backend API on port 8000, and the frontend on port 3000.
+Open [http://localhost:4000](http://localhost:4000). This starts the backend API on port 8000 and the frontend on port 4000.
 
 ### Local Development
 
@@ -49,17 +49,17 @@ uvicorn app.main:app --reload
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev -- -p 4000
 ```
 
-**Database:** Requires a PostgreSQL instance. Override via `DATABASE_URL` env var (default: `postgresql+asyncpg://carouselify:carouselify@localhost:5432/carouselify`).
+**Database:** SQLite (file-based, no separate server). Override via `DATABASE_URL` env var (default: `sqlite+aiosqlite:///./carouselify.db`).
 
 ### Production Frontend Build
 
 ```bash
 cd frontend
 npm run build
-npm start
+npm start -- -p 4000
 ```
 
 Set `NEXT_BASE_PATH` for subdirectory deploys (see below).
@@ -186,16 +186,16 @@ backend/
 ├── requirements.txt
 └── Dockerfile
 
-docker-compose.yml                  # Postgres + backend + frontend
+docker-compose.yml                  # Backend + frontend
 AGENTS.md                           # Agent guidance
 ```
 
 ## Tech Stack
 
 - **Frontend:** Next.js 15 (App Router), TypeScript, Tailwind CSS, html-to-image
-- **Backend:** FastAPI, SQLAlchemy 2.0 (async), asyncpg, Alembic, fastapi-users (JWT), OpenAI, httpx
+- **Backend:** FastAPI, SQLAlchemy 2.0 (async), aiosqlite, Alembic, fastapi-users (JWT), OpenAI, httpx
 - **Payments:** Lemon Squeezy
-- **Database:** PostgreSQL 18
+- **Database:** SQLite
 - **Infrastructure:** Docker Compose
 
 ## API

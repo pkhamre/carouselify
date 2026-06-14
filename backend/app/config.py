@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql+asyncpg://carouselify:carouselify@localhost:5432/carouselify"
+    database_url: str = "sqlite+aiosqlite:///./carouselify.db"
     secret: str = "change-me-in-production"
     lemon_squeezy_api_key: str = ""
     lemon_squeezy_webhook_secret: str = ""
