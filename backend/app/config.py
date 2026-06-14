@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     secret: str = "change-me-in-production"
     lemon_squeezy_api_key: str = ""
     lemon_squeezy_webhook_secret: str = ""
+    lemon_squeezy_store_id: str = ""
     lemon_squeezy_product_variant_id: str = ""
     openai_api_key: str = ""
 
