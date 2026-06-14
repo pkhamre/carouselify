@@ -13,6 +13,7 @@ import { AuthProvider } from "@/lib/auth";
 import { SaveButton } from "@/components/SaveButton";
 import { MyCarousels } from "@/components/MyCarousels";
 import { ShareDialog } from "@/components/ShareDialog";
+import { UserMenu } from "@/components/UserMenu";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { exportSlideAsPNG, exportSlidesAsPDF, getFontEmbedCSS } from "@/lib/export";
 import { captureExport } from "@/lib/analytics";
@@ -47,6 +48,7 @@ export default function Home() {
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [savedCarouselId, setSavedCarouselId] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [showMyCarousels, setShowMyCarousels] = useState(false);
   const [undoStack, setUndoStack] = useState<Slide[][]>([]);
   const [exportProgress, setExportProgress] = useState<{ current: number; total: number } | null>(null);
 
@@ -235,7 +237,7 @@ export default function Home() {
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
               )}
             </button>
-            <div className="w-9 h-9" /> {/* placeholder for future user menu */}
+            <UserMenu onShowMyCarousels={() => setShowMyCarousels(true)} />
           </div>
         </div>
       </header>
@@ -339,7 +341,7 @@ export default function Home() {
               onInvertChange={setInverted}
             />
 
-            <MyCarousels onLoad={handleLoadCarousel} />
+            <MyCarousels onLoad={handleLoadCarousel} show={showMyCarousels} onClose={() => setShowMyCarousels(false)} />
 
             {savedCarouselId && (
               <ShareDialog
@@ -527,7 +529,7 @@ export default function Home() {
         {mobileTab === "edit" && (
           <>
             <div className="space-y-4">
-              <MyCarousels onLoad={handleLoadCarousel} />
+              <MyCarousels onLoad={handleLoadCarousel} show={showMyCarousels} onClose={() => setShowMyCarousels(false)} />
 
               <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Slides</h3>

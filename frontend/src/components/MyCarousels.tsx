@@ -7,9 +7,11 @@ import type { CarouselListItem, CarouselData } from "@/lib/api";
 
 interface MyCarouselsProps {
   onLoad: (data: CarouselData) => void;
+  show?: boolean;
+  onClose?: () => void;
 }
 
-export function MyCarousels({ onLoad }: MyCarouselsProps) {
+export function MyCarousels({ onLoad, show, onClose }: MyCarouselsProps) {
   const { isAuthenticated } = useAuth();
   const [carousels, setCarousels] = useState<CarouselListItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -27,6 +29,16 @@ export function MyCarousels({ onLoad }: MyCarouselsProps) {
   useEffect(() => {
     if (open) fetchList();
   }, [open, fetchList]);
+
+  useEffect(() => {
+    if (show) setOpen(true);
+  }, [show]);
+
+  const toggle = () => {
+    const next = !open;
+    setOpen(next);
+    if (!next && onClose) onClose();
+  };
 
   const handleLoad = async (id: string) => {
     try {
@@ -47,7 +59,7 @@ export function MyCarousels({ onLoad }: MyCarouselsProps) {
   return (
     <div>
       <button
-        onClick={() => setOpen(!open)}
+        onClick={toggle}
         className="w-full px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
       >
         My Carousels
