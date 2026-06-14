@@ -66,6 +66,7 @@ export interface LogoConfig {
   shape: LogoShape;
   position: LogoPosition;
   showLogo: boolean;
+  size: number;
   customUrl?: string | null;
   isCustom?: boolean;
 }
@@ -82,4 +83,5 @@ export const defaultLogo: LogoConfig = {
   shape: "blob-1",
   position: "top-right",
   showLogo: true,
+  size: 1,
 };

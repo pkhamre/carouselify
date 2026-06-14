@@ -129,9 +129,25 @@ export function LogoSettings({ logo, onChange }: LogoSettingsProps) {
             </div>
           )}
 
-          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mt-4 mb-2">
-            Placement
-          </label>
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mt-4 mb-2">
+              Size
+            </label>
+            <div className="flex items-center gap-3 mb-4">
+              <input
+                type="range"
+                min="0.5"
+                max="3"
+                step="0.1"
+                value={logo.size}
+                onChange={(e) => onChange({ ...logo, size: parseFloat(e.target.value) })}
+                className="flex-1 accent-sky-600"
+              />
+              <span className="text-xs text-gray-600 dark:text-gray-400 w-8 text-right">{logo.size}x</span>
+            </div>
+
+            <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+              Placement
+            </label>
           <div className="grid grid-cols-2 gap-2">
             {logoPositionOptions.map((option) => (
               <button
