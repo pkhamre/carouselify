@@ -11,7 +11,7 @@ interface UserMenuProps {
 export function UserMenu({ onShowMyCarousels }: UserMenuProps) {
   const { user, logout, isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
-  const [showAuth, setShowAuth] = useState(false);
+  const [showAuth, setShowAuth] = useState<"login" | "register" | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,18 +28,18 @@ export function UserMenu({ onShowMyCarousels }: UserMenuProps) {
     return (
       <div className="flex items-center gap-2">
         <button
-          onClick={() => setShowAuth(true)}
+          onClick={() => setShowAuth("login")}
           className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
         >
           Log in
         </button>
         <button
-          onClick={() => setShowAuth(true)}
+          onClick={() => setShowAuth("register")}
           className="px-3 py-1.5 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors"
         >
           Register
         </button>
-        {showAuth && <AuthModal open={showAuth} onClose={() => setShowAuth(false)} />}
+        {showAuth && <AuthModal mode={showAuth} open={!!showAuth} onClose={() => setShowAuth(null)} />}
       </div>
     );
   }
