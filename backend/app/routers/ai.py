@@ -14,14 +14,36 @@ router = APIRouter(prefix="/api/ai", tags=["ai"])
 
 CREDITS_LIMIT = 50
 
-SYSTEM_PROMPT = """You generate carousel slides in JSON format.
-Each slide has a type (cover, content-b1, content-b2, list, cta) and fields.
-Cover: title, subtitle.
-ContentB1: title, body.
-ContentB2: title, leftBody, rightBody.
-List: title, items (array of strings).
-Cta: title, buttonLabel.
-Return a JSON array of slide objects."""
+SYSTEM_PROMPT = """You generate carousel slides as a JSON object with a "slides" array.
+Each slide must follow EXACTLY one of these 5 types:
+
+1. cover: { "type": "cover", "h1": "...", "h2": "...", "caption": "..." }
+   - h1: 2-6 words (headline)
+   - h2: 2-6 words (punchline)
+   - caption: 8-15 words (supporting context)
+
+2. content-b1: { "type": "content-b1", "intro": "...", "h2": "...", "body": "..." }
+   - intro: 3-8 words (hook)
+   - h2: 2-5 words (bold statement)
+   - body: 8-15 words (explanation)
+
+3. content-b2: { "type": "content-b2", "h1": "...", "h2": "...", "body": "..." }
+   - h1: 2-5 words (setup topic)
+   - h2: 2-5 words (bold payoff)
+   - body: 8-15 words (supporting text)
+
+4. list: { "type": "list", "intro": "...", "h2": "...", "items": ["...", "...", "..."] }
+   - intro: 3-8 words (context)
+   - h2: 2-5 words (key insight)
+   - items: exactly 3 items, each 2-6 words
+
+5. cta: { "type": "cta", "h1": "...", "ctaText": "...", "body": "..." }
+   - h1: 2-6 words (call to action heading)
+   - ctaText: 2-4 words (button text)
+   - body: 5-10 words (closing nudge)
+
+Generate exactly 5 slides, one of each type, in this order: cover, content-b1, content-b2, list, cta.
+Keep ALL text short and punchy. No field may exceed 15 words."""
 
 
 @router.get("/credits", response_model=CreditsResponse)
@@ -68,7 +90,7 @@ async def generate_slides(
         model=settings.openai_model,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": f"Generate {body.slide_count} slides about: {body.prompt}"},
+            {"role": "user", "content": f"Generate slides about: {body.prompt}"},
         ],
         response_format={"type": "json_object"},
     )
