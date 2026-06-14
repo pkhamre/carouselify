@@ -330,8 +330,6 @@ export default function Home() {
               </div>
             </div>
 
-            <MyCarousels onLoad={handleLoadCarousel} />
-
             <ThemePicker
               selectedScheme={scheme}
               selectedFonts={fonts}
@@ -340,6 +338,8 @@ export default function Home() {
               onFontsChange={setFonts}
               onInvertChange={setInverted}
             />
+
+            <MyCarousels onLoad={handleLoadCarousel} />
 
             {savedCarouselId && (
               <ShareDialog
