@@ -335,25 +335,20 @@ export default function Home() {
               </div>
             </div>
 
-            <ThemePicker
-              selectedScheme={scheme}
-              selectedFonts={fonts}
-              inverted={inverted}
-              onSchemeChange={setScheme}
-              onFontsChange={setFonts}
-              onInvertChange={setInverted}
-            />
+            {slides.length > 0 ? (
+              <SlideEditor
+                slide={activeSlide}
+                onUpdate={(slide) => updateSlide(activeSlideIndex, slide)}
+                onTypeChange={(type) => changeSlideType(activeSlideIndex, type)}
+                slideIndex={activeSlideIndex}
+              />
+            ) : (
+              <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 text-center text-gray-400 dark:text-gray-500 text-sm transition-colors">
+                Add a slide above to start editing
+              </div>
+            )}
 
             <MyCarousels onLoad={handleLoadCarousel} show={showMyCarousels} onClose={() => setShowMyCarousels(false)} />
-
-            {savedCarouselId && (
-              <ShareDialog
-                carouselId={savedCarouselId}
-                shareUrl={shareUrl}
-                onShared={setShareUrl}
-                onRevoked={() => setShareUrl(null)}
-              />
-            )}
           </div>
 
           <div className="col-span-5">
@@ -399,21 +394,25 @@ export default function Home() {
 
           <div className="col-span-4">
             <div className="sticky top-6 space-y-4">
+              <ThemePicker
+                selectedScheme={scheme}
+                selectedFonts={fonts}
+                inverted={inverted}
+                onSchemeChange={setScheme}
+                onFontsChange={setFonts}
+                onInvertChange={setInverted}
+              />
               <LogoSettings
                 logo={logo}
                 onChange={setLogo}
               />
-              {slides.length > 0 ? (
-                <SlideEditor
-                  slide={activeSlide}
-                  onUpdate={(slide) => updateSlide(activeSlideIndex, slide)}
-                  onTypeChange={(type) => changeSlideType(activeSlideIndex, type)}
-                  slideIndex={activeSlideIndex}
+              {savedCarouselId && (
+                <ShareDialog
+                  carouselId={savedCarouselId}
+                  shareUrl={shareUrl}
+                  onShared={setShareUrl}
+                  onRevoked={() => setShareUrl(null)}
                 />
-              ) : (
-                <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 text-center text-gray-400 dark:text-gray-500 text-sm transition-colors">
-                  Add a slide above to start editing
-                </div>
               )}
             </div>
           </div>
