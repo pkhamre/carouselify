@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { LogoConfig } from "@/lib/types";
 import { logoShapeOrder, logoShapePaths } from "@/lib/logoShapes";
 import { useAuth } from "@/lib/auth";
-import { uploadLogo } from "@/lib/api";
+import { uploadLogo, API_URL } from "@/lib/api";
 import { UpgradePrompt } from "./UpgradePrompt";
 
 const logoPositionOptions: Array<{ value: LogoConfig["position"]; label: string }> = [
@@ -32,7 +32,7 @@ export function LogoSettings({ logo, onChange }: LogoSettingsProps) {
     setUploadError("");
     try {
       const res = await uploadLogo(file);
-      onChange({ ...logo, customUrl: res.url, isCustom: true });
+      onChange({ ...logo, customUrl: `${API_URL}${res.url}`, isCustom: true });
     } catch (err: any) {
       setUploadError(err.message || "Upload failed");
     }
