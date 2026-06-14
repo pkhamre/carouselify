@@ -5,8 +5,11 @@
    height="512"
    version="1.1"
    id="svg1"
-   sodipodi:docname="carouselify-icon.svg"
+   sodipodi:docname="icon.svg"
    inkscape:version="1.4.4 (1:1.4.4+202605061435+dcaf3e7d9e)"
+   inkscape:export-filename="apple-icon.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -24,24 +27,17 @@
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
      inkscape:zoom="1.1863374"
-     inkscape:cx="197.66721"
-     inkscape:cy="257.93675"
-     inkscape:window-width="1349"
-     inkscape:window-height="994"
+     inkscape:cx="198.08867"
+     inkscape:cy="258.3582"
+     inkscape:window-width="1848"
+     inkscape:window-height="1223"
      inkscape:window-x="26"
      inkscape:window-y="23"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg1" />
-  <text
-     x="40.317101"
-     y="67.475677"
-     text-anchor="middle"
-     font-family="Georgia, 'Times New Roman', serif"
-     font-size="97.3001px"
-     font-weight="700"
-     fill="#ffffff"
+  <path
+     style="font-weight:bold;font-size:97.3001px;font-family:'Fraunces 72pt';-inkscape-font-specification:'Fraunces 72pt Bold';text-anchor:middle;fill:#0284c7;stroke-width:1.87116"
+     d="m 49.025422,34.636893 q 0,3.162253 -2.091952,5.254206 -2.091953,2.043302 -5.692056,2.043302 -3.502804,0 -5.400156,-1.994652 -1.897352,-1.994653 -1.897352,-5.448806 V 31.71789 q 0,-3.162253 -1.508152,-4.913655 -1.508151,-1.800052 -4.037954,-1.800052 -2.335202,0 -4.183904,1.702752 -1.848702,1.702751 -2.919003,4.962305 -1.021651,3.210903 -1.021651,7.832658 0,6.081256 1.848702,10.265161 1.897352,4.135254 5.156905,6.275856 3.308203,2.140603 7.540758,2.140603 3.989304,0 6.859657,-1.459502 2.919003,-1.508151 4.524455,-4.670405 0.632451,-0.72975 1.021651,-0.973001 0.3892,-0.24325 0.778401,-0.24325 0.53515,0.04865 0.778401,0.583801 0.24325,0.4865 0.24325,1.216251 -0.486501,4.621755 -3.210904,8.270509 -2.675752,3.600103 -7.151557,5.643406 -4.475805,2.043302 -10.265161,2.043302 -6.567757,0 -11.724662,-2.675753 -5.108256,-2.675753 -8.0759087,-7.686708 -2.9676531,-5.059606 -2.9676531,-12.113863 0,-7.102907 3.0649532,-12.697663 3.0649536,-5.594756 8.5137586,-8.80566 5.497456,-3.259553 12.843614,-3.259553 6.032606,0 10.265161,1.800052 4.232554,1.751402 6.470456,4.767705 2.237903,3.016303 2.237903,6.713707 z m 15.227496,33.957736 q -2.627103,0 -4.767705,-1.313552 -2.091953,-1.362201 -3.356854,-3.551453 -1.216251,-2.189253 -1.216251,-4.767705 0,-2.627103 1.216251,-4.767705 1.264901,-2.140603 3.356854,-3.405504 2.140602,-1.313551 4.767705,-1.313551 2.627102,0 4.767705,1.313551 2.140602,1.264901 3.356853,3.405504 1.264901,2.140602 1.264901,4.767705 0,2.578452 -1.264901,4.767705 -1.216251,2.189252 -3.356853,3.551453 -2.091953,1.313552 -4.767705,1.313552 z"
      id="text1"
-     style="stroke-width:1.87116;fill:#0284c7;fill-opacity:1"><tspan
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Fraunces 72pt';-inkscape-font-specification:'Fraunces 72pt Bold';stroke-width:1.87116;fill:#0284c7;fill-opacity:1"
-       id="tspan1">c.</tspan></text>
+     aria-label="c." />
 </svg>
