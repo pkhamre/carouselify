@@ -226,18 +226,18 @@ function HomeContent() {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user?.isPremium) {
+    if (user?.is_premium) {
       getCredits().then(setCredits).catch(() => {});
     }
-  }, [user?.isPremium]);
+  }, [user?.is_premium]);
 
   const handleAiGenerated = useCallback((newSlides: any[]) => {
     setSlides(newSlides);
     setActiveSlideIndex(0);
-    if (user?.isPremium) {
+    if (user?.is_premium) {
       getCredits().then(setCredits).catch(() => {});
     }
-  }, [user?.isPremium]);
+  }, [user?.is_premium]);
 
   const carouselData = {
     slides,
@@ -454,7 +454,7 @@ function HomeContent() {
       <div className="hidden lg:block fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-6 py-3 transition-colors">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            {user?.isPremium && credits !== null && (
+            {user?.is_premium && credits !== null && (
               <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                 AI: {credits.remaining}/{credits.limit}
               </span>

@@ -21,7 +21,7 @@ interface LogoSettingsProps {
 
 export function LogoSettings({ logo, onChange }: LogoSettingsProps) {
   const { user } = useAuth();
-  const isPremium = user?.isPremium ?? false;
+  const isPremium = user?.is_premium ?? false;
   const [uploadBusy, setUploadBusy] = useState(false);
   const [uploadError, setUploadError] = useState("");
 

@@ -7,7 +7,7 @@ interface AuthUser {
   id: string;
   email: string;
   isGuest?: boolean;
-  isPremium?: boolean;
+  is_premium?: boolean;
 }
 
 interface AuthContextType {
@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const existingToken = getTokenValue();
     if (existingToken) {
       getMe()
-        .then((u) => setUser({ id: u.id, email: u.email, isPremium: u.isPremium }))
+        .then((u) => setUser({ id: u.id, email: u.email, is_premium: u.is_premium }))
         .catch(() => setToken(null))
         .finally(() => setLoading(false));
     } else {

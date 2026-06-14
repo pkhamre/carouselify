@@ -1,11 +1,15 @@
 import uuid
 from datetime import datetime
+from typing import Optional
 from fastapi_users import schemas as users_schemas
 from pydantic import BaseModel
 
 
 class UserRead(users_schemas.BaseUser[uuid.UUID]):
-    pass
+    is_premium: bool = False
+    ai_credits_used: int = 0
+    ai_credits_reset_at: Optional[datetime] = None
+    lemon_squeezy_subscription_id: Optional[str] = None
 
 
 class UserCreate(users_schemas.BaseUserCreate):

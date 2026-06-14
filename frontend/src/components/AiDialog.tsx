@@ -38,7 +38,7 @@ export function AiDialog({ open, onClose, onGenerate }: AiDialogProps) {
 
   if (!open) return null;
 
-  if (!user?.isPremium) {
+  if (!user?.is_premium) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
         <div className="bg-white dark:bg-gray-900 rounded-xl p-6 max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>

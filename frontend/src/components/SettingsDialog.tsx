@@ -14,7 +14,7 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
   const [credits, setCredits] = useState<{ remaining: number; limit: number; resets_at: string | null } | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const isPremium = user?.isPremium;
+  const isPremium = user?.is_premium;
 
   useEffect(() => {
     if (open && isPremium) {
