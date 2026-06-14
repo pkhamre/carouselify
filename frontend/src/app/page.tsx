@@ -58,7 +58,7 @@ function HomeContent() {
   const [logo, setLogo] = useState<LogoConfig>(defaultLogo);
   const [inverted, setInverted] = useState(false);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => typeof window !== "undefined" && localStorage.getItem("darkMode") === "true");
   const [mobileTab, setMobileTab] = useState<"preview" | "edit" | "design">("preview");
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [savedCarouselId, setSavedCarouselId] = useState<string | null>(null);
@@ -262,8 +262,10 @@ function HomeContent() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => {
-                setDarkMode(!darkMode);
-                document.documentElement.classList.toggle("dark");
+                const next = !darkMode;
+                setDarkMode(next);
+                localStorage.setItem("darkMode", String(next));
+                document.documentElement.classList.toggle("dark", next);
               }}
               aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
               className="w-9 h-9 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"

@@ -13,6 +13,7 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
   const { user } = useAuth();
   const [credits, setCredits] = useState<{ remaining: number; limit: number; resets_at: string | null } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => typeof window !== "undefined" && localStorage.getItem("darkMode") === "true");
 
   const isPremium = user?.is_premium;
 
@@ -96,6 +97,25 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
                 {busy ? "Redirecting..." : "Upgrade to Premium"}
               </button>
             )}
+          </div>
+        </div>
+
+        <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-800">
+          <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Appearance</label>
+          <div className="mt-2 flex items-center justify-between">
+            <span className="text-sm text-gray-900 dark:text-gray-100">Dark mode</span>
+            <button
+              onClick={() => {
+                const next = !darkMode;
+                setDarkMode(next);
+                localStorage.setItem("darkMode", String(next));
+                document.documentElement.classList.toggle("dark", next);
+              }}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${darkMode ? "bg-sky-600" : "bg-gray-300 dark:bg-gray-600"}`}
+              aria-label={darkMode ? "Disable dark mode" : "Enable dark mode"}
+            >
+              <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${darkMode ? "translate-x-[18px]" : "translate-x-[3px]"}`} />
+            </button>
           </div>
         </div>
 
