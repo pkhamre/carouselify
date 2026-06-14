@@ -63,3 +63,33 @@ class LinkGuestRequest(BaseModel):
 class ShareResponse(BaseModel):
     url: str
     share_token: uuid.UUID
+
+
+class CheckoutRequest(BaseModel):
+    return_url: str
+
+
+class CheckoutResponse(BaseModel):
+    url: str
+
+
+class PortalResponse(BaseModel):
+    url: str
+
+
+class CreditsResponse(BaseModel):
+    used: int
+    limit: int
+    remaining: int
+    resets_at: datetime | None
+
+
+class AiGenerateRequest(BaseModel):
+    prompt: str
+    slide_count: int = 5
+
+
+class AiGenerateResponse(BaseModel):
+    slides: list
+    credits_used: int
+    credits_remaining: int
