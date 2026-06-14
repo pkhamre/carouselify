@@ -5,7 +5,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
 from app.schemas import UserRead, UserCreate, UserUpdate
 from app.users import fastapi_users, auth_backend
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
 from app.routers.carousels import router as carousels_router, public_router, guest_router
+from app.routers.billing import router as billing_router
+from app.routers.upload import router as upload_router
+from app.routers.ai import router as ai_router
 
 
 @asynccontextmanager
@@ -28,6 +33,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+uploads_dir = Path("uploads/logos")
+uploads_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
 app.include_router(fastapi_users.get_auth_router(auth_backend), prefix="/auth/jwt", tags=["auth"])
 app.include_router(fastapi_users.get_register_router(UserRead, UserCreate), prefix="/auth", tags=["auth"])
 app.include_router(fastapi_users.get_users_router(UserRead, UserUpdate), prefix="/auth", tags=["auth"])
@@ -36,6 +45,9 @@ app.include_router(fastapi_users.get_verify_router(UserRead), prefix="/auth", ta
 app.include_router(carousels_router)
 app.include_router(guest_router)
 app.include_router(public_router)
+app.include_router(billing_router)
+app.include_router(upload_router)
+app.include_router(ai_router)
 
 
 @app.get("/health")
