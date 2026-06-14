@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Boolean, Integer, DateTime, ForeignKey, JSON, Uuid, func
+from sqlalchemy import Column, String, Boolean, Integer, DateTime, ForeignKey, JSON, func
 from sqlalchemy.orm import relationship
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID
+from fastapi_users_db_sqlalchemy.generics import GUID
 
 from app.database import Base
 
@@ -23,12 +24,12 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
 class Carousel(Base):
     __tablename__ = "carousel"
 
-    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
-    user_id = Column(Uuid, ForeignKey("user.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
+    user_id = Column(GUID, ForeignKey("user.id", ondelete="CASCADE"), nullable=False, index=True)
     title = Column(String(255), nullable=False, default="Untitled")
     data = Column(JSON, nullable=False, default=dict)
     is_public = Column(Boolean, default=False, nullable=False)
-    share_token = Column(Uuid, unique=True, nullable=True, index=True)
+    share_token = Column(GUID, unique=True, nullable=True, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
@@ -38,8 +39,8 @@ class Carousel(Base):
 class CustomScheme(Base):
     __tablename__ = "custom_scheme"
 
-    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
-    user_id = Column(Uuid, ForeignKey("user.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
+    user_id = Column(GUID, ForeignKey("user.id", ondelete="CASCADE"), nullable=False, index=True)
     name = Column(String, nullable=False)
     background = Column(String, nullable=False)
     accent = Column(String, nullable=False)

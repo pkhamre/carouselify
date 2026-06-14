@@ -51,8 +51,8 @@ async def get_credits(
     user: User = Depends(current_active_user),
     session: AsyncSession = Depends(get_session),
 ):
-    now = datetime.now(timezone.utc)
-    if user.ai_credits_reset_at and user.ai_credits_reset_at < now:
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    if user.ai_credits_reset_at and user.ai_credits_reset_at.replace(tzinfo=None) < now:
         user.ai_credits_used = 0
         await session.commit()
 
@@ -74,8 +74,8 @@ async def generate_slides(
     if not user.is_premium:
         raise HTTPException(status.HTTP_402_PAYMENT_REQUIRED, detail="Premium required")
 
-    now = datetime.now(timezone.utc)
-    if user.ai_credits_reset_at and user.ai_credits_reset_at < now:
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    if user.ai_credits_reset_at and user.ai_credits_reset_at.replace(tzinfo=None) < now:
         user.ai_credits_used = 0
 
     used = user.ai_credits_used or 0
