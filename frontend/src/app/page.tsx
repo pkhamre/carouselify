@@ -18,6 +18,7 @@ import { ToastProvider, useToast } from "@/components/Toast";
 import { exportSlideAsPNG, exportSlidesAsPDF, getFontEmbedCSS } from "@/lib/export";
 import { captureExport } from "@/lib/analytics";
 import { AiDialog } from "@/components/AiDialog";
+import { SettingsDialog } from "@/components/SettingsDialog";
 import { getCredits } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import "@/components/slides/slideStyles.css";
@@ -63,7 +64,7 @@ function HomeContent() {
   const [savedCarouselId, setSavedCarouselId] = useState<string | null>(null);
   const [savedTitle, setSavedTitle] = useState("");
   const [shareUrl, setShareUrl] = useState<string | null>(null);
-  const [showMyCarousels, setShowMyCarousels] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [undoStack, setUndoStack] = useState<Slide[][]>([]);
   const [exportProgress, setExportProgress] = useState<{ current: number; total: number } | null>(null);
   const [carouselRefreshKey, setCarouselRefreshKey] = useState(0);
@@ -270,7 +271,7 @@ function HomeContent() {
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
               )}
             </button>
-            <UserMenu onShowMyCarousels={() => setShowMyCarousels(true)} />
+            <UserMenu onShowSettings={() => setShowSettings(true)} />
           </div>
         </div>
       </header>
@@ -378,7 +379,7 @@ function HomeContent() {
               </div>
             )}
 
-            <MyCarousels onLoad={handleLoadCarousel} show={showMyCarousels} onClose={() => setShowMyCarousels(false)} refreshKey={carouselRefreshKey} />
+            <MyCarousels onLoad={handleLoadCarousel} refreshKey={carouselRefreshKey} />
           </div>
 
           <div className="col-span-5">
@@ -588,7 +589,7 @@ function HomeContent() {
         {mobileTab === "edit" && (
           <>
             <div className="space-y-4">
-              <MyCarousels onLoad={handleLoadCarousel} show={showMyCarousels} onClose={() => setShowMyCarousels(false)} refreshKey={carouselRefreshKey} />
+            <MyCarousels onLoad={handleLoadCarousel} refreshKey={carouselRefreshKey} />
 
               <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Slides</h3>
@@ -747,6 +748,11 @@ function HomeContent() {
           </div>
         ))}
       </div>
+
+      <SettingsDialog
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
 
       <AiDialog
         open={showAiDialog}

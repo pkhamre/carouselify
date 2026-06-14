@@ -5,10 +5,10 @@ import { useAuth } from "@/lib/auth";
 import { AuthModal } from "./AuthModal";
 
 interface UserMenuProps {
-  onShowMyCarousels?: () => void;
+  onShowSettings?: () => void;
 }
 
-export function UserMenu({ onShowMyCarousels }: UserMenuProps) {
+export function UserMenu({ onShowSettings }: UserMenuProps) {
   const { user, logout, isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
   const [showAuth, setShowAuth] = useState<"login" | "register" | null>(null);
@@ -60,14 +60,12 @@ export function UserMenu({ onShowMyCarousels }: UserMenuProps) {
           <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800 truncate">
             {user!.email}
           </div>
-          {onShowMyCarousels && (
-            <button
-              onClick={() => { setOpen(false); onShowMyCarousels(); }}
-              className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            >
-              My Carousels
-            </button>
-          )}
+          <button
+            onClick={() => { setOpen(false); onShowSettings?.(); }}
+            className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            Settings
+          </button>
           <button
             onClick={() => { setOpen(false); logout(); }}
             className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
