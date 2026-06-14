@@ -4,6 +4,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "carouselify",
   description: "Create beautiful LinkedIn carousels with a modern design system",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({
