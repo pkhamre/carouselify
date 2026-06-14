@@ -29,25 +29,20 @@ async def create_checkout(
             f"{LEMON_API}/checkouts",
             headers={
                 "Authorization": f"Bearer {settings.lemon_squeezy_api_key}",
-                "Accept": "application/vnd.api+json",
-                "Content-Type": "application/vnd.api+json",
+                "Accept": "application/json",
+                "Content-Type": "application/json",
             },
             json={
-                "data": {
-                    "type": "checkouts",
-                    "attributes": {
-                        "product_variant_id": int(settings.lemon_squeezy_product_variant_id),
-                        "custom_price": None,
-                        "product_options": {
-                            "enabled_variants": [int(settings.lemon_squeezy_product_variant_id)],
-                        },
-                        "checkout_data": {
-                            "email": user.email,
-                            "custom": {"user_id": str(user.id)},
-                            "return_url": data.return_url,
-                        },
-                    },
-                }
+                "variant_id": int(settings.lemon_squeezy_product_variant_id),
+                "product_options": {
+                    "enabled_variants": [int(settings.lemon_squeezy_product_variant_id)],
+                    "redirect_url": data.return_url,
+                },
+                "checkout_data": {
+                    "email": user.email,
+                    "custom": {"user_id": str(user.id)},
+                },
+                "test_mode": True,
             },
         )
         res = resp.json()
@@ -56,7 +51,7 @@ async def create_checkout(
             print(f"Lemon Squeezy checkout error ({resp.status_code}): {err_msg}")
             print(f"Full response: {json.dumps(res, indent=2)}")
             raise HTTPException(502, detail=err_msg)
-        checkout_url = res["data"]["attributes"]["url"]
+        checkout_url = res["url"]
         return CheckoutResponse(url=checkout_url)
 
 
