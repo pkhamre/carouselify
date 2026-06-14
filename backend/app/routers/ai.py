@@ -103,7 +103,7 @@ async def generate_slides(
     except (json.JSONDecodeError, KeyError, TypeError):
         raise HTTPException(500, detail="AI response parsing failed")
 
-    deduction = min(len(slides), CREDITS_LIMIT - used)
+    deduction = 1
     user.ai_credits_used = used + deduction
     await session.commit()
 
