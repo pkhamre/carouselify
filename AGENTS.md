@@ -6,7 +6,7 @@
 - `cd frontend && npm run start -- -p 4000` — production server (port 4000)
 - `cd frontend && npm run lint` — ESLint via `next lint`
 - `docker compose up --build` — Start all services (backend, frontend)
-- `docker compose up --build -d backend` — Build and start backend only
+- `docker compose up --build -d carouselify-backend` — Build and start backend only
 - `docker compose down -v` — Wipe SQLite data volume (needed when models change since dev uses `create_all`)
 
 ## Architecture
