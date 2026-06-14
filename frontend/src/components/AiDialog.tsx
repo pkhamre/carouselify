@@ -14,7 +14,6 @@ interface AiDialogProps {
 export function AiDialog({ open, onClose, onGenerate }: AiDialogProps) {
   const { user } = useAuth();
   const [prompt, setPrompt] = useState("");
-  const [count, setCount] = useState(5);
   const [busy, setBusy] = useState(false);
   const [credits, setCredits] = useState<{ used: number; remaining: number } | null>(null);
 
@@ -26,7 +25,7 @@ export function AiDialog({ open, onClose, onGenerate }: AiDialogProps) {
     if (!prompt.trim()) return;
     setBusy(true);
     try {
-      const res = await generateSlides(prompt, count);
+      const res = await generateSlides(prompt);
       onGenerate(res.slides);
       setCredits({ used: (credits?.used ?? 0) + res.credits_used, remaining: res.credits_remaining });
       onClose();
@@ -66,18 +65,6 @@ export function AiDialog({ open, onClose, onGenerate }: AiDialogProps) {
           rows={4}
           className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 resize-none"
         />
-        <div className="flex items-center gap-2">
-          <label className="text-sm text-gray-600 dark:text-gray-400">Slides:</label>
-          <input
-            type="range"
-            min={3}
-            max={10}
-            value={count}
-            onChange={(e) => setCount(Number(e.target.value))}
-            className="flex-1"
-          />
-          <span className="text-sm text-gray-700 dark:text-gray-300 w-6 text-right">{count}</span>
-        </div>
         <div className="flex gap-2 justify-end">
           <button
             onClick={onClose}

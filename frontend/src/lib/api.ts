@@ -164,7 +164,7 @@ export function getCredits(): Promise<{ used: number; limit: number; remaining: 
   return request("/api/ai/credits");
 }
 
-export function generateSlides(prompt: string, slideCount: number): Promise<{ slides: any[]; credits_used: number; credits_remaining: number }> {
+export function generateSlides(prompt: string, slideCount: number = 5): Promise<{ slides: any[]; credits_used: number; credits_remaining: number }> {
   return request("/api/ai/generate", {
     method: "POST",
     body: JSON.stringify({ prompt, slide_count: slideCount }),
