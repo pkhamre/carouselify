@@ -125,6 +125,17 @@ export function revokeShare(id: string): Promise<void> {
   return request(`/api/carousels/${id}/share`, { method: "DELETE" });
 }
 
+export function createGuest(): Promise<{ access_token: string; token_type: string; user_id: string }> {
+  return request("/auth/guest", { method: "POST" });
+}
+
+export function linkGuestAccount(guestUserId: string): Promise<{ transferred: number }> {
+  return request("/auth/link-guest", {
+    method: "POST",
+    body: JSON.stringify({ guest_user_id: guestUserId }),
+  });
+}
+
 export function getSharedCarousel(shareToken: string): Promise<CarouselData> {
   return request(`/api/s/${shareToken}`);
 }

@@ -11,6 +11,7 @@ import { ThemePicker } from "@/components/ThemePicker";
 import { LogoSettings } from "@/components/LogoSettings";
 import { AuthProvider } from "@/lib/auth";
 import { SaveButton } from "@/components/SaveButton";
+import { MyCarousels } from "@/components/MyCarousels";
 import { ShareDialog } from "@/components/ShareDialog";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { exportSlideAsPNG, exportSlidesAsPDF, getFontEmbedCSS } from "@/lib/export";
@@ -143,6 +144,17 @@ export default function Home() {
       }
     : scheme;
 
+  const handleLoadCarousel = useCallback((data: any) => {
+    const d = data.data;
+    if (d.slides) setSlides(d.slides);
+    if (d.schemeIndex !== undefined) setScheme(colorSchemes[d.schemeIndex] || defaultScheme);
+    if (d.fontIndex !== undefined) setFonts(fontPairings[d.fontIndex] || defaultFonts);
+    if (d.logo) setLogo(d.logo);
+    if (d.inverted !== undefined) setInverted(d.inverted);
+    setSavedCarouselId(data.id);
+    setShareUrl(data.share_token ? `/s/${data.share_token}` : null);
+  }, []);
+
   const carouselData = {
     slides,
     schemeIndex: colorSchemes.indexOf(scheme),
@@ -209,6 +221,8 @@ export default function Home() {
               onFontsChange={setFonts}
               onInvertChange={setInverted}
             />
+
+            <MyCarousels onLoad={handleLoadCarousel} />
 
             <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
               <div className="flex items-center justify-between mb-3">
@@ -436,6 +450,8 @@ export default function Home() {
         {mobileTab === "edit" && (
           <>
             <div className="space-y-4">
+              <MyCarousels onLoad={handleLoadCarousel} />
+
               <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Slides</h3>
                 <div className="flex items-center justify-between mb-2">
