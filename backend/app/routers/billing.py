@@ -23,6 +23,8 @@ async def create_checkout(
     data: CheckoutRequest,
     user: User = Depends(current_active_user),
 ):
+    if not settings.subscriptions_enabled:
+        raise HTTPException(503, detail="Subscriptions are temporarily unavailable")
     if not settings.lemon_squeezy_api_key or not settings.lemon_squeezy_product_variant_id:
         raise HTTPException(502, detail="Lemon Squeezy not configured")
     async with httpx.AsyncClient() as client:
@@ -80,6 +82,8 @@ async def create_portal(
     data: CheckoutRequest,
     user: User = Depends(current_active_user),
 ):
+    if not settings.subscriptions_enabled:
+        raise HTTPException(503, detail="Subscriptions are temporarily unavailable")
     if not settings.lemon_squeezy_api_key:
         raise HTTPException(502, detail="Lemon Squeezy not configured")
     if not user.lemon_squeezy_customer_id:
