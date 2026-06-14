@@ -26,7 +26,11 @@ export default function SharedCarouselPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [data, setData] = useState<SharedCarouselData | null>(null);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => typeof window !== "undefined" && localStorage.getItem("darkMode") === "true");
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+  }, [darkMode]);
 
   useEffect(() => {
     if (!shareToken) return;
@@ -89,8 +93,10 @@ export default function SharedCarouselPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => {
-                setDarkMode(!darkMode);
-                document.documentElement.classList.toggle("dark");
+                const next = !darkMode;
+                setDarkMode(next);
+                localStorage.setItem("darkMode", String(next));
+                document.documentElement.classList.toggle("dark", next);
               }}
               className="w-9 h-9 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               aria-label="Toggle dark mode"

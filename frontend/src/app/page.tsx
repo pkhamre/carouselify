@@ -72,6 +72,10 @@ function HomeContent() {
   const [credits, setCredits] = useState<{ remaining: number; limit: number } | null>(null);
 
   useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+  }, [darkMode]);
+
+  useEffect(() => {
     const cloneData = sessionStorage.getItem("clone-data");
     if (cloneData) {
       try {
