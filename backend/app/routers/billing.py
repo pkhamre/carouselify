@@ -1,6 +1,7 @@
 import json
 import hmac
 import hashlib
+from datetime import datetime
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
@@ -147,7 +148,9 @@ async def webhook_handler(request: Request, session: AsyncSession = Depends(get_
         user.lemon_squeezy_customer_id = str(sub_data["customer_id"])
         user.lemon_squeezy_subscription_id = str(payload["data"]["id"])
         user.ai_credits_used = 0
-        user.ai_credits_reset_at = sub_data.get("renews_at")
+        renews_at = sub_data.get("renews_at")
+        if renews_at:
+            user.ai_credits_reset_at = datetime.fromisoformat(renews_at.replace("Z", "+00:00"))
     elif event_name == "subscription_updated":
         user.is_premium = True
     elif event_name in ("subscription_cancelled", "subscription_expired"):
