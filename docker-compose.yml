@@ -1,13 +1,51 @@
 services:
-  app:
-    build:
-      context: .
-      target: dev
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: carouselify
+      POSTGRES_PASSWORD: carouselify
+      POSTGRES_DB: carouselify
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U carouselify"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://carouselify:carouselify@postgres:5432/carouselify
+      SECRET: change-me-in-production
+    ports:
+      - "8000:8000"
+    develop:
+      watch:
+        - path: ./backend
+          action: rebuild
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
     ports:
       - "3000:3000"
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
-    environment:
-      - NODE_ENV=development
+    develop:
+      watch:
+        - path: ./frontend
+          action: sync
+          target: /app
+          ignore:
+            - node_modules/
+            - .next/
+
+volumes:
+  pgdata:
