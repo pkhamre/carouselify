@@ -24,7 +24,11 @@ export function CoverSlideComponent({ slide, scheme, fonts, logo, slideNumber, t
     >
       {logo.showLogo && (
         <div className={`slide-logo slide-logo-${logo.position}`}>
-          <LogoSVG scheme={scheme} fonts={fonts} letter={logo.letter} shape={logo.shape} />
+          {logo.isCustom && logo.customUrl ? (
+            <img src={logo.customUrl} alt="Logo" className="h-10 w-auto object-contain" />
+          ) : (
+            <LogoSVG scheme={scheme} fonts={fonts} letter={logo.letter} shape={logo.shape} />
+          )}
         </div>
       )}
 
