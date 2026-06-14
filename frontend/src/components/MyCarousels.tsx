@@ -58,15 +58,19 @@ export function MyCarousels({ onLoad, show, onClose, refreshKey }: MyCarouselsPr
   if (!isAuthenticated) return null;
 
   return (
-    <div>
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 transition-colors">
       <button
         onClick={toggle}
-        className="w-full px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left"
+        className={`w-full px-4 py-3 text-sm font-medium text-left transition-colors ${
+          open
+            ? "rounded-t-xl border-b border-gray-200 dark:border-gray-800"
+            : "rounded-xl"
+        } hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200`}
       >
         My Carousels
       </button>
       {open && (
-        <div className="mt-2 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-3 space-y-2 max-h-[300px] overflow-y-auto transition-colors">
+        <div className="p-3 space-y-2 max-h-[300px] overflow-y-auto">
           {loading && <p className="text-sm text-gray-500">Loading...</p>}
           {!loading && carousels.length === 0 && (
             <p className="text-sm text-gray-500">No saved carousels</p>
