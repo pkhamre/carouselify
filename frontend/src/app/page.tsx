@@ -221,11 +221,6 @@ export default function Home() {
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Create beautiful carousels in minutes</p>
           </div>
           <div className="flex items-center gap-3">
-            <SaveButtonWithToast
-              carouselData={carouselData}
-              savedId={savedCarouselId}
-              onSaved={(id) => setSavedCarouselId(id)}
-            />
             <button
               onClick={() => {
                 setDarkMode(!darkMode);
@@ -240,27 +235,12 @@ export default function Home() {
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
               )}
             </button>
-            <button
-              onClick={handleExportPNG}
-              disabled={!!exportProgress}
-              aria-label="Export all slides as PNG images"
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
-            >
-              {exportProgress ? `Exporting ${exportProgress.current}/${exportProgress.total}` : "Export PNG"}
-            </button>
-            <button
-              onClick={handleExportPDF}
-              disabled={!!exportProgress}
-              aria-label="Export all slides as PDF"
-              className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 transition-colors"
-            >
-              {exportProgress ? `Exporting ${exportProgress.current}/${exportProgress.total}` : "Export PDF"}
-            </button>
+            <div className="w-9 h-9" /> {/* placeholder for future user menu */}
           </div>
         </div>
       </header>
 
-      <div className="hidden lg:block max-w-[1600px] mx-auto p-6 pb-6">
+      <div className="hidden lg:block max-w-[1600px] mx-auto p-6 pb-24">
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-3 space-y-4">
             <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
@@ -432,6 +412,33 @@ export default function Home() {
               )}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Desktop floating bottom bar */}
+      <div className="hidden lg:block fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-6 py-3 transition-colors">
+        <div className="max-w-[1600px] mx-auto flex items-center justify-end gap-3">
+          <SaveButtonWithToast
+            carouselData={carouselData}
+            savedId={savedCarouselId}
+            onSaved={(id) => setSavedCarouselId(id)}
+          />
+          <button
+            onClick={handleExportPNG}
+            disabled={!!exportProgress}
+            aria-label="Export all slides as PNG images"
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
+          >
+            {exportProgress ? `${exportProgress.current}/${exportProgress.total}` : "Export PNG"}
+          </button>
+          <button
+            onClick={handleExportPDF}
+            disabled={!!exportProgress}
+            aria-label="Export all slides as PDF"
+            className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 transition-colors"
+          >
+            {exportProgress ? `${exportProgress.current}/${exportProgress.total}` : "Export PDF"}
+          </button>
         </div>
       </div>
 
