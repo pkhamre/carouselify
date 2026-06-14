@@ -145,7 +145,7 @@ async def webhook_handler(request: Request, session: AsyncSession = Depends(get_
         sub_data = payload["data"]["attributes"]
         user.is_premium = True
         user.lemon_squeezy_customer_id = str(sub_data["customer_id"])
-        user.lemon_squeezy_subscription_id = str(sub_data["id"])
+        user.lemon_squeezy_subscription_id = str(payload["data"]["id"])
         user.ai_credits_used = 0
         user.ai_credits_reset_at = sub_data.get("renews_at")
     elif event_name == "subscription_updated":
