@@ -13,8 +13,13 @@ Create beautiful, design-consistent LinkedIn carousels in minutes. Built with a 
 - **Export** — Download as individual PNG files or a multi-page PDF
 - **1080×1080px canvas** — Optimized for LinkedIn's square format
 - **Progress bar** — Bottom accent bar scales with slide position
-- **Save & Share** — Create an account, save your carousels, and share them via a public view-only link
+- **Guest mode** — Auto-assigned JWT on first visit; save and restore without registering
+- **Save & Share** — Save carousels to your account and share them via a public view-only link
 - **Clone & Edit** — Open any shared carousel and clone it into your own editor session
+- **My Carousels** — Browse, load, and delete your saved carousels from within the editor
+- **Premium subscription** — Unlock custom logo upload + AI-powered slide generation via Lemon Squeezy
+- **Custom logo upload** — Premium users can upload their own logo image (PNG/JPEG/WebP/GIF, 2MB max)
+- **AI slide generation** — Premium users get 50 AI credits per month to generate slides via gpt-4o-mini
 
 ## Getting Started
 
@@ -85,16 +90,21 @@ docker build -t carouselify-backend ./backend
 
 ## Usage
 
-1. **Pick a theme** — Choose a color scheme and font pairing from the sidebar
-2. **Customize your logo** — Set the letter, shape, and position; toggle visibility on/off
-3. **Edit slides** — Click through slides in the sidebar and edit content in the right panel
-4. **Change slide types** — Use the dropdown to switch between Cover, Content B1, Content B2, List, and CTA
-5. **Add/remove slides** — Use the + Add button or × to manage slide count (max 12)
-6. **Reorder** — Use ↑/↓ arrows to rearrange slides
-7. **Save** — Create an account to save your carousel. Saved carousels can be updated.
-8. **Share** — Generate a share link for your saved carousel. Anyone with the link can view it.
-9. **Clone & Edit** — On a shared carousel page, click "Clone and Edit" to copy it into your editor.
-10. **Export** — Click "Export PNG" for individual images or "Export PDF" for a combined document.
+1. **Guest mode** — On first visit you're auto-assigned a guest account. Save works immediately.
+2. **Pick a theme** — Choose a color scheme and font pairing from the sidebar
+3. **Customize your logo** — Set the letter, shape, and position; toggle visibility on/off (premium: upload your own)
+4. **Edit slides** — Click through slides in the sidebar and edit content in the right panel
+5. **Change slide types** — Use the dropdown to switch between Cover, Content B1, Content B2, List, and CTA
+6. **Add/remove slides** — Use the + Add button or × to manage slide count (max 12)
+7. **Reorder** — Use ↑/↓ arrows to rearrange slides
+8. **Keyboard shortcuts** — Ctrl+Z (undo delete), Ctrl+S (save), arrow keys (navigate), Delete/Backspace (remove)
+9. **Save** — Save your carousel (always works, even as guest). Saved carousels can be updated.
+10. **My Carousels** — Browse your saved carousels from the sidebar. Load or delete at any time.
+11. **Register** — Create an account to keep your carousels across devices. Guest carousels merge automatically.
+12. **Share** — Generate a share link for any saved carousel. Anyone with the link can view it.
+13. **Clone & Edit** — On a shared carousel page, click "Clone and Edit" to copy it into your editor.
+14. **AI Generation** — Premium users: describe your presentation and generate slides with AI (50 credits/month).
+15. **Export** — Click "Export PNG" for individual images or "Export PDF" for a combined document.
 
 ## Slide Types
 
@@ -127,12 +137,16 @@ frontend/
 │   │   ├── page.tsx                # Main editor + preview
 │   │   └── s/[id]/page.tsx         # Public shared carousel view
 │   ├── components/
+│   │   ├── AiDialog.tsx            # AI slide generation dialog (premium)
 │   │   ├── AuthModal.tsx           # Login/register modal
-│   │   ├── SaveButton.tsx          # Save carousel to backend
+│   │   ├── LogoSettings.tsx        # Logo config + premium upload UI
+│   │   ├── MyCarousels.tsx         # List/load/delete saved carousels
+│   │   ├── SaveButton.tsx          # Save carousel with title input
 │   │   ├── ShareDialog.tsx         # Generate/copy/revoke share link
-│   │   ├── Toast.tsx               # Notification toasts
+│   │   ├── Toast.tsx               # Notification toasts with action buttons
+│   │   ├── UpgradePrompt.tsx       # Premium gate component
+│   │   ├── UserMenu.tsx            # Guest Login/Register or avatar dropdown
 │   │   ├── LogoSVG.tsx             # Customizable logo component
-│   │   ├── LogoSettings.tsx        # Logo letter + shape picker
 │   │   ├── SlideEditor.tsx         # Per-slide form editor
 │   │   ├── ThemePicker.tsx         # Color scheme + font + invert toggle
 │   │   └── slides/
@@ -163,7 +177,10 @@ backend/
 │   ├── users.py                    # fastapi-users JWT auth setup
 │   └── routers/
 │       ├── __init__.py
-│       └── carousels.py            # CRUD + share/revoke + public endpoint
+│       ├── ai.py                   # AI generation + credits (premium)
+│       ├── billing.py              # Lemon Squeezy checkout, portal, webhook
+│       ├── carousels.py            # CRUD + share/guest/link-guest + public
+│       └── upload.py               # Logo upload (premium)
 ├── alembic/                        # Async migration support
 ├── alembic.ini
 ├── requirements.txt
@@ -176,7 +193,8 @@ AGENTS.md                           # Agent guidance
 ## Tech Stack
 
 - **Frontend:** Next.js 15 (App Router), TypeScript, Tailwind CSS, html-to-image
-- **Backend:** FastAPI, SQLAlchemy 2.0 (async), asyncpg, Alembic, fastapi-users (JWT)
+- **Backend:** FastAPI, SQLAlchemy 2.0 (async), asyncpg, Alembic, fastapi-users (JWT), OpenAI, httpx
+- **Payments:** Lemon Squeezy
 - **Database:** PostgreSQL 18
 - **Infrastructure:** Docker Compose
 
@@ -184,10 +202,12 @@ AGENTS.md                           # Agent guidance
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| POST | `/auth/register` | No | Create account |
-| POST | `/auth/jwt/login` | No | Login (returns Bearer token) |
+| POST | `/auth/guest` | No | Create guest account, returns JWT |
+| POST | `/auth/register` | No | Create full account |
+| POST | `/auth/jwt/login` | No | Login (form-urlencoded, returns Bearer token) |
 | POST | `/auth/jwt/logout` | Yes | Invalidate token |
 | GET | `/auth/me` | Yes | Current user info |
+| POST | `/auth/link-guest` | Yes | Merge guest carousels into registered account |
 | POST | `/api/carousels` | Yes | Create carousel |
 | GET | `/api/carousels` | Yes | List your carousels |
 | GET | `/api/carousels/{id}` | Yes | Get carousel |
@@ -196,6 +216,12 @@ AGENTS.md                           # Agent guidance
 | POST | `/api/carousels/{id}/share` | Yes | Generate share link |
 | DELETE | `/api/carousels/{id}/share` | Yes | Revoke share link |
 | GET | `/api/s/{token}` | No | Get shared carousel (public) |
+| POST | `/api/billing/checkout` | Yes | Create Lemon Squeezy checkout |
+| POST | `/api/billing/portal` | Yes | Customer portal URL |
+| POST | `/api/billing/webhook` | Signature | Lemon Squeezy webhook |
+| POST | `/api/upload/logo` | Yes+Premium | Upload custom logo (2MB, PNG/JPEG/WebP/GIF) |
+| GET | `/api/ai/credits` | Yes | Check AI credits (50/month) |
+| POST | `/api/ai/generate` | Yes+Premium | Generate slides via gpt-4o-mini |
 | GET | `/health` | No | Health check |
 
 ## License
