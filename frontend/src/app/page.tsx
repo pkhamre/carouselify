@@ -21,12 +21,13 @@ import "@/components/slides/slideStyles.css";
 
 const THUMBNAIL_SIZE = 64;
 
-function SaveButtonWithToast({ carouselData, savedId, onSaved }: Parameters<typeof SaveButton>[0]) {
+function SaveButtonWithToast({ carouselData, savedId, defaultTitle, onSaved }: Parameters<typeof SaveButton>[0]) {
   const { toast } = useToast();
   return (
     <SaveButton
       carouselData={carouselData}
       savedId={savedId}
+      defaultTitle={defaultTitle}
       onSaved={(id, title) => {
         onSaved(id, title);
         toast("Carousel saved!");
@@ -47,6 +48,7 @@ export default function Home() {
   const [mobileTab, setMobileTab] = useState<"preview" | "edit" | "design">("preview");
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [savedCarouselId, setSavedCarouselId] = useState<string | null>(null);
+  const [savedTitle, setSavedTitle] = useState("");
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [showMyCarousels, setShowMyCarousels] = useState(false);
   const [undoStack, setUndoStack] = useState<Slide[][]>([]);
@@ -200,6 +202,7 @@ export default function Home() {
     if (d.logo) setLogo(d.logo);
     if (d.inverted !== undefined) setInverted(d.inverted);
     setSavedCarouselId(data.id);
+    setSavedTitle(data.title || "");
     setShareUrl(data.share_token ? `/s/${data.share_token}` : null);
   }, []);
 
@@ -423,7 +426,8 @@ export default function Home() {
           <SaveButtonWithToast
             carouselData={carouselData}
             savedId={savedCarouselId}
-            onSaved={(id) => setSavedCarouselId(id)}
+            defaultTitle={savedTitle}
+            onSaved={(id, title) => { setSavedCarouselId(id); setSavedTitle(title); }}
           />
           <button
             onClick={handleExportPNG}
@@ -495,7 +499,8 @@ export default function Home() {
                 <SaveButtonWithToast
                   carouselData={carouselData}
                   savedId={savedCarouselId}
-                  onSaved={(id) => setSavedCarouselId(id)}
+                  defaultTitle={savedTitle}
+                  onSaved={(id, title) => { setSavedCarouselId(id); setSavedTitle(title); }}
                 />
                 <button
                   onClick={handleExportPNG}
