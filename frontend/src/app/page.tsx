@@ -77,7 +77,8 @@ function HomeContent() {
       try {
         const parsed = JSON.parse(cloneData);
         if (parsed.slides) setSlides(parsed.slides);
-        if (parsed.schemeIndex !== undefined) setScheme(colorSchemes[parsed.schemeIndex] || defaultScheme);
+        if (parsed.scheme?.background) setScheme(parsed.scheme);
+        else if (parsed.schemeIndex !== undefined) setScheme(colorSchemes[parsed.schemeIndex] || defaultScheme);
         if (parsed.fontIndex !== undefined) setFonts(fontPairings[parsed.fontIndex] || defaultFonts);
         if (parsed.logo) setLogo(parsed.logo);
         if (parsed.inverted !== undefined) setInverted(parsed.inverted);
@@ -214,7 +215,8 @@ function HomeContent() {
   const handleLoadCarousel = useCallback((data: any) => {
     const d = data.data;
     if (d.slides) setSlides(d.slides);
-    if (d.schemeIndex !== undefined) setScheme(colorSchemes[d.schemeIndex] || defaultScheme);
+    if (d.scheme?.background) setScheme(d.scheme);
+    else if (d.schemeIndex !== undefined) setScheme(colorSchemes[d.schemeIndex] || defaultScheme);
     if (d.fontIndex !== undefined) setFonts(fontPairings[d.fontIndex] || defaultFonts);
     if (d.logo) setLogo(d.logo);
     if (d.inverted !== undefined) setInverted(d.inverted);
@@ -241,6 +243,7 @@ function HomeContent() {
 
   const carouselData = {
     slides,
+    scheme,
     schemeIndex: colorSchemes.indexOf(scheme),
     fontIndex: fontPairings.indexOf(fonts),
     logo,

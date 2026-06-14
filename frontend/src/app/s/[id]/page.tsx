@@ -10,6 +10,7 @@ import "@/components/slides/slideStyles.css";
 
 interface SharedCarouselData {
   slides: Slide[];
+  scheme?: ColorScheme;
   schemeIndex: number;
   fontIndex: number;
   logo: LogoConfig;
@@ -71,7 +72,7 @@ export default function SharedCarouselPage() {
     );
   }
 
-  const scheme: ColorScheme = data.schemeIndex !== undefined ? colorSchemes[data.schemeIndex] || colorSchemes[0] : colorSchemes[0];
+  const scheme: ColorScheme = data.scheme?.background ? data.scheme : data.schemeIndex !== undefined ? colorSchemes[data.schemeIndex] || colorSchemes[0] : colorSchemes[0];
   const fonts: FontPairing = data.fontIndex !== undefined ? fontPairings[data.fontIndex] || fontPairings[0] : fontPairings[0];
   const effectiveScheme: ColorScheme = data.inverted
     ? { ...scheme, background: scheme.textPrimary, textPrimary: scheme.background, textOnAccent: scheme.bgOnAccent, bgOnAccent: scheme.textPrimary }
