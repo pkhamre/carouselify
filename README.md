@@ -1,106 +1,87 @@
 # carouselify
 
-Create beautiful, design-consistent LinkedIn carousels in minutes. Built with Next.js 15, following a strict design system extracted from professional carousels.
+Create beautiful, design-consistent LinkedIn carousels in minutes. Built with a monorepo architecture: Next.js 15 frontend + FastAPI backend + PostgreSQL.
 
 ## Features
 
 - **5 slide types** — Cover, Content (Big Punchline / Two-part Headline), Bullet List, CTA/Closing
 - **10 color schemes** — Original, Ocean, Forest, Citrus, Bubblegum, Electric Mint, Lavender Pop, Tangerine Dream, Cerulean, Custom
 - **4 font pairings** — Original, Classic Editorial, Friendly, Playful
-- **Customizable logo** — Choose any letter, blob shape, and position (top-left, top-center, top-right, bottom-right); toggle visibility on/off
+- **Customizable logo** — Choose any letter, blob shape, and position; toggle visibility on/off
 - **Inverted color mode** — Toggle to swap background and text colors
 - **Flexible slide count** — Up to 12 slides with add, remove, and reorder
-- **Export** — Download as individual PNG files
+- **Export** — Download as individual PNG files or a multi-page PDF
 - **1080×1080px canvas** — Optimized for LinkedIn's square format
 - **Progress bar** — Bottom accent bar scales with slide position
+- **Save & Share** — Create an account, save your carousels, and share them via a public view-only link
+- **Clone & Edit** — Open any shared carousel and clone it into your own editor session
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 20.9+ (or Docker for containerized development)
-- npm
+- Docker and Docker Compose (recommended)
+- Node.js 20.9+ and Python 3.12+ (for local dev without Docker)
 
-### Installation
+### Quick Start (Docker)
 
 ```bash
-cd linkedin-carousel
-npm install
+docker compose up --build
 ```
 
-### Development
+Open [http://localhost:3000](http://localhost:3000). This starts postgres, the backend API on port 8000, and the frontend on port 3000.
 
+### Local Development
+
+**Backend:**
 ```bash
+cd backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+**Frontend:**
+```bash
+cd frontend
+npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+**Database:** Requires a PostgreSQL instance. Override via `DATABASE_URL` env var (default: `postgresql+asyncpg://carouselify:carouselify@localhost:5432/carouselify`).
 
-### Production Build
+### Production Frontend Build
 
 ```bash
+cd frontend
 npm run build
 npm start
 ```
 
-### Production Build in a Subdirectory (recommended for `/carouselify`)
+Set `NEXT_BASE_PATH` for subdirectory deploys (see below).
 
-Set `NEXT_BASE_PATH` at build and runtime so routes and static assets are prefixed correctly.
+### Subdirectory Deployment
 
 ```bash
 NEXT_BASE_PATH=/carouselify npm run build
 NEXT_BASE_PATH=/carouselify npm start
 ```
 
-If you use a reverse proxy (Nginx/Caddy/Traefik), forward both:
-
-- `/carouselify`
-- `/carouselify/_next/*`
-
-### Static Export Build (no Node.js server)
-
-Generate a fully static site in `out/`:
-
+Static export:
 ```bash
 NEXT_BASE_PATH=/carouselify NEXT_OUTPUT=export npm run build
 ```
 
-Then deploy the `out/` directory to your static host or web server document root.
-
-Notes:
-
-- Keep `NEXT_BASE_PATH` the same between build and hosting path.
-- For root hosting, omit `NEXT_BASE_PATH`.
-- Static export artifact is `out/` (not `.next/`).
-
----
-
-### Docker (Alternative)
-
-#### Development (hot-reload)
+### Docker (Production)
 
 ```bash
-docker compose up --build
+docker compose -f docker-compose.yml up --build
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Code changes are reflected immediately via mounted volumes.
-
-#### Production
-
+For individual service images:
 ```bash
-docker build --target runner -t linkedin-carousel:latest .
-docker run -p 3000:3000 -e NEXT_BASE_PATH=/carouselify linkedin-carousel:latest
+docker build -t carouselify-frontend ./frontend --target runner
+docker build -t carouselify-backend ./backend
 ```
-
-The production image uses Next.js [standalone output](https://nextjs.org/docs/pages/building-your-application/deploying#docker-image) for a minimal footprint and runs as a non-root `nextjs` user.
-
-| Stage | Purpose |
-|-------|---------|
-| `base` | `node:24-alpine` foundation |
-| `deps` | Install dependencies (`npm ci`) |
-| `dev` | Hot-reload dev server with source mounts |
-| `builder` | Compile with `NEXT_OUTPUT=standalone` |
-| `runner` | Minimal production image (non-root) |
 
 ## Usage
 
@@ -110,7 +91,10 @@ The production image uses Next.js [standalone output](https://nextjs.org/docs/pa
 4. **Change slide types** — Use the dropdown to switch between Cover, Content B1, Content B2, List, and CTA
 5. **Add/remove slides** — Use the + Add button or × to manage slide count (max 12)
 6. **Reorder** — Use ↑/↓ arrows to rearrange slides
-7. **Export** — Click "Export PNG" for individual images
+7. **Save** — Create an account to save your carousel. Saved carousels can be updated.
+8. **Share** — Generate a share link for your saved carousel. Anyone with the link can view it.
+9. **Clone & Edit** — On a shared carousel page, click "Clone and Edit" to copy it into your editor.
+10. **Export** — Click "Export PNG" for individual images or "Export PDF" for a combined document.
 
 ## Slide Types
 
@@ -133,41 +117,86 @@ The carousel follows strict design rules for consistency:
 - **Slide counter** in `NN / TT` format on all slides except the cover
 - **Max ~30 words per slide** — the design forces brevity
 
-See [PROMPT.md](PROMPT.md) for a content writing guide with field descriptions.
-
 ## Project Structure
 
 ```
-src/
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx              # Root layout with Google Fonts
+│   │   ├── page.tsx                # Main editor + preview
+│   │   └── s/[id]/page.tsx         # Public shared carousel view
+│   ├── components/
+│   │   ├── AuthModal.tsx           # Login/register modal
+│   │   ├── SaveButton.tsx          # Save carousel to backend
+│   │   ├── ShareDialog.tsx         # Generate/copy/revoke share link
+│   │   ├── Toast.tsx               # Notification toasts
+│   │   ├── LogoSVG.tsx             # Customizable logo component
+│   │   ├── LogoSettings.tsx        # Logo letter + shape picker
+│   │   ├── SlideEditor.tsx         # Per-slide form editor
+│   │   ├── ThemePicker.tsx         # Color scheme + font + invert toggle
+│   │   └── slides/
+│   │       ├── CoverSlide.tsx
+│   │       ├── ContentB1Slide.tsx
+│   │       ├── ContentB2Slide.tsx
+│   │       ├── ListSlide.tsx
+│   │       ├── CtaSlide.tsx
+│   │       ├── SlideCanvas.tsx
+│   │       └── slideStyles.css
+│   └── lib/
+│       ├── types.ts                # TypeScript types
+│       ├── themes.ts               # Color schemes + font pairings
+│       ├── utils.ts                # Slide factory + helpers
+│       ├── export.ts               # PNG/PDF export utilities
+│       ├── api.ts                  # Backend API client
+│       ├── auth.tsx                # Auth context (AuthProvider + useAuth)
+│       └── analytics.ts            # PostHog analytics
+│
+backend/
 ├── app/
-│   ├── layout.tsx          # Root layout with Google Fonts
-│   └── page.tsx            # Main app (editor + preview)
-├── components/
-│   ├── LogoSVG.tsx         # Customizable logo component
-│   ├── LogoSettings.tsx    # Logo letter + shape picker
-│   ├── SlideEditor.tsx     # Per-slide form editor
-│   ├── ThemePicker.tsx     # Color scheme + font + invert toggle
-│   └── slides/
-│       ├── CoverSlide.tsx
-│       ├── ContentB1Slide.tsx
-│       ├── ContentB2Slide.tsx
-│       ├── ListSlide.tsx
-│       ├── CtaSlide.tsx
-│       ├── SlideCanvas.tsx
-│       └── slideStyles.css
-└── lib/
-    ├── types.ts            # TypeScript types
-    ├── themes.ts           # Color schemes + font pairings
-    ├── utils.ts            # Slide factory + helpers
-    └── export.ts           # PNG export utilities
+│   ├── __init__.py
+│   ├── main.py                     # FastAPI app, CORS, lifespan
+│   ├── config.py                   # Pydantic settings
+│   ├── database.py                 # Async engine, session, Base
+│   ├── models.py                   # User (fastapi-users) + Carousel
+│   ├── schemas.py                  # Pydantic request/response models
+│   ├── users.py                    # fastapi-users JWT auth setup
+│   └── routers/
+│       ├── __init__.py
+│       └── carousels.py            # CRUD + share/revoke + public endpoint
+├── alembic/                        # Async migration support
+├── alembic.ini
+├── requirements.txt
+└── Dockerfile
+
+docker-compose.yml                  # Postgres + backend + frontend
+AGENTS.md                           # Agent guidance
 ```
 
 ## Tech Stack
 
-- **Next.js 15** — App Router, Turbopack
-- **TypeScript** — Full type safety
-- **Tailwind CSS** — App UI styling
-- **html-to-image** — Canvas-to-image export
+- **Frontend:** Next.js 15 (App Router), TypeScript, Tailwind CSS, html-to-image
+- **Backend:** FastAPI, SQLAlchemy 2.0 (async), asyncpg, Alembic, fastapi-users (JWT)
+- **Database:** PostgreSQL 18
+- **Infrastructure:** Docker Compose
+
+## API
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/auth/register` | No | Create account |
+| POST | `/auth/jwt/login` | No | Login (returns Bearer token) |
+| POST | `/auth/jwt/logout` | Yes | Invalidate token |
+| GET | `/auth/me` | Yes | Current user info |
+| POST | `/api/carousels` | Yes | Create carousel |
+| GET | `/api/carousels` | Yes | List your carousels |
+| GET | `/api/carousels/{id}` | Yes | Get carousel |
+| PUT | `/api/carousels/{id}` | Yes | Update carousel |
+| DELETE | `/api/carousels/{id}` | Yes | Delete carousel |
+| POST | `/api/carousels/{id}/share` | Yes | Generate share link |
+| DELETE | `/api/carousels/{id}/share` | Yes | Revoke share link |
+| GET | `/api/s/{token}` | No | Get shared carousel (public) |
+| GET | `/health` | No | Health check |
 
 ## License
 
