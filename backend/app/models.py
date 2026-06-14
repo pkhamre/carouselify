@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Text
+from sqlalchemy import Column, String, Boolean, Integer, DateTime, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import text
@@ -13,6 +13,11 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     __tablename__ = "user"
 
     is_guest = Column(Boolean, default=False, nullable=False)
+    is_premium = Column(Boolean, default=False, nullable=False)
+    lemon_squeezy_customer_id = Column(String, nullable=True, index=True)
+    lemon_squeezy_subscription_id = Column(String, nullable=True)
+    ai_credits_used = Column(Integer, default=0, nullable=False)
+    ai_credits_reset_at = Column(DateTime(timezone=True), nullable=True)
     carousels = relationship("Carousel", back_populates="user", cascade="all, delete-orphan")
 
 
