@@ -8,6 +8,7 @@ interface CtaSlideComponentProps {
   logo: LogoConfig;
   slideNumber: number;
   totalSlides: number;
+  readOnly?: boolean;
 }
 
 export function CtaSlideComponent({
@@ -17,6 +18,7 @@ export function CtaSlideComponent({
   logo,
   slideNumber,
   totalSlides,
+  readOnly,
 }: CtaSlideComponentProps) {
   const counter = `${String(slideNumber).padStart(2, "0")} / ${String(totalSlides).padStart(2, "0")}`;
   const progress = (slideNumber / totalSlides) * 100;

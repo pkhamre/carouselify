@@ -8,6 +8,7 @@ interface ListSlideComponentProps {
   logo: LogoConfig;
   slideNumber: number;
   totalSlides: number;
+  readOnly?: boolean;
 }
 
 export function ListSlideComponent({
@@ -17,6 +18,7 @@ export function ListSlideComponent({
   logo,
   slideNumber,
   totalSlides,
+  readOnly,
 }: ListSlideComponentProps) {
   const counter = `${String(slideNumber).padStart(2, "0")} / ${String(totalSlides).padStart(2, "0")}`;
   const progress = (slideNumber / totalSlides) * 100;

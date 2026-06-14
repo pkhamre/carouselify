@@ -1,18 +1,35 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import type { Slide, SlideType, ColorScheme, FontPairing, LogoConfig } from "@/lib/types";
-import { defaultScheme, defaultFonts } from "@/lib/themes";
+import { defaultScheme, defaultFonts, colorSchemes, fontPairings } from "@/lib/themes";
 import { defaultLogo } from "@/lib/types";
 import { createDefaultSlides, createSlide } from "@/lib/utils";
 import { SlideCanvas } from "@/components/slides/SlideCanvas";
 import { SlideEditor } from "@/components/SlideEditor";
 import { ThemePicker } from "@/components/ThemePicker";
 import { LogoSettings } from "@/components/LogoSettings";
-import { ComingSoonCard } from "@/components/ComingSoonCard";
+import { AuthProvider } from "@/lib/auth";
+import { SaveButton } from "@/components/SaveButton";
+import { ShareDialog } from "@/components/ShareDialog";
+import { ToastProvider, useToast } from "@/components/Toast";
 import { exportSlideAsPNG, exportSlidesAsPDF, getFontEmbedCSS } from "@/lib/export";
 import { captureExport } from "@/lib/analytics";
 import "@/components/slides/slideStyles.css";
+
+function SaveButtonWithToast({ carouselData, savedId, onSaved }: Parameters<typeof SaveButton>[0]) {
+  const { toast } = useToast();
+  return (
+    <SaveButton
+      carouselData={carouselData}
+      savedId={savedId}
+      onSaved={(id, title) => {
+        onSaved(id, title);
+        toast("Carousel saved!");
+      }}
+    />
+  );
+}
 
 export default function Home() {
   const [slides, setSlides] = useState<Slide[]>(createDefaultSlides);
@@ -24,6 +41,23 @@ export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
   const [mobileTab, setMobileTab] = useState<"preview" | "edit" | "design">("preview");
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [savedCarouselId, setSavedCarouselId] = useState<string | null>(null);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const cloneData = sessionStorage.getItem("clone-data");
+    if (cloneData) {
+      try {
+        const parsed = JSON.parse(cloneData);
+        if (parsed.slides) setSlides(parsed.slides);
+        if (parsed.schemeIndex !== undefined) setScheme(colorSchemes[parsed.schemeIndex] || defaultScheme);
+        if (parsed.fontIndex !== undefined) setFonts(fontPairings[parsed.fontIndex] || defaultFonts);
+        if (parsed.logo) setLogo(parsed.logo);
+        if (parsed.inverted !== undefined) setInverted(parsed.inverted);
+      } catch {}
+      sessionStorage.removeItem("clone-data");
+    }
+  }, []);
 
   const updateSlide = useCallback((index: number, updatedSlide: Slide) => {
     setSlides((prev) => {
@@ -109,7 +143,18 @@ export default function Home() {
       }
     : scheme;
 
+  const carouselData = {
+    slides,
+    schemeIndex: colorSchemes.indexOf(scheme),
+    fontIndex: fontPairings.indexOf(fonts),
+    logo,
+    inverted,
+    presentationTitle: "My Deck",
+  };
+
   return (
+    <ToastProvider>
+      <AuthProvider>
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
       <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 transition-colors">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between">
@@ -118,6 +163,11 @@ export default function Home() {
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Create beautiful carousels in minutes</p>
           </div>
           <div className="flex items-center gap-3">
+            <SaveButtonWithToast
+              carouselData={carouselData}
+              savedId={savedCarouselId}
+              onSaved={(id) => setSavedCarouselId(id)}
+            />
             <button
               onClick={() => {
                 setDarkMode(!darkMode);
@@ -231,6 +281,14 @@ export default function Home() {
                 ))}
               </div>
             </div>
+            {savedCarouselId && (
+              <ShareDialog
+                carouselId={savedCarouselId}
+                shareUrl={shareUrl}
+                onShared={setShareUrl}
+                onRevoked={() => setShareUrl(null)}
+              />
+            )}
           </div>
 
           <div className="col-span-5">
@@ -276,7 +334,6 @@ export default function Home() {
 
           <div className="col-span-4">
             <div className="sticky top-6 space-y-4">
-              <ComingSoonCard />
               <LogoSettings
                 logo={logo}
                 onChange={setLogo}
@@ -344,6 +401,11 @@ export default function Home() {
                 </button>
               </div>
               <div className="mt-3 flex gap-2">
+                <SaveButtonWithToast
+                  carouselData={carouselData}
+                  savedId={savedCarouselId}
+                  onSaved={(id) => setSavedCarouselId(id)}
+                />
                 <button
                   onClick={handleExportPNG}
                   disabled={slides.length < 1}
@@ -360,7 +422,14 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            <ComingSoonCard />
+            {savedCarouselId && (
+              <ShareDialog
+                carouselId={savedCarouselId}
+                shareUrl={shareUrl}
+                onShared={setShareUrl}
+                onRevoked={() => setShareUrl(null)}
+              />
+            )}
           </>
         )}
 
@@ -424,7 +493,14 @@ export default function Home() {
                 </div>
               )}
             </div>
-            <ComingSoonCard />
+            {savedCarouselId && (
+              <ShareDialog
+                carouselId={savedCarouselId}
+                shareUrl={shareUrl}
+                onShared={setShareUrl}
+                onRevoked={() => setShareUrl(null)}
+              />
+            )}
           </>
         )}
 
@@ -441,7 +517,6 @@ export default function Home() {
               />
               <LogoSettings logo={logo} onChange={setLogo} />
             </div>
-            <ComingSoonCard />
           </>
         )}
       </div>
@@ -496,5 +571,7 @@ export default function Home() {
         ))}
       </div>
     </div>
+    </AuthProvider>
+    </ToastProvider>
   );
 }

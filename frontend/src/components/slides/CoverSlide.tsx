@@ -8,9 +8,10 @@ interface CoverSlideComponentProps {
   logo: LogoConfig;
   slideNumber: number;
   totalSlides: number;
+  readOnly?: boolean;
 }
 
-export function CoverSlideComponent({ slide, scheme, fonts, logo, slideNumber, totalSlides }: CoverSlideComponentProps) {
+export function CoverSlideComponent({ slide, scheme, fonts, logo, slideNumber, totalSlides, readOnly }: CoverSlideComponentProps) {
   const progress = (slideNumber / totalSlides) * 100;
 
   return (

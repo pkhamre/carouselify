@@ -1,6 +1,19 @@
 import uuid
 from datetime import datetime
+from fastapi_users import schemas as users_schemas
 from pydantic import BaseModel
+
+
+class UserRead(users_schemas.BaseUser[uuid.UUID]):
+    pass
+
+
+class UserCreate(users_schemas.BaseUserCreate):
+    pass
+
+
+class UserUpdate(users_schemas.BaseUserUpdate):
+    pass
 
 
 class CarouselCreate(BaseModel):

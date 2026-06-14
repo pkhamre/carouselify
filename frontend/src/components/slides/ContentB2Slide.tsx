@@ -8,6 +8,7 @@ interface ContentB2SlideComponentProps {
   logo: LogoConfig;
   slideNumber: number;
   totalSlides: number;
+  readOnly?: boolean;
 }
 
 export function ContentB2SlideComponent({
@@ -17,6 +18,7 @@ export function ContentB2SlideComponent({
   logo,
   slideNumber,
   totalSlides,
+  readOnly,
 }: ContentB2SlideComponentProps) {
   const counter = `${String(slideNumber).padStart(2, "0")} / ${String(totalSlides).padStart(2, "0")}`;
   const progress = (slideNumber / totalSlides) * 100;

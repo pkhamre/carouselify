@@ -12,6 +12,7 @@ interface SlideCanvasProps {
   logo: LogoConfig;
   slideNumber: number;
   totalSlides: number;
+  readOnly?: boolean;
 }
 
 export function SlideCanvas({
@@ -21,6 +22,7 @@ export function SlideCanvas({
   logo,
   slideNumber,
   totalSlides,
+  readOnly,
 }: SlideCanvasProps) {
   switch (slide.type) {
     case "cover":
@@ -32,6 +34,7 @@ export function SlideCanvas({
           logo={logo}
           slideNumber={slideNumber}
           totalSlides={totalSlides}
+          readOnly={readOnly}
         />
       );
     case "content-b1":
@@ -43,6 +46,7 @@ export function SlideCanvas({
           logo={logo}
           slideNumber={slideNumber}
           totalSlides={totalSlides}
+          readOnly={readOnly}
         />
       );
     case "content-b2":
@@ -54,6 +58,7 @@ export function SlideCanvas({
           logo={logo}
           slideNumber={slideNumber}
           totalSlides={totalSlides}
+          readOnly={readOnly}
         />
       );
     case "list":
@@ -65,6 +70,7 @@ export function SlideCanvas({
           logo={logo}
           slideNumber={slideNumber}
           totalSlides={totalSlides}
+          readOnly={readOnly}
         />
       );
     case "cta":
@@ -76,6 +82,7 @@ export function SlideCanvas({
           logo={logo}
           slideNumber={slideNumber}
           totalSlides={totalSlides}
+          readOnly={readOnly}
         />
       );
   }
