@@ -131,19 +131,34 @@ async def webhook_handler(request: Request, session: AsyncSession = Depends(get_
 
     payload = json.loads(raw_body)
     event_name = payload["meta"]["event_name"]
-    custom_data = payload["meta"].get("custom_data", {})
-    user_id = custom_data.get("user_id") if custom_data else None
+    sub_data = payload.get("data", {}).get("attributes", {})
 
-    if not user_id:
-        return {"ok": True}
+    # Look up user by: custom_data.user_id → customer_id → user_email
+    custom_data = payload["meta"].get("custom_data", {}) or {}
+    user_id = custom_data.get("user_id")
+    user = None
 
-    result = await session.execute(select(User).where(User.id == user_id))
-    user = result.scalar_one_or_none()
+    if user_id:
+        result = await session.execute(select(User).where(User.id == user_id))
+        user = result.scalar_one_or_none()
+
     if not user:
+        customer_id = sub_data.get("customer_id")
+        if customer_id:
+            result = await session.execute(select(User).where(User.lemon_squeezy_customer_id == str(customer_id)))
+            user = result.scalar_one_or_none()
+
+    if not user:
+        user_email = sub_data.get("user_email")
+        if user_email:
+            result = await session.execute(select(User).where(User.email == user_email))
+            user = result.scalar_one_or_none()
+
+    if not user:
+        print(f"Webhook {event_name}: no user found (user_id={user_id}, customer_id={sub_data.get('customer_id')}, email={sub_data.get('user_email')})")
         return {"ok": True}
 
     if event_name == "subscription_created":
-        sub_data = payload["data"]["attributes"]
         user.is_premium = True
         user.lemon_squeezy_customer_id = str(sub_data["customer_id"])
         user.lemon_squeezy_subscription_id = str(payload["data"]["id"])
