@@ -52,7 +52,10 @@ async def create_checkout(
         )
         res = resp.json()
         if resp.status_code >= 400:
-            raise HTTPException(502, detail=res.get("errors", [{"detail": "Lemon Squeezy error"}])[0].get("detail", "Unknown error"))
+            err_msg = res.get("errors", [{"detail": "Unknown Lemon Squeezy error"}])[0].get("detail", "Unknown error")
+            print(f"Lemon Squeezy checkout error ({resp.status_code}): {err_msg}")
+            print(f"Full response: {json.dumps(res, indent=2)}")
+            raise HTTPException(502, detail=err_msg)
         checkout_url = res["data"]["attributes"]["url"]
         return CheckoutResponse(url=checkout_url)
 
@@ -87,7 +90,9 @@ async def create_portal(
         )
         res = resp.json()
         if resp.status_code >= 400:
-            raise HTTPException(502, detail=res.get("errors", [{"detail": "Lemon Squeezy error"}])[0].get("detail", "Unknown error"))
+            err_msg = res.get("errors", [{"detail": "Unknown Lemon Squeezy error"}])[0].get("detail", "Unknown error")
+            print(f"Lemon Squeezy portal error ({resp.status_code}): {err_msg}")
+            raise HTTPException(502, detail=err_msg)
         portal_url = res["data"]["attributes"]["url"]
         return PortalResponse(url=portal_url)
 
