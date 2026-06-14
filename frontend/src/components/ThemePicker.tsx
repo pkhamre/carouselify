@@ -43,6 +43,8 @@ export function ThemePicker({
   const [saveName, setSaveName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
+  const [editingColorScheme, setEditingColorScheme] = useState<string | null>(null);
+  const [editColors, setEditColors] = useState({ background: "", accent: "", text_primary: "", text_on_accent: "", bg_on_accent: "" });
 
   const fetchSchemes = useCallback(async () => {
     if (!isAuthenticated) return;
@@ -114,6 +116,37 @@ export function ThemePicker({
       textOnAccent: scheme.text_on_accent,
       bgOnAccent: scheme.bg_on_accent,
     });
+    setEditingColorScheme(scheme.id);
+    setEditColors({
+      background: scheme.background,
+      accent: scheme.accent,
+      text_primary: scheme.text_primary,
+      text_on_accent: scheme.text_on_accent,
+      bg_on_accent: scheme.bg_on_accent,
+    });
+  };
+
+  const handleEditColor = (field: "background" | "accent" | "text_primary", value: string) => {
+    const updated = { ...editColors, [field]: value };
+    setEditColors(updated);
+    onSchemeChange({
+      name: selectedScheme.name,
+      background: updated.background,
+      accent: updated.accent,
+      textPrimary: updated.text_primary,
+      textOnAccent: updated.text_on_accent,
+      bgOnAccent: updated.bg_on_accent,
+    });
+  };
+
+  const handleUpdateSchemeColors = async () => {
+    if (!editingColorScheme) return;
+    try {
+      const updated = await updateScheme(editingColorScheme, editColors);
+      setSavedSchemes((prev) =>
+        prev.map((s) => (s.id === editingColorScheme ? { ...s, ...updated } : s))
+      );
+    } catch {}
   };
 
   const isSchemeSelected = (scheme: SavedScheme) =>
@@ -134,6 +167,7 @@ export function ThemePicker({
             <button
               key={scheme.name}
               onClick={() => {
+                setEditingColorScheme(null);
                 if (scheme.name === "Custom") {
                   updateCustom(customBg, customAccent, customText);
                 } else {
@@ -294,6 +328,31 @@ export function ThemePicker({
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {editingColorScheme && (
+        <div className="mb-4 border-t border-gray-100 dark:border-gray-800 pt-4">
+          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+            Edit Colors
+          </label>
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <input type="color" value={editColors.background} onChange={(e) => handleEditColor("background", e.target.value)} className="w-8 h-8 rounded cursor-pointer border border-gray-300 dark:border-gray-600" />
+              <span className="text-xs text-gray-600 dark:text-gray-400">Background</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <input type="color" value={editColors.accent} onChange={(e) => handleEditColor("accent", e.target.value)} className="w-8 h-8 rounded cursor-pointer border border-gray-300 dark:border-gray-600" />
+              <span className="text-xs text-gray-600 dark:text-gray-400">Accent</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <input type="color" value={editColors.text_primary} onChange={(e) => handleEditColor("text_primary", e.target.value)} className="w-8 h-8 rounded cursor-pointer border border-gray-300 dark:border-gray-600" />
+              <span className="text-xs text-gray-600 dark:text-gray-400">Text</span>
+            </div>
+          </div>
+          <button onClick={handleUpdateSchemeColors} className="mt-3 text-xs px-3 py-1.5 bg-sky-600 text-white rounded-md hover:bg-sky-700 transition-colors">
+            Update
+          </button>
         </div>
       )}
 
