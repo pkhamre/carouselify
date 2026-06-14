@@ -1,0 +1,130 @@
+"use client";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+function getToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("token");
+}
+
+export function setToken(token: string | null) {
+  if (typeof window === "undefined") return;
+  if (token) {
+    localStorage.setItem("token", token);
+  } else {
+    localStorage.removeItem("token");
+  }
+}
+
+export function isAuthenticated(): boolean {
+  return !!getToken();
+}
+
+async function request<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const token = getToken();
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string>),
+  };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  if (!(options.body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
+  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(body.detail || `Request failed: ${res.status}`);
+  }
+  if (res.status === 204) return undefined as T;
+  return res.json();
+}
+
+// Auth
+export function login(email: string, password: string): Promise<{ access_token: string; token_type: string }> {
+  const form = new URLSearchParams();
+  form.append("username", email);
+  form.append("password", password);
+  return request("/auth/jwt/login", {
+    method: "POST",
+    body: form,
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  });
+}
+
+export function register(email: string, password: string): Promise<any> {
+  return request("/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+}
+
+export function logout(): Promise<void> {
+  return request("/auth/jwt/logout", { method: "POST" });
+}
+
+export function getMe(): Promise<{ id: string; email: string; is_active: boolean; is_superuser: boolean; is_verified: boolean }> {
+  return request("/auth/me");
+}
+
+// Carousels
+export interface CarouselListItem {
+  id: string;
+  title: string;
+  is_public: boolean;
+  share_token: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CarouselData {
+  id: string;
+  user_id: string;
+  title: string;
+  data: any;
+  is_public: boolean;
+  share_token: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export function createCarousel(title: string, data: any): Promise<CarouselData> {
+  return request("/api/carousels", {
+    method: "POST",
+    body: JSON.stringify({ title, data }),
+  });
+}
+
+export function listCarousels(): Promise<CarouselListItem[]> {
+  return request("/api/carousels");
+}
+
+export function getCarousel(id: string): Promise<CarouselData> {
+  return request(`/api/carousels/${id}`);
+}
+
+export function updateCarousel(id: string, data: { title?: string; data?: any }): Promise<CarouselData> {
+  return request(`/api/carousels/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteCarousel(id: string): Promise<void> {
+  return request(`/api/carousels/${id}`, { method: "DELETE" });
+}
+
+export function shareCarousel(id: string): Promise<{ url: string; share_token: string }> {
+  return request(`/api/carousels/${id}/share`, { method: "POST" });
+}
+
+export function revokeShare(id: string): Promise<void> {
+  return request(`/api/carousels/${id}/share`, { method: "DELETE" });
+}
+
+export function getSharedCarousel(shareToken: string): Promise<CarouselData> {
+  return request(`/api/s/${shareToken}`);
+}
