@@ -19,7 +19,7 @@ LEMON_API = "https://api.lemonsqueezy.com/v1"
 
 @router.post("/checkout", response_model=CheckoutResponse)
 async def create_checkout(
-    body: CheckoutRequest,
+    data: CheckoutRequest,
     user: User = Depends(current_active_user),
 ):
     if not settings.lemon_squeezy_api_key or not settings.lemon_squeezy_product_variant_id:
@@ -29,34 +29,37 @@ async def create_checkout(
             f"{LEMON_API}/checkouts",
             headers={
                 "Authorization": f"Bearer {settings.lemon_squeezy_api_key}",
-                "Accept": "application/json",
-                "Content-Type": "application/json",
+                "Accept": "application/vnd.api+json",
+                "Content-Type": "application/vnd.api+json",
             },
             json={
                 "data": {
                     "type": "checkouts",
                     "attributes": {
-                        "product_variant_id": settings.lemon_squeezy_product_variant_id,
+                        "product_variant_id": int(settings.lemon_squeezy_product_variant_id),
                         "custom_price": None,
                         "product_options": {
-                            "enabled_variants": [settings.lemon_squeezy_product_variant_id],
+                            "enabled_variants": [int(settings.lemon_squeezy_product_variant_id)],
                         },
                         "checkout_data": {
                             "email": user.email,
                             "custom": {"user_id": str(user.id)},
+                            "return_url": data.return_url,
                         },
                     },
                 }
             },
         )
-        data = resp.json()
-        checkout_url = data["data"]["attributes"]["url"]
+        res = resp.json()
+        if resp.status_code >= 400:
+            raise HTTPException(502, detail=res.get("errors", [{"detail": "Lemon Squeezy error"}])[0].get("detail", "Unknown error"))
+        checkout_url = res["data"]["attributes"]["url"]
         return CheckoutResponse(url=checkout_url)
 
 
 @router.post("/portal", response_model=PortalResponse)
 async def create_portal(
-    body: CheckoutRequest,
+    data: CheckoutRequest,
     user: User = Depends(current_active_user),
 ):
     if not settings.lemon_squeezy_api_key:
@@ -69,21 +72,23 @@ async def create_portal(
             f"{LEMON_API}/customer-portal",
             headers={
                 "Authorization": f"Bearer {settings.lemon_squeezy_api_key}",
-                "Accept": "application/json",
-                "Content-Type": "application/json",
+                "Accept": "application/vnd.api+json",
+                "Content-Type": "application/vnd.api+json",
             },
             json={
                 "data": {
                     "type": "customer-portals",
                     "attributes": {
                         "customer_id": int(user.lemon_squeezy_customer_id),
-                        "return_url": body.return_url,
+                        "return_url": data.return_url,
                     },
                 }
             },
         )
-        data = resp.json()
-        portal_url = data["data"]["attributes"]["url"]
+        res = resp.json()
+        if resp.status_code >= 400:
+            raise HTTPException(502, detail=res.get("errors", [{"detail": "Lemon Squeezy error"}])[0].get("detail", "Unknown error"))
+        portal_url = res["data"]["attributes"]["url"]
         return PortalResponse(url=portal_url)
 
 
