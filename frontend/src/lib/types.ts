@@ -66,6 +66,8 @@ export interface LogoConfig {
   shape: LogoShape;
   position: LogoPosition;
   showLogo: boolean;
+  customUrl?: string | null;
+  isCustom?: boolean;
 }
 
 export interface ThemeConfig {

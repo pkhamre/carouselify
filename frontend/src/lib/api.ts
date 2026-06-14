@@ -139,3 +139,34 @@ export function linkGuestAccount(guestUserId: string): Promise<{ transferred: nu
 export function getSharedCarousel(shareToken: string): Promise<CarouselData> {
   return request(`/api/s/${shareToken}`);
 }
+
+export function createCheckout(returnUrl: string): Promise<{ url: string }> {
+  return request("/api/billing/checkout", {
+    method: "POST",
+    body: JSON.stringify({ return_url: returnUrl }),
+  });
+}
+
+export function createPortal(returnUrl: string): Promise<{ url: string }> {
+  return request("/api/billing/portal", {
+    method: "POST",
+    body: JSON.stringify({ return_url: returnUrl }),
+  });
+}
+
+export function uploadLogo(file: File): Promise<{ url: string }> {
+  const form = new FormData();
+  form.append("file", file);
+  return request("/api/upload/logo", { method: "POST", body: form });
+}
+
+export function getCredits(): Promise<{ used: number; limit: number; remaining: number; resets_at: string | null }> {
+  return request("/api/ai/credits");
+}
+
+export function generateSlides(prompt: string, slideCount: number): Promise<{ slides: any[]; credits_used: number; credits_remaining: number }> {
+  return request("/api/ai/generate", {
+    method: "POST",
+    body: JSON.stringify({ prompt, slide_count: slideCount }),
+  });
+}
