@@ -1,6 +1,6 @@
 "use client";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export { API_URL };
 
@@ -208,4 +208,8 @@ export function updateScheme(id: string, data: Partial<CustomSchemeCreate>): Pro
 
 export function deleteScheme(id: string): Promise<void> {
   return request(`/api/schemes/${id}`, { method: "DELETE" });
+}
+
+export function getConfig(): Promise<{ subscriptions_enabled: boolean }> {
+  return request("/api/config");
 }

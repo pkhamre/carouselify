@@ -10,7 +10,7 @@ interface SettingsDialogProps {
 }
 
 export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
-  const { user } = useAuth();
+  const { user, subscriptionsEnabled } = useAuth();
   const [credits, setCredits] = useState<{ remaining: number; limit: number; resets_at: string | null } | null>(null);
   const [busy, setBusy] = useState(false);
   const [darkMode, setDarkMode] = useState(() => typeof window !== "undefined" && localStorage.getItem("darkMode") === "true");
@@ -88,13 +88,20 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
               >
                 {busy ? "Redirecting..." : "Manage subscription"}
               </button>
-            ) : (
+            ) : subscriptionsEnabled ? (
               <button
                 onClick={handleUpgrade}
                 disabled={busy}
                 className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors disabled:opacity-50"
               >
                 {busy ? "Redirecting..." : "Upgrade to Premium"}
+              </button>
+            ) : (
+              <button
+                disabled
+                className="px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700 rounded-lg cursor-not-allowed"
+              >
+                Coming soon!
               </button>
             )}
           </div>

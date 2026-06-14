@@ -12,6 +12,7 @@ from app.routers.schemes import router as schemes_router
 from app.routers.billing import router as billing_router
 from app.routers.upload import router as upload_router
 from app.routers.ai import router as ai_router
+from app.routers.config import router as config_router
 
 
 @asynccontextmanager
@@ -50,6 +51,7 @@ app.include_router(public_router)
 app.include_router(billing_router)
 app.include_router(upload_router)
 app.include_router(ai_router)
+app.include_router(config_router)
 
 
 @app.get("/health")

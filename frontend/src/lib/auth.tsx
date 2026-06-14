@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
-import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe, setToken, createGuest, linkGuestAccount } from "./api";
+import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe, setToken, createGuest, linkGuestAccount, getConfig } from "./api";
 
 interface AuthUser {
   id: string;
@@ -17,6 +17,7 @@ interface AuthContextType {
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
+  subscriptionsEnabled: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -43,6 +44,7 @@ function getTokenValue(): string | null {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [subscriptionsEnabled, setSubscriptionsEnabled] = useState(true);
 
   useEffect(() => {
     const existingToken = getTokenValue();
@@ -61,6 +63,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .catch(() => {})
         .finally(() => setLoading(false));
     }
+  }, []);
+
+  useEffect(() => {
+    getConfig()
+      .then((c) => setSubscriptionsEnabled(c.subscriptions_enabled))
+      .catch(() => {});
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
@@ -93,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, isAuthenticated: !!user, subscriptionsEnabled }}>
       {children}
     </AuthContext.Provider>
   );

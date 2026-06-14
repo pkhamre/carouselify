@@ -1,0 +1,35 @@
+services:
+  carouselify-backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: sqlite+aiosqlite:///./data/carouselify.db
+      SECRET: ${SECRET:?error}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      LEMON_SQUEEZY_API_KEY: ${LEMON_SQUEEZY_API_KEY:-}
+      LEMON_SQUEEZY_WEBHOOK_SECRET: ${LEMON_SQUEEZY_WEBHOOK_SECRET:-}
+      LEMON_SQUEEZY_STORE_ID: ${LEMON_SQUEEZY_STORE_ID:-}
+      LEMON_SQUEEZY_PRODUCT_VARIANT_ID: ${LEMON_SQUEEZY_PRODUCT_VARIANT_ID:-}
+      SUBSCRIPTIONS_ENABLED: ${SUBSCRIPTIONS_ENABLED:-false}
+    volumes:
+      - carouselify_data:/app/data
+    networks:
+      - carouselify-net
+
+  carouselify-frontend:
+    build:
+      context: ./frontend
+      target: runner
+      args:
+        NEXT_PUBLIC_API_URL: ""
+    depends_on:
+      - carouselify-backend
+    networks:
+      - carouselify-net
+
+volumes:
+  carouselify_data:
+
+networks:
+  carouselify-net:
+    external: true
