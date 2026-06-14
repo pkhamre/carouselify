@@ -1,0 +1,90 @@
+from datetime import datetime, timezone
+from fastapi import APIRouter, Depends, HTTPException, status
+from openai import AsyncOpenAI
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import settings
+from app.database import get_session
+from app.models import User
+from app.schemas import AiGenerateRequest, AiGenerateResponse, CreditsResponse
+from app.users import current_active_user
+
+router = APIRouter(prefix="/api/ai", tags=["ai"])
+client = AsyncOpenAI(api_key=settings.openai_api_key)
+
+CREDITS_LIMIT = 50
+
+SYSTEM_PROMPT = """You generate carousel slides in JSON format.
+Each slide has a type (cover, content-b1, content-b2, list, cta) and fields.
+Cover: title, subtitle.
+ContentB1: title, body.
+ContentB2: title, leftBody, rightBody.
+List: title, items (array of strings).
+Cta: title, buttonLabel.
+Return a JSON array of slide objects."""
+
+
+@router.get("/credits", response_model=CreditsResponse)
+async def get_credits(
+    user: User = Depends(current_active_user),
+    session: AsyncSession = Depends(get_session),
+):
+    now = datetime.now(timezone.utc)
+    if user.ai_credits_reset_at and user.ai_credits_reset_at < now:
+        user.ai_credits_used = 0
+        await session.commit()
+
+    remaining = max(0, CREDITS_LIMIT - (user.ai_credits_used or 0))
+    return CreditsResponse(
+        used=user.ai_credits_used or 0,
+        limit=CREDITS_LIMIT if user.is_premium else 0,
+        remaining=remaining if user.is_premium else 0,
+        resets_at=user.ai_credits_reset_at,
+    )
+
+
+@router.post("/generate", response_model=AiGenerateResponse)
+async def generate_slides(
+    body: AiGenerateRequest,
+    user: User = Depends(current_active_user),
+    session: AsyncSession = Depends(get_session),
+):
+    if not user.is_premium:
+        raise HTTPException(status.HTTP_402_PAYMENT_REQUIRED, detail="Premium required")
+
+    now = datetime.now(timezone.utc)
+    if user.ai_credits_reset_at and user.ai_credits_reset_at < now:
+        user.ai_credits_used = 0
+
+    used = user.ai_credits_used or 0
+    if used >= CREDITS_LIMIT:
+        raise HTTPException(402, detail="Out of credits")
+
+    resp = await client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": f"Generate {body.slide_count} slides about: {body.prompt}"},
+        ],
+        response_format={"type": "json_object"},
+    )
+
+    slides = []
+    try:
+        import json
+        data = json.loads(resp.choices[0].message.content)
+        slides = data.get("slides", data if isinstance(data, list) else [])
+    except (json.JSONDecodeError, KeyError, TypeError):
+        raise HTTPException(500, detail="AI response parsing failed")
+
+    deduction = min(len(slides), CREDITS_LIMIT - used)
+    user.ai_credits_used = used + deduction
+    await session.commit()
+
+    remaining = CREDITS_LIMIT - user.ai_credits_used
+    return AiGenerateResponse(
+        slides=slides,
+        credits_used=deduction,
+        credits_remaining=remaining,
+    )
