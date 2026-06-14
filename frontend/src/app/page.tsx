@@ -17,6 +17,9 @@ import { UserMenu } from "@/components/UserMenu";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { exportSlideAsPNG, exportSlidesAsPDF, getFontEmbedCSS } from "@/lib/export";
 import { captureExport } from "@/lib/analytics";
+import { AiDialog } from "@/components/AiDialog";
+import { getCredits } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 import "@/components/slides/slideStyles.css";
 
 const THUMBNAIL_SIZE = 64;
@@ -37,6 +40,16 @@ function SaveButtonWithToast({ carouselData, savedId, defaultTitle, onSaved }: P
 }
 
 export default function Home() {
+  return (
+    <ToastProvider>
+      <AuthProvider>
+        <HomeContent />
+      </AuthProvider>
+    </ToastProvider>
+  );
+}
+
+function HomeContent() {
   const [slides, setSlides] = useState<Slide[]>(createDefaultSlides);
   const { toast } = useToast();
   const [scheme, setScheme] = useState<ColorScheme>(defaultScheme);
@@ -54,6 +67,8 @@ export default function Home() {
   const [undoStack, setUndoStack] = useState<Slide[][]>([]);
   const [exportProgress, setExportProgress] = useState<{ current: number; total: number } | null>(null);
   const [carouselRefreshKey, setCarouselRefreshKey] = useState(0);
+  const [showAiDialog, setShowAiDialog] = useState(false);
+  const [credits, setCredits] = useState<{ remaining: number; limit: number } | null>(null);
 
   useEffect(() => {
     const cloneData = sessionStorage.getItem("clone-data");
@@ -207,6 +222,22 @@ export default function Home() {
     setShareUrl(data.share_token ? `/s/${data.share_token}` : null);
   }, []);
 
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user?.isPremium) {
+      getCredits().then(setCredits).catch(() => {});
+    }
+  }, [user?.isPremium]);
+
+  const handleAiGenerated = useCallback((newSlides: any[]) => {
+    setSlides(newSlides);
+    setActiveSlideIndex(0);
+    if (user?.isPremium) {
+      getCredits().then(setCredits).catch(() => {});
+    }
+  }, [user?.isPremium]);
+
   const carouselData = {
     slides,
     schemeIndex: colorSchemes.indexOf(scheme),
@@ -217,8 +248,6 @@ export default function Home() {
   };
 
   return (
-    <ToastProvider>
-      <AuthProvider>
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
       <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 transition-colors">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between">
@@ -422,29 +451,45 @@ export default function Home() {
 
       {/* Desktop floating bottom bar */}
       <div className="hidden lg:block fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-6 py-3 transition-colors">
-        <div className="max-w-[1600px] mx-auto flex items-center justify-end gap-3">
-          <SaveButtonWithToast
-            carouselData={carouselData}
-            savedId={savedCarouselId}
-            defaultTitle={savedTitle}
-            onSaved={(id, title) => { setSavedCarouselId(id); setSavedTitle(title); setCarouselRefreshKey(k => k + 1); }}
-          />
-          <button
-            onClick={handleExportPNG}
-            disabled={!!exportProgress}
-            aria-label="Export all slides as PNG images"
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
-          >
-            {exportProgress ? `${exportProgress.current}/${exportProgress.total}` : "Export PNG"}
-          </button>
-          <button
-            onClick={handleExportPDF}
-            disabled={!!exportProgress}
-            aria-label="Export all slides as PDF"
-            className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 transition-colors"
-          >
-            {exportProgress ? `${exportProgress.current}/${exportProgress.total}` : "Export PDF"}
-          </button>
+        <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            {user?.isPremium && credits !== null && (
+              <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                AI: {credits.remaining}/{credits.limit}
+              </span>
+            )}
+            <button
+              onClick={() => setShowAiDialog(true)}
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Generate slides with AI"
+            >
+              Generate with AI
+            </button>
+          </div>
+          <div className="flex items-center gap-3">
+            <SaveButtonWithToast
+              carouselData={carouselData}
+              savedId={savedCarouselId}
+              defaultTitle={savedTitle}
+              onSaved={(id, title) => { setSavedCarouselId(id); setSavedTitle(title); setCarouselRefreshKey(k => k + 1); }}
+            />
+            <button
+              onClick={handleExportPNG}
+              disabled={!!exportProgress}
+              aria-label="Export all slides as PNG images"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
+            >
+              {exportProgress ? `${exportProgress.current}/${exportProgress.total}` : "Export PNG"}
+            </button>
+            <button
+              onClick={handleExportPDF}
+              disabled={!!exportProgress}
+              aria-label="Export all slides as PDF"
+              className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 transition-colors"
+            >
+              {exportProgress ? `${exportProgress.current}/${exportProgress.total}` : "Export PDF"}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -502,6 +547,13 @@ export default function Home() {
                   defaultTitle={savedTitle}
                    onSaved={(id, title) => { setSavedCarouselId(id); setSavedTitle(title); setCarouselRefreshKey(k => k + 1); }}
                 />
+                <button
+                  onClick={() => setShowAiDialog(true)}
+                  className="w-full px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  aria-label="Generate slides with AI"
+                >
+                  Generate with AI
+                </button>
                 <div className="flex gap-2">
                   <button
                     onClick={handleExportPNG}
@@ -695,8 +747,12 @@ export default function Home() {
           </div>
         ))}
       </div>
+
+      <AiDialog
+        open={showAiDialog}
+        onClose={() => setShowAiDialog(false)}
+        onGenerate={handleAiGenerated}
+      />
     </div>
-    </AuthProvider>
-    </ToastProvider>
   );
 }
