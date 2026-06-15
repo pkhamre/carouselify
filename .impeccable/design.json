@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-15T00:00:00Z",
+  "title": "Design System: carouselify",
+  "extensions": {
+    "colorMeta": {
+      "accent": { "role": "primary", "displayName": "Accent Blue", "canonical": "#0A7EAD", "tonalRamp": ["#042D42", "#064A6E", "#086A92", "#0A7EAD", "#2D9BC6", "#5FB8DA", "#96D4EA", "#CCE9F5"] },
+      "surface": { "role": "neutral", "displayName": "Surface", "canonical": "#F9FAFB", "tonalRamp": ["#111827", "#1F2937", "#374151", "#6B7280", "#9CA3AF", "#D1D5DB", "#E5E7EB", "#F9FAFB"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#111827", "tonalRamp": ["#030712", "#111827", "#1F2937", "#374151", "#4B5563", "#6B7280", "#9CA3AF", "#D1D5DB"] },
+      "danger": { "role": "danger", "displayName": "Danger Red", "canonical": "#DC2626", "tonalRamp": ["#7F1D1D", "#991B1B", "#B91C1C", "#DC2626", "#EF4444", "#F87171", "#FCA5A5", "#FECACA"] },
+      "success": { "role": "success", "displayName": "Success Green", "canonical": "#16A34A", "tonalRamp": ["#14532D", "#166534", "#15803D", "#16A34A", "#22C55E", "#4ADE80", "#86EFAC", "#BBF7D0"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Panel Heading", "purpose": "Section titles in sidebar panels." },
+      "body": { "displayName": "Body", "purpose": "Input text, descriptions, list items." },
+      "label": { "displayName": "Label", "purpose": "Section eyebrows and field labels, uppercase." },
+      "data": { "displayName": "Data", "purpose": "Slide counts, credit counters, monospace." }
+    },
+    "shadows": [
+      { "name": "panel", "value": "0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)", "purpose": "Cards, sidebar panels, subtle lift." },
+      { "name": "dropdown", "value": "0 4px 12px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08)", "purpose": "Dropdown menus, floating bars." },
+      { "name": "modal", "value": "0 12px 40px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.1)", "purpose": "Modal dialogs, toasts." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default easing for state transitions." },
+      { "name": "duration-fast", "value": "150ms", "purpose": "Hover, focus, toggle transitions." },
+      { "name": "duration-normal", "value": "200ms", "purpose": "Panel open/close, slide transitions." }
+    ],
+    "breakpoints": [
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary action button. One per context.",
+      "html": "<button class=\"ds-btn-primary\">Save</button>",
+      "css": ".ds-btn-primary { background: #0A7EAD; color: #F9FAFB; padding: 8px 16px; border-radius: 8px; font-family: system-ui, -apple-system, sans-serif; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer; transition: background 150ms; } .ds-btn-primary:hover { background: #086A92; } .ds-btn-primary:focus-visible { outline: 2px solid #0A7EAD; outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Alternative action button. Secondary in context.",
+      "html": "<button class=\"ds-btn-secondary\">Export PNG</button>",
+      "css": ".ds-btn-secondary { background: #FFFFFF; color: #111827; padding: 8px 16px; border-radius: 8px; font-family: system-ui, -apple-system, sans-serif; font-size: 0.875rem; font-weight: 500; border: 1px solid #E5E7EB; cursor: pointer; transition: background 150ms; } .ds-btn-secondary:hover { background: #F9FAFB; } .ds-btn-secondary:focus-visible { outline: 2px solid #0A7EAD; outline-offset: 2px; } .ds-btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Standard text input for form fields.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Enter text...\" />",
+      "css": ".ds-input { background: #FFFFFF; color: #111827; padding: 8px 12px; border-radius: 8px; font-family: system-ui, -apple-system, sans-serif; font-size: 0.875rem; border: 1px solid #E5E7EB; width: 100%; box-sizing: border-box; transition: border-color 150ms, box-shadow 150ms; } .ds-input:hover { border-color: #D1D5DB; } .ds-input:focus { outline: none; border-color: transparent; box-shadow: 0 0 0 2px #0A7EAD; } .ds-input::placeholder { color: #9CA3AF; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Container panel for sidebar sections.",
+      "html": "<div class=\"ds-card\"><h3>Panel Title</h3></div>",
+      "css": ".ds-card { background: #FFFFFF; border-radius: 16px; border: 1px solid #E5E7EB; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06); } .ds-card h3 { font-family: system-ui, -apple-system, sans-serif; font-size: 1rem; font-weight: 600; color: #111827; margin: 0 0 16px 0; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Design Instrument",
+    "overview": "A carousel editor is a tool for making visual work. The interface should feel like a well-built instrument: precise, responsive, confident. Every interaction is deliberate, nothing is decorative, and the output speaks for itself. The editor chrome disappears into the task, leaving the slide canvas as the hero.",
+    "keyCharacteristics": ["Restrained palette: neutral surfaces, one accent for actions and selection", "System typography: no decorative fonts in the editor chrome", "Flat surfaces with subtle shadows only on elevated panels", "Consistent component vocabulary: same button, same input, same card everywhere", "Speed as feature: no loading screens between actions, no unnecessary confirmations"],
+    "rules": [
+      { "name": "The 8% Rule", "body": "The accent color appears on no more than 8% of any given screen. Its rarity is what makes it signal action.", "section": "colors" },
+      { "name": "The Two-Neutral Rule", "body": "The editor uses exactly two neutral surface colors: one for the background, one for raised panels. A third neutral exists but is used sparingly.", "section": "colors" },
+      { "name": "The System Font Rule", "body": "The editor chrome uses system fonts exclusively. Google Fonts are loaded for slide output only.", "section": "typography" },
+      { "name": "The Weight Hierarchy Rule", "body": "Typography hierarchy is expressed through font weight (400 → 500 → 600), not through size alone.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Surfaces are flat at rest. Shadows appear only as a response to state or elevation need.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use system fonts for all editor UI",
+      "Do use the accent blue only for primary actions, selection states, and focus rings",
+      "Do maintain the 8% accent rule",
+      "Do use weight contrast for typographic hierarchy",
+      "Do keep cards flat with subtle shadows",
+      "Do use consistent button shapes",
+      "Do show keyboard shortcuts in tooltips and aria-labels",
+      "Do use skeleton states for loading",
+      "Do use the slide canvas as the hero"
+    ],
+    "donts": [
+      "Don't use decorative fonts in the editor chrome",
+      "Don't use gray text on colored backgrounds",
+      "Don't make every card identical",
+      "Don't use gradient text, glassmorphism, or decorative blur",
+      "Don't add decorative motion",
+      "Don't use modals as the first thought",
+      "Don't reinvent standard affordances",
+      "Don't use arbitrary z-index values",
+      "Don't ship with missing interactive states"
+    ]
+  }
+}

@@ -29,13 +29,13 @@ export function UserMenu({ onShowSettings }: UserMenuProps) {
       <div className="flex items-center gap-2">
         <button
           onClick={() => setShowAuth("login")}
-          className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
         >
           Log in
         </button>
         <button
           onClick={() => setShowAuth("register")}
-          className="px-3 py-1.5 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors"
+          className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
         >
           Register
         </button>
@@ -50,7 +50,7 @@ export function UserMenu({ onShowSettings }: UserMenuProps) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="w-9 h-9 flex items-center justify-center text-sm font-semibold text-white bg-sky-600 rounded-full hover:bg-sky-700 transition-colors"
+        className="w-9 h-9 flex items-center justify-center text-sm font-semibold text-white bg-sky-600 rounded-full hover:bg-sky-700 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
         aria-label="User menu"
       >
         {initials}

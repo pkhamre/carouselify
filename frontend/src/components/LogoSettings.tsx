@@ -46,7 +46,7 @@ export function LogoSettings({ logo, onChange }: LogoSettingsProps) {
         <button
           type="button"
           onClick={() => onChange({ ...logo, showLogo: !logo.showLogo })}
-          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600 ${
             logo.showLogo ? "bg-sky-600" : "bg-gray-300 dark:bg-gray-600"
           }`}
           aria-label={logo.showLogo ? "Disable logo" : "Enable logo"}
@@ -101,13 +101,13 @@ export function LogoSettings({ logo, onChange }: LogoSettingsProps) {
                 Custom Image
               </label>
               <div className="flex items-center gap-2">
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,image/gif"
-                  onChange={handleUpload}
-                  disabled={uploadBusy}
-                  className="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-sky-50 dark:file:bg-sky-900/30 file:text-sky-700 dark:file:text-sky-200 hover:file:bg-sky-100 dark:hover:file:bg-sky-900/50"
-                />
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            onChange={handleUpload}
+            disabled={uploadBusy}
+            className="block w-full text-sm text-gray-700 dark:text-gray-300 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-sky-50 dark:file:bg-sky-900/30 file:text-sky-700 dark:file:text-sky-200 hover:file:bg-sky-100 dark:hover:file:bg-sky-900/50 file:focus-visible:outline-2 file:focus-visible:outline-offset-2 file:focus-visible:outline-sky-600"
+          />
               </div>
               {uploadBusy && <p className="text-xs text-gray-500 mt-1">Uploading...</p>}
               {uploadError && <p className="text-xs text-red-500 mt-1">{uploadError}</p>}

@@ -230,7 +230,7 @@ export function ThemePicker({
             {isAuthenticated && !showSaveInput && (
               <button
                 onClick={() => setShowSaveInput(true)}
-                className="mt-2 text-xs px-3 py-1.5 bg-sky-600 text-white rounded-md hover:bg-sky-700 transition-colors"
+                className="mt-2 text-xs px-3 py-1.5 bg-sky-600 text-white rounded-md hover:bg-sky-700 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
               >
                 Save as...
               </button>
@@ -366,7 +366,7 @@ export function ThemePicker({
             const fonts = fontPairings.find((f) => f.name === e.target.value);
             if (fonts) onFontsChange(fonts);
           }}
-          className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-600"
+          className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-600 focus:border-transparent"
         >
           {fontPairings.map((fonts) => (
             <option key={fonts.name} value={fonts.name}>
@@ -383,7 +383,7 @@ export function ThemePicker({
         <div className="flex items-center gap-3">
           <button
             onClick={() => onInvertChange(!inverted)}
-            className={`relative w-12 h-7 rounded-full transition-colors ${
+            className={`relative w-12 h-7 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600 ${
               inverted ? "bg-sky-600" : "bg-gray-300 dark:bg-gray-600"
             }`}
           >

@@ -160,28 +160,38 @@ function HomeContent() {
     if (slides.length < 1) return;
     const firstEl = slideRefs.current[0];
     if (!firstEl) return;
-    const fontEmbedCSS = await getFontEmbedCSS(firstEl);
-    setExportProgress({ current: 0, total: slides.length });
-    for (let i = 0; i < slideRefs.current.length; i++) {
-      const el = slideRefs.current[i];
-      if (!el) continue;
-      await exportSlideAsPNG(el, i, fontEmbedCSS);
-      setExportProgress({ current: i + 1, total: slides.length });
+    try {
+      const fontEmbedCSS = await getFontEmbedCSS(firstEl);
+      setExportProgress({ current: 0, total: slides.length });
+      for (let i = 0; i < slideRefs.current.length; i++) {
+        const el = slideRefs.current[i];
+        if (!el) continue;
+        await exportSlideAsPNG(el, i, fontEmbedCSS);
+        setExportProgress({ current: i + 1, total: slides.length });
+      }
+      setExportProgress(null);
+      captureExport(slides.length);
+    } catch (err) {
+      setExportProgress(null);
+      toast("Export failed. Please try again.", "error");
     }
-    setExportProgress(null);
-    captureExport(slides.length);
   };
 
   const handleExportPDF = async () => {
     if (slides.length < 1) return;
     const firstEl = slideRefs.current[0];
     if (!firstEl) return;
-    const fontEmbedCSS = await getFontEmbedCSS(firstEl);
-    setExportProgress({ current: 0, total: slides.length });
-    const elements = slideRefs.current.filter(Boolean) as HTMLElement[];
-    await exportSlidesAsPDF(elements, fontEmbedCSS);
-    setExportProgress(null);
-    captureExport(slides.length);
+    try {
+      const fontEmbedCSS = await getFontEmbedCSS(firstEl);
+      setExportProgress({ current: 0, total: slides.length });
+      const elements = slideRefs.current.filter(Boolean) as HTMLElement[];
+      await exportSlidesAsPDF(elements, fontEmbedCSS);
+      setExportProgress(null);
+      captureExport(slides.length);
+    } catch (err) {
+      setExportProgress(null);
+      toast("PDF export failed. Please try again.", "error");
+    }
   };
 
   const activeSlide = slides[activeSlideIndex];
@@ -365,7 +375,7 @@ function HomeContent() {
                       <button
                         onClick={(e) => { e.stopPropagation(); removeSlideWithUndo(index); }}
                         aria-label="Delete slide"
-                        className="w-6 h-6 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-red-500 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
+                        className="w-6 h-6 flex items-center justify-center text-red-400 dark:text-red-500 hover:text-red-600 dark:hover:text-red-400 rounded hover:bg-red-50 dark:hover:bg-red-900/20"
                       >
                         ×
                       </button>
@@ -392,7 +402,7 @@ function HomeContent() {
           </div>
 
           <div className="col-span-5">
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sticky top-6 transition-colors">
+            <div className="bg-slate-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sticky top-6 transition-colors">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100">Preview</h3>
                 <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -487,7 +497,7 @@ function HomeContent() {
               onClick={handleExportPNG}
               disabled={!!exportProgress}
               aria-label="Export all slides as PNG images"
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
             >
               {exportProgress ? `${exportProgress.current}/${exportProgress.total}` : "Export PNG"}
             </button>
@@ -495,7 +505,7 @@ function HomeContent() {
               onClick={handleExportPDF}
               disabled={!!exportProgress}
               aria-label="Export all slides as PDF"
-              className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
             >
               {exportProgress ? `${exportProgress.current}/${exportProgress.total}` : "Export PDF"}
             </button>
@@ -519,11 +529,11 @@ function HomeContent() {
                   onClick={() => setActiveSlideIndex((p) => Math.max(0, p - 1))}
                   disabled={activeSlideIndex <= 0}
                   aria-label="Previous slide"
-                  className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed bg-white dark:bg-gray-800 shrink-0"
+                  className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed bg-white dark:bg-gray-800 shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <div className="flex-1 max-w-[360px] bg-gray-100 dark:bg-gray-800 rounded-lg transition-colors" style={{ aspectRatio: "1", position: "relative", overflow: "hidden" }}>
+                <div className="flex-1 max-w-[360px] bg-slate-50 dark:bg-gray-800 rounded-lg transition-colors" style={{ aspectRatio: "1", position: "relative", overflow: "hidden" }}>
                   {slides.length > 0 ? (
                     <div style={{ position: "absolute", top: 0, left: 0, width: 1080, height: 1080, transform: "scale(0.333)", transformOrigin: "top left" }}>
                         <SlideCanvas
@@ -545,7 +555,7 @@ function HomeContent() {
                   onClick={() => setActiveSlideIndex((p) => Math.min(slides.length - 1, p + 1))}
                   disabled={activeSlideIndex >= slides.length - 1}
                   aria-label="Next slide"
-                  className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed bg-white dark:bg-gray-800 shrink-0"
+                  className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 disabled:opacity-30 disabled:cursor-not-allowed bg-white dark:bg-gray-800 shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </button>
@@ -569,7 +579,7 @@ function HomeContent() {
                     onClick={handleExportPNG}
                     disabled={slides.length < 1 || !!exportProgress}
                     aria-label="Export all slides as PNG images"
-                    className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                   >
                     {exportProgress ? `${exportProgress.current}/${exportProgress.total}` : "Export PNG"}
                   </button>
@@ -577,7 +587,7 @@ function HomeContent() {
                     onClick={handleExportPDF}
                     disabled={slides.length < 1 || !!exportProgress}
                     aria-label="Export all slides as PDF"
-                    className="flex-1 px-4 py-3 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex-1 px-4 py-3 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
                   >
                     {exportProgress ? `${exportProgress.current}/${exportProgress.total}` : "Export PDF"}
                   </button>
@@ -661,7 +671,7 @@ function HomeContent() {
                         {index < slides.length - 1 && (
                           <button onClick={(e) => { e.stopPropagation(); reorderSlide(index, "down"); }} aria-label="Move slide down" className="w-6 h-6 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded hover:bg-gray-100 dark:hover:bg-gray-700">↓</button>
                         )}
-                        <button onClick={(e) => { e.stopPropagation(); removeSlideWithUndo(index); }} aria-label="Delete slide" className="w-6 h-6 flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-red-500 rounded hover:bg-red-50 dark:hover:bg-red-900/20">×</button>
+                        <button onClick={(e) => { e.stopPropagation(); removeSlideWithUndo(index); }} aria-label="Delete slide" className="w-6 h-6 flex items-center justify-center text-red-400 dark:text-red-500 hover:text-red-600 dark:hover:text-red-400 rounded hover:bg-red-50 dark:hover:bg-red-900/20">×</button>
                       </div>
                     </div>
                   ))}

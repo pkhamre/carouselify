@@ -40,14 +40,14 @@ export function SaveButton({ carouselData, savedId, defaultTitle, onSaved }: Sav
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Carousel title"
         aria-label="Carousel title"
-        className="flex-1 min-w-0 px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-600 transition-colors"
+        className="flex-1 min-w-0 px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-600 focus:border-transparent transition-colors"
       />
       <button
         onClick={handleSave}
         disabled={busy}
         data-save-btn
         aria-label="Save carousel"
-        className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
+        className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
       >
         {busy ? "Saving..." : savedId ? "Update" : "Save"}
       </button>

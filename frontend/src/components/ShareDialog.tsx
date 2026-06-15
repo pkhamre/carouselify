@@ -49,7 +49,7 @@ export function ShareDialog({ carouselId, shareUrl, onShared, onRevoked }: Share
         <button
           onClick={handleShare}
           disabled={busy}
-          className="w-full py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 transition-colors"
+          className="w-full py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
         >
           {busy ? "Generating..." : "Generate share link"}
         </button>
@@ -71,7 +71,7 @@ export function ShareDialog({ carouselId, shareUrl, onShared, onRevoked }: Share
         />
         <button
           onClick={handleCopy}
-          className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
         >
           {copied ? "Copied!" : "Copy"}
         </button>
@@ -79,7 +79,7 @@ export function ShareDialog({ carouselId, shareUrl, onShared, onRevoked }: Share
       <button
         onClick={handleRevoke}
         disabled={busy}
-        className="mt-2 w-full py-1.5 text-xs font-medium text-red-600 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 transition-colors"
+        className="mt-2 w-full py-1.5 text-xs font-medium text-red-600 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
       >
         Revoke share link
       </button>

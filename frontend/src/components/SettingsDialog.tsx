@@ -53,7 +53,7 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Settings</h2>
           <button
             onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
             aria-label="Close settings"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,7 +92,7 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
               <button
                 onClick={handleUpgrade}
                 disabled={busy}
-                className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
               >
                 {busy ? "Redirecting..." : "Upgrade to Premium"}
               </button>
@@ -118,7 +118,7 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
                 localStorage.setItem("darkMode", String(next));
                 document.documentElement.classList.toggle("dark", next);
               }}
-              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${darkMode ? "bg-sky-600" : "bg-gray-300 dark:bg-gray-600"}`}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600 ${darkMode ? "bg-sky-600" : "bg-gray-300 dark:bg-gray-600"}`}
               aria-label={darkMode ? "Disable dark mode" : "Enable dark mode"}
             >
               <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${darkMode ? "translate-x-[18px]" : "translate-x-[3px]"}`} />
