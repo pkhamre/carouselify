@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import Link from "next/link";
 import type { Slide, SlideType, ColorScheme, FontPairing, LogoConfig } from "@/lib/types";
 import { defaultScheme, defaultFonts, colorSchemes, fontPairings } from "@/lib/themes";
 import { defaultLogo } from "@/lib/types";
@@ -40,6 +41,54 @@ function SaveButtonWithToast({ carouselData, savedId, defaultTitle, onSaved }: P
         toast("Carousel saved!");
       }}
     />
+  );
+}
+
+function HelpMenu() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        aria-label="Help"
+        aria-expanded={open}
+        className="w-9 h-9 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+      >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M12 18h.01" />
+          <circle cx="12" cy="12" r="9" strokeWidth={2} />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-1.5 w-36 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg py-1 z-50 transition-colors">
+          <Link
+            href="/faq"
+            onClick={() => setOpen(false)}
+            className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            FAQ
+          </Link>
+          <Link
+            href="/privacy"
+            onClick={() => setOpen(false)}
+            className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            Privacy Policy
+          </Link>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -296,6 +345,7 @@ function HomeContent() {
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
               )}
             </button>
+            <HelpMenu />
             <UserMenu onShowSettings={() => setShowSettings(true)} />
           </div>
         </div>
