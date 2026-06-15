@@ -36,7 +36,7 @@ async function request<T>(
   if (!(options.body instanceof FormData || options.body instanceof URLSearchParams)) {
     headers["Content-Type"] = "application/json";
   }
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+  const res = await fetch(`${API_URL}${path}`, { ...options, headers, credentials: "include" });
   if (!res.ok) {
     const body = await res.json().catch(() => ({ detail: res.statusText }));
     throw new Error(body.detail || `Request failed: ${res.status}`);

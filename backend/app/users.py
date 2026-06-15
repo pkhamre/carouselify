@@ -1,8 +1,8 @@
 import uuid
 from typing import Optional
-from fastapi import Depends, HTTPException, Request, status
+from fastapi import Depends, HTTPException, Request, Response, status
 from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
-from fastapi_users.authentication import AuthenticationBackend, BearerTransport, JWTStrategy
+from fastapi_users.authentication import AuthenticationBackend, CookieTransport, JWTStrategy
 from fastapi_users.db import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,18 +11,29 @@ from app.database import get_session
 from app.models import User
 
 
+class CookieBearerTransport(CookieTransport):
+    async def get_token(self, request: Request) -> Optional[str]:
+        token = request.cookies.get(self.cookie_name)
+        if token:
+            return token
+        auth = request.headers.get("Authorization")
+        if auth and auth.startswith("Bearer "):
+            return auth[7:]
+        return None
+
+
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     reset_password_token_secret = settings.secret
     verification_token_secret = settings.secret
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
-        print(f"User {user.id} registered.")
+        pass
 
     async def on_after_forgot_password(self, user: User, token: str, request: Optional[Request] = None):
-        print(f"User {user.id} forgot password. Token: {token}")
+        pass
 
     async def on_after_request_verify(self, user: User, token: str, request: Optional[Request] = None):
-        print(f"Verification token for user {user.id}: {token}")
+        pass
 
 
 async def get_user_db(session: AsyncSession = Depends(get_session)):
@@ -33,7 +44,7 @@ async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db
     yield UserManager(user_db)
 
 
-bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
+transport = CookieBearerTransport()
 
 
 def get_jwt_strategy() -> JWTStrategy:
@@ -42,7 +53,7 @@ def get_jwt_strategy() -> JWTStrategy:
 
 auth_backend = AuthenticationBackend(
     name="jwt",
-    transport=bearer_transport,
+    transport=transport,
     get_strategy=get_jwt_strategy,
 )
 

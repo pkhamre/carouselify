@@ -1,10 +1,11 @@
 import uuid
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
+from app.limiter import limiter
 from app.models import Carousel, CarouselLike, ContactMessage, Event, User
 from app.schemas import ContactMessageCreate, ContactMessageOut, StatsResponse, TrackEventRequest, ShowcaseListItem
 from app.users import current_active_user, require_admin
@@ -148,7 +149,9 @@ contact_public_router = APIRouter(prefix="/api", tags=["contact"])
 
 
 @contact_public_router.post("/contact", response_model=ContactMessageOut, status_code=status.HTTP_201_CREATED)
+@limiter.limit("5/hour")
 async def submit_contact(
+    request: Request,
     body: ContactMessageCreate,
     session: AsyncSession = Depends(get_session),
 ):

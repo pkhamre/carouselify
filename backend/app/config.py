@@ -1,3 +1,4 @@
+import sys
 from pydantic_settings import BaseSettings
 
 
@@ -12,8 +13,13 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     subscriptions_enabled: bool = False
     admin_email: str = ""
+    environment: str = "development"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 
 settings = Settings()
+
+if settings.secret == "change-me-in-production" and settings.environment == "production":
+    print("FATAL: SECRET env var is still set to the insecure default 'change-me-in-production'", file=sys.stderr)
+    sys.exit(1)

@@ -1,10 +1,13 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.database import engine, Base
 from app.schemas import UserRead, UserCreate, UserUpdate
 from app.users import fastapi_users, auth_backend
+from app.config import settings
+from app.limiter import limiter
 from pathlib import Path
 from fastapi.staticfiles import StaticFiles
 from app.routers.carousels import router as carousels_router, public_router, guest_router
@@ -24,7 +27,11 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Carouselify API", lifespan=lifespan)
+docs_enabled = settings.environment != "production"
+app = FastAPI(title="Carouselify API", lifespan=lifespan, docs_url="/docs" if docs_enabled else None, redoc_url="/redoc" if docs_enabled else None)
+
+app.state.limiter = limiter
+app.add_exception_handler(429, lambda request, exc: JSONResponse(status_code=429, content={"detail": "Too many requests"}))
 
 app.add_middleware(
     CORSMiddleware,
@@ -36,6 +43,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
 
 uploads_dir = Path("uploads/logos")
 uploads_dir.mkdir(parents=True, exist_ok=True)

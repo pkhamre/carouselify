@@ -56,7 +56,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else {
       createGuest()
         .then((res) => {
-          setToken(res.access_token);
           setGuestUserId(res.user_id);
           setUser({ id: res.user_id, email: "guest", isGuest: true });
         })
@@ -72,8 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const res = await apiLogin(email, password);
-    setToken(res.access_token);
+    await apiLogin(email, password);
     const me = await getMe();
     setUser({ id: me.id, email: me.email });
   }, []);
@@ -81,8 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(async (email: string, password: string) => {
     const guestId = getGuestUserId();
     await apiRegister(email, password);
-    const res = await apiLogin(email, password);
-    setToken(res.access_token);
+    await apiLogin(email, password);
     const me = await getMe();
     setUser({ id: me.id, email: me.email });
     if (guestId) {
@@ -95,7 +92,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try { await apiLogout(); } catch {}
-    setToken(null);
     setGuestUserId(null);
     setUser(null);
   }, []);

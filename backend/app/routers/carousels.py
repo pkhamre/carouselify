@@ -2,12 +2,14 @@ import random
 import string
 import uuid
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.responses import JSONResponse
 from fastapi_users.password import PasswordHelper
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
+from app.limiter import limiter
 from app.models import Carousel, CarouselLike, User
 from app.schemas import CarouselCreate, CarouselOut, CarouselListItem, CarouselUpdate, GuestResponse, LikeResponse, LinkGuestRequest, PublishShowcaseRequest, ShareResponse
 from app.users import current_active_user, get_jwt_strategy, optional_active_user
@@ -238,8 +240,10 @@ async def toggle_like(
 guest_router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@guest_router.post("/guest", response_model=GuestResponse)
+@guest_router.post("/guest")
+@limiter.limit("10/hour")
 async def create_guest(
+    request: Request,
     session: AsyncSession = Depends(get_session),
 ):
     pw_helper = PasswordHelper()
@@ -261,7 +265,16 @@ async def create_guest(
     strategy = get_jwt_strategy()
     token = await strategy.write_token(user)
 
-    return GuestResponse(access_token=token, user_id=str(user.id))
+    content = {"access_token": token, "token_type": "bearer", "user_id": str(user.id)}
+    response = JSONResponse(content=content)
+    response.set_cookie(
+        "carouselify_token",
+        token,
+        max_age=2592000,
+        httponly=True,
+        samesite="lax",
+    )
+    return response
 
 
 @guest_router.post("/link-guest")

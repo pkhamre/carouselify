@@ -1,6 +1,7 @@
 import uuid
 from pathlib import Path
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
+from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, status
+from app.limiter import limiter
 from app.models import User
 from app.users import current_active_user
 
@@ -11,7 +12,9 @@ MAX_SIZE = 2 * 1024 * 1024  # 2MB
 
 
 @router.post("/logo")
+@limiter.limit("10/hour")
 async def upload_logo(
+    request: Request,
     file: UploadFile = File(...),
     user: User = Depends(current_active_user),
 ):

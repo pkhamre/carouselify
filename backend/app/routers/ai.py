@@ -1,17 +1,27 @@
+import re
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from openai import AsyncOpenAI
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import get_session
+from app.limiter import limiter
 from app.models import User
 from app.schemas import AiGenerateRequest, AiGenerateResponse, CreditsResponse
 from app.users import current_active_user
 from app.events import track_event
 
 router = APIRouter(prefix="/api/ai", tags=["ai"])
+
+INJECTION_PATTERNS = [
+    r"ignore\s+(all\s+)?(previous\s+)?instructions",
+    r"system\s+(prompt|message)",
+    r"you\s+are\s+(now|not\s+required\s+to)",
+    r"disregard",
+    r"forget\s+(your\s+)?(instructions|prompt)",
+]
 
 CREDITS_LIMIT = 50
 
@@ -67,13 +77,21 @@ async def get_credits(
 
 
 @router.post("/generate", response_model=AiGenerateResponse)
+@limiter.limit("5/minute")
 async def generate_slides(
+    request: Request,
     body: AiGenerateRequest,
     user: User = Depends(current_active_user),
     session: AsyncSession = Depends(get_session),
 ):
     if not user.is_premium:
         raise HTTPException(status.HTTP_402_PAYMENT_REQUIRED, detail="Premium required")
+
+    for pattern in INJECTION_PATTERNS:
+        if re.search(pattern, body.prompt, re.IGNORECASE):
+            raise HTTPException(status_code=400, detail="Prompt rejected")
+
+    body.prompt = body.prompt.strip()[:2000]
 
     now = datetime.now(timezone.utc).replace(tzinfo=None)
     if user.ai_credits_reset_at and user.ai_credits_reset_at.replace(tzinfo=None) < now:
