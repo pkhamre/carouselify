@@ -12,6 +12,7 @@ import { LogoSettings } from "@/components/LogoSettings";
 import { AuthProvider } from "@/lib/auth";
 import { SaveButton } from "@/components/SaveButton";
 import { MyCarousels } from "@/components/MyCarousels";
+import { WelcomeModal } from "@/components/WelcomeModal";
 import { ShareDialog } from "@/components/ShareDialog";
 import { UserMenu } from "@/components/UserMenu";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -428,8 +429,6 @@ function HomeContent() {
             <MyCarousels
               onLoad={handleLoadCarousel}
               refreshKey={carouselRefreshKey}
-              showWelcome={!hasSeenWelcome}
-              onDismissWelcome={handleDismissWelcome}
             />
           </div>
 
@@ -651,8 +650,6 @@ function HomeContent() {
             <MyCarousels
               onLoad={handleLoadCarousel}
               refreshKey={carouselRefreshKey}
-              showWelcome={!hasSeenWelcome}
-              onDismissWelcome={handleDismissWelcome}
             />
 
               <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
@@ -816,6 +813,11 @@ function HomeContent() {
           </div>
         ))}
       </div>
+
+      <WelcomeModal
+        open={!hasSeenWelcome}
+        onDismiss={handleDismissWelcome}
+      />
 
       <SettingsDialog
         open={showSettings}

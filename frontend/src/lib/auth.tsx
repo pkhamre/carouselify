@@ -47,21 +47,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [subscriptionsEnabled, setSubscriptionsEnabled] = useState(true);
 
   useEffect(() => {
-    const existingToken = getTokenValue();
-    if (existingToken) {
-      getMe()
-        .then((u) => setUser({ id: u.id, email: u.email, is_premium: u.is_premium }))
-        .catch(() => setToken(null))
-        .finally(() => setLoading(false));
-    } else {
-      createGuest()
-        .then((res) => {
+    getMe()
+      .then((u) => {
+        setUser({ id: u.id, email: u.email, is_premium: u.is_premium });
+      })
+      .catch(() => {
+        const existingToken = getTokenValue();
+        if (existingToken) setToken(null);
+        return createGuest().then((res) => {
           setGuestUserId(res.user_id);
           setUser({ id: res.user_id, email: "guest", isGuest: true });
-        })
-        .catch(() => {})
-        .finally(() => setLoading(false));
-    }
+        });
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
