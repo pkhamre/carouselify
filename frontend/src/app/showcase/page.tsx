@@ -23,23 +23,17 @@ function SeedCard({ carousel }: { carousel: SeedCarousel }) {
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 transition-colors hover:border-gray-300 dark:hover:border-gray-700">
-      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 leading-snug">{carousel.title}</h3>
+      <Link href={`/showcase/${carousel.id}`} className="block group">
+        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 leading-snug group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">{carousel.title}</h3>
+      </Link>
       <p className="text-sm text-gray-400 dark:text-gray-500 mb-3">by {carousel.showcaseAuthor}</p>
       <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">{carousel.slideCount} slides</p>
-      <div className="flex items-center gap-2">
-        <Link
-          href={`/showcase/${carousel.id}`}
-          className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-sky-600 border border-sky-200 dark:border-sky-800 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
-        >
-          Preview
-        </Link>
-        <button
-          onClick={handleClone}
-          className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-        >
-          Clone & Edit
-        </button>
-      </div>
+      <button
+        onClick={handleClone}
+        className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-sky-600 border border-sky-200 dark:border-sky-800 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
+      >
+        Clone & Edit
+      </button>
     </div>
   );
 }

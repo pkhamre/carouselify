@@ -128,12 +128,12 @@ export default function SharedCarouselPage() {
               <div
                 style={{
                   position: "absolute",
-                  top: 0,
-                  left: 0,
+                  top: "50%",
+                  left: "50%",
                   width: 1080,
                   height: 1080,
-                  transform: "scale(0.5)",
-                  transformOrigin: "top left",
+                  transform: "translate(-50%, -50%) scale(0.5)",
+                  transformOrigin: "center center",
                 }}
               >
                 <SlideCanvas
