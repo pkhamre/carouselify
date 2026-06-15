@@ -268,3 +268,16 @@ export interface AdminStats {
 export function getAdminStats(): Promise<AdminStats> {
   return request("/api/admin/stats");
 }
+
+// Contact messages
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  message: string;
+  created_at: string;
+}
+
+export function getContactMessages(): Promise<ContactMessage[]> {
+  return request("/api/admin/contact-messages");
+}

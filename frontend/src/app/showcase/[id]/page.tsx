@@ -8,6 +8,8 @@ import { SlideCanvas } from "@/components/slides/SlideCanvas";
 import type { Slide, ColorScheme, FontPairing, LogoConfig } from "@/lib/types";
 import { colorSchemes, fontPairings } from "@/lib/themes";
 import "@/components/slides/slideStyles.css";
+import { AuthProvider } from "@/lib/auth";
+import { UserMenu } from "@/components/UserMenu";
 
 interface SharedCarouselData {
   slides: Slide[];
@@ -19,7 +21,7 @@ interface SharedCarouselData {
   presentationTitle: string;
 }
 
-export default function ShowcasePreviewPage() {
+function ShowcasePreviewPage() {
   const params = useParams();
   const router = useRouter();
   const shareToken = params?.id as string;
@@ -192,6 +194,7 @@ export default function ShowcasePreviewPage() {
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
               )}
             </button>
+            <UserMenu />
             <button
               onClick={handleClone}
               className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
@@ -279,5 +282,13 @@ export default function ShowcasePreviewPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function ShowcasePreview() {
+  return (
+    <AuthProvider>
+      <ShowcasePreviewPage />
+    </AuthProvider>
   );
 }

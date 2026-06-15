@@ -5,8 +5,8 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
-from app.models import Carousel, Event, User
-from app.schemas import StatsResponse, TrackEventRequest, ShowcaseListItem
+from app.models import Carousel, ContactMessage, Event, User
+from app.schemas import ContactMessageCreate, ContactMessageOut, StatsResponse, TrackEventRequest, ShowcaseListItem
 from app.users import current_active_user, require_admin
 from app.events import track_event
 
@@ -166,6 +166,32 @@ async def list_pending_showcase(
             slide_count=len(slides),
         ))
     return items
+
+
+contact_public_router = APIRouter(prefix="/api", tags=["contact"])
+
+
+@contact_public_router.post("/contact", response_model=ContactMessageOut, status_code=status.HTTP_201_CREATED)
+async def submit_contact(
+    body: ContactMessageCreate,
+    session: AsyncSession = Depends(get_session),
+):
+    msg = ContactMessage(name=body.name, email=body.email, message=body.message)
+    session.add(msg)
+    await session.commit()
+    await session.refresh(msg)
+    return msg
+
+
+@router.get("/contact-messages", response_model=list[ContactMessageOut])
+async def list_contact_messages(
+    user: User = Depends(require_admin),
+    session: AsyncSession = Depends(get_session),
+):
+    result = await session.execute(
+        select(ContactMessage).order_by(ContactMessage.created_at.desc())
+    )
+    return result.scalars().all()
 
 
 track_public_router = APIRouter(prefix="/api/track", tags=["track"])

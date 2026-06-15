@@ -142,6 +142,22 @@ class ShowcaseListItem(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ContactMessageCreate(BaseModel):
+    name: str
+    email: str
+    message: str
+
+
+class ContactMessageOut(BaseModel):
+    id: uuid.UUID
+    name: str
+    email: str
+    message: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
 class StatsResponse(BaseModel):
     users: dict
     carousels: dict

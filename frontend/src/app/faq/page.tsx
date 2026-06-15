@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { AuthProvider } from "@/lib/auth";
+import { SiteHeader } from "@/components/SiteHeader";
 
 const faqs = [
   {
@@ -67,23 +69,10 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   );
 }
 
-export default function FaqPage() {
+function FaqPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
-      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 transition-colors">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-            >
-              &larr; Editor
-            </Link>
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">FAQ</h1>
-          </div>
-          <span className="text-sm text-gray-400 dark:text-gray-500">carouselify</span>
-        </div>
-      </header>
+      <SiteHeader title="FAQ" maxWidth="max-w-3xl" />
 
       <main className="max-w-3xl mx-auto p-6 space-y-8">
         <section className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6 transition-colors">
@@ -114,6 +103,14 @@ export default function FaqPage() {
   );
 }
 
+export default function Faq() {
+  return (
+    <AuthProvider>
+      <FaqPage />
+    </AuthProvider>
+  );
+}
+
 function ContactForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -125,10 +122,18 @@ function ContactForm() {
     e.preventDefault();
     if (!name || !email || !message) return;
     setBusy(true);
-    // Simulate send — no backend endpoint yet
-    await new Promise((r) => setTimeout(r, 800));
-    setBusy(false);
-    setSent(true);
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || ""}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, message }),
+      });
+      setSent(true);
+    } catch {
+      // silently fail — form submit is best-effort
+    } finally {
+      setBusy(false);
+    }
   };
 
   if (sent) {

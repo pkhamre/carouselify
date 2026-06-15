@@ -13,7 +13,7 @@ from app.routers.billing import router as billing_router
 from app.routers.upload import router as upload_router
 from app.routers.ai import router as ai_router
 from app.routers.config import router as config_router
-from app.routers.admin import router as admin_router, track_public_router
+from app.routers.admin import router as admin_router, contact_public_router, track_public_router
 from app.routers.showcase import router as showcase_router
 
 
@@ -54,6 +54,7 @@ app.include_router(billing_router)
 app.include_router(upload_router)
 app.include_router(ai_router)
 app.include_router(admin_router)
+app.include_router(contact_public_router)
 app.include_router(track_public_router)
 app.include_router(showcase_router)
 app.include_router(config_router)

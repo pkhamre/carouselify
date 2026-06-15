@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { getAdminStats, getPendingShowcase, approveShowcase, rejectShowcase, type AdminStats, type ShowcaseItem } from "@/lib/api";
+import { getAdminStats, getPendingShowcase, getContactMessages, approveShowcase, rejectShowcase, type AdminStats, type ShowcaseItem, type ContactMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { AuthProvider } from "@/lib/auth";
+import { SiteHeader } from "@/components/SiteHeader";
 
 function StatSkeleton() {
   return (
@@ -34,6 +35,8 @@ function AdminPage() {
   const { user, loading: authLoading } = useAuth();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [pending, setPending] = useState<ShowcaseItem[]>([]);
+  const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
+  const [contactsLoading, setContactsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [pendingLoading, setPendingLoading] = useState(true);
@@ -44,12 +47,14 @@ function AdminPage() {
     setLoading(true);
     setError(null);
     try {
-      const [statsData, pendingData] = await Promise.all([
+      const [statsData, pendingData, contactsData] = await Promise.all([
         getAdminStats(),
         getPendingShowcase(),
+        getContactMessages(),
       ]);
       setStats(statsData);
       setPending(pendingData);
+      setContactMessages(contactsData);
     } catch (err: any) {
       if (err.message?.includes("403") || err.message?.toLowerCase().includes("forbidden")) {
         setError("Not authorized. Only the configured admin user can view this page.");
@@ -59,6 +64,7 @@ function AdminPage() {
     } finally {
       setLoading(false);
       setPendingLoading(false);
+      setContactsLoading(false);
     }
   }, [user]);
 
@@ -117,20 +123,7 @@ function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
-      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 transition-colors">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-            >
-              &larr; Editor
-            </Link>
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Admin</h1>
-          </div>
-          <span className="text-sm text-gray-400 dark:text-gray-500">carouselify</span>
-        </div>
-      </header>
+      <SiteHeader title="Admin" />
 
       <main className="max-w-4xl mx-auto p-6 space-y-8">
         {error && (
@@ -286,6 +279,33 @@ function AdminPage() {
                           Reject
                         </button>
                       </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
+              <h2 className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
+                Contact Messages
+              </h2>
+              {contactsLoading ? (
+                <div className="space-y-2">
+                  <PendingSkeleton />
+                  <PendingSkeleton />
+                </div>
+              ) : contactMessages.length === 0 ? (
+                <p className="text-sm text-gray-400 dark:text-gray-500">No messages yet.</p>
+              ) : (
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {contactMessages.map((msg) => (
+                    <div key={msg.id} className="p-3 rounded-lg border border-gray-100 dark:border-gray-800">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{msg.name}</span>
+                        <span className="text-xs text-gray-400">{new Date(msg.created_at).toLocaleDateString()}</span>
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{msg.email}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{msg.message}</p>
                     </div>
                   ))}
                 </div>

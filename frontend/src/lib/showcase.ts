@@ -25,7 +25,7 @@ export const seedCarousels: SeedCarousel[] = [
   {
     id: "seed-0001",
     title: "Viral Content Blueprint",
-    showcaseAuthor: "Maya Chen",
+    showcaseAuthor: "Carouselify",
     slideCount: 5,
     schemeIndex: 3,
     fontIndex: 0,
@@ -78,7 +78,7 @@ export const seedCarousels: SeedCarousel[] = [
   {
     id: "seed-0002",
     title: "Product Launch Playbook",
-    showcaseAuthor: "James Okonkwo",
+    showcaseAuthor: "Carouselify",
     slideCount: 5,
     schemeIndex: 5,
     fontIndex: 2,
@@ -132,7 +132,7 @@ export const seedCarousels: SeedCarousel[] = [
   {
     id: "seed-0003",
     title: "Design Thinking 101",
-    showcaseAuthor: "Priya Sharma",
+    showcaseAuthor: "Carouselify",
     slideCount: 5,
     schemeIndex: 0,
     fontIndex: 1,
@@ -186,7 +186,7 @@ export const seedCarousels: SeedCarousel[] = [
   {
     id: "seed-0004",
     title: "Remote Team Culture",
-    showcaseAuthor: "Alex Rivera",
+    showcaseAuthor: "Carouselify",
     slideCount: 4,
     schemeIndex: 2,
     fontIndex: 3,
