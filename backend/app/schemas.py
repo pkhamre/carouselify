@@ -40,7 +40,6 @@ class CarouselOut(BaseModel):
     share_token: uuid.UUID | None
     showcased: bool = False
     showcase_author: str | None = None
-    showcase_submitted: datetime | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -58,7 +57,7 @@ class CarouselListItem(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class ShowcaseSubmitRequest(BaseModel):
+class PublishShowcaseRequest(BaseModel):
     author: str | None = None
 
 

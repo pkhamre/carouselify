@@ -227,8 +227,7 @@ function ShowcasePreviewPage() {
         <div className="w-full max-w-[600px]">
           <div className="relative" ref={slideRef}>
             <div
-              className="rounded-xl overflow-hidden shadow-lg"
-              style={{ backgroundColor: effectiveScheme.background }}
+              className="rounded-xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800"
             >
               <div style={{ aspectRatio: "1", position: "relative", overflow: "hidden" }}>
                 <div

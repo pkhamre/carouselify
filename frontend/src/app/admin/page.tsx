@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { getAdminStats, getPendingShowcase, getContactMessages, approveShowcase, rejectShowcase, type AdminStats, type ShowcaseItem, type ContactMessage } from "@/lib/api";
+import { getAdminStats, adminListShowcase, adminRemoveShowcase, getContactMessages, type AdminStats, type ShowcaseItem, type ContactMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { AuthProvider } from "@/lib/auth";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -21,7 +21,7 @@ function StatSkeleton() {
   );
 }
 
-function PendingSkeleton() {
+function ShowcasedSkeleton() {
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 animate-pulse">
       <div className="h-4 w-48 bg-gray-200 dark:bg-gray-700 rounded mb-3" />
@@ -34,12 +34,12 @@ function PendingSkeleton() {
 function AdminPage() {
   const { user, loading: authLoading } = useAuth();
   const [stats, setStats] = useState<AdminStats | null>(null);
-  const [pending, setPending] = useState<ShowcaseItem[]>([]);
+  const [showcased, setShowcased] = useState<ShowcaseItem[]>([]);
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [contactsLoading, setContactsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [pendingLoading, setPendingLoading] = useState(true);
+  const [showcasedLoading, setShowcasedLoading] = useState(true);
   const [actionBusy, setActionBusy] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -47,13 +47,13 @@ function AdminPage() {
     setLoading(true);
     setError(null);
     try {
-      const [statsData, pendingData, contactsData] = await Promise.all([
+      const [statsData, showcasedData, contactsData] = await Promise.all([
         getAdminStats(),
-        getPendingShowcase(),
+        adminListShowcase(),
         getContactMessages(),
       ]);
       setStats(statsData);
-      setPending(pendingData);
+      setShowcased(showcasedData);
       setContactMessages(contactsData);
     } catch (err: any) {
       if (err.message?.includes("403") || err.message?.toLowerCase().includes("forbidden")) {
@@ -63,7 +63,7 @@ function AdminPage() {
       }
     } finally {
       setLoading(false);
-      setPendingLoading(false);
+      setShowcasedLoading(false);
       setContactsLoading(false);
     }
   }, [user]);
@@ -72,27 +72,15 @@ function AdminPage() {
     if (!authLoading) fetchData();
   }, [authLoading, fetchData]);
 
-  const handleApprove = useCallback(async (id: string) => {
+  const handleRemove = useCallback(async (id: string) => {
     setActionBusy(id);
     try {
-      await approveShowcase(id);
-      setPending((prev) => prev.filter((p) => p.id !== id));
-      fetchData();
+      await adminRemoveShowcase(id);
+      setShowcased((prev) => prev.filter((p) => p.id !== id));
     } finally {
       setActionBusy(null);
     }
-  }, [fetchData]);
-
-  const handleReject = useCallback(async (id: string) => {
-    setActionBusy(id);
-    try {
-      await rejectShowcase(id);
-      setPending((prev) => prev.filter((p) => p.id !== id));
-      fetchData();
-    } finally {
-      setActionBusy(null);
-    }
-  }, [fetchData]);
+  }, []);
 
   if (authLoading) {
     return (
@@ -242,46 +230,41 @@ function AdminPage() {
               </h2>
               <div className="space-y-1.5 mb-4">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-500 dark:text-gray-400">Pending submissions</span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100 tabular-nums">{stats.showcase.pending_submissions.toLocaleString()}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-500 dark:text-gray-400">Total likes</span>
                   <span className="font-medium text-gray-900 dark:text-gray-100 tabular-nums">{stats.showcase.total_likes.toLocaleString()}</span>
                 </div>
               </div>
 
-              {pendingLoading ? (
+              {showcasedLoading ? (
                 <div className="space-y-2">
-                  <PendingSkeleton />
-                  <PendingSkeleton />
+                  <ShowcasedSkeleton />
+                  <ShowcasedSkeleton />
                 </div>
-              ) : pending.length === 0 ? (
-                <p className="text-sm text-gray-400 dark:text-gray-500">No pending submissions.</p>
+              ) : showcased.length === 0 ? (
+                <p className="text-sm text-gray-400 dark:text-gray-500">No carousels in the showcase.</p>
               ) : (
                 <div className="space-y-2">
-                  {pending.map((item) => (
+                  {showcased.map((item) => (
                     <div key={item.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-100 dark:border-gray-800">
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.title}</p>
                         <p className="text-xs text-gray-400 dark:text-gray-500">
-                          {item.showcase_author || "Anonymous"} &middot; {item.slide_count} slides
+                          {item.showcase_author || "Anonymous"} &middot; {item.slide_count} slides &middot; {item.like_count} like{item.like_count !== 1 ? "s" : ""}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleApprove(item.id)}
-                          disabled={actionBusy === item.id}
-                          className="px-3 py-1.5 text-xs font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+                        <Link
+                          href={`/showcase/${item.share_token}`}
+                          className="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                         >
-                          Approve
-                        </button>
+                          View
+                        </Link>
                         <button
-                          onClick={() => handleReject(item.id)}
+                          onClick={() => handleRemove(item.id)}
                           disabled={actionBusy === item.id}
                           className="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 transition-colors"
                         >
-                          Reject
+                          {actionBusy === item.id ? "Removing..." : "Remove"}
                         </button>
                       </div>
                     </div>
@@ -296,8 +279,8 @@ function AdminPage() {
               </h2>
               {contactsLoading ? (
                 <div className="space-y-2">
-                  <PendingSkeleton />
-                  <PendingSkeleton />
+                  <ShowcasedSkeleton />
+                  <ShowcasedSkeleton />
                 </div>
               ) : contactMessages.length === 0 ? (
                 <p className="text-sm text-gray-400 dark:text-gray-500">No messages yet.</p>

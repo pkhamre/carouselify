@@ -18,7 +18,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { exportSlideAsPNG, exportSlidesAsPDF, getFontEmbedCSS } from "@/lib/export";
 import { captureExport, captureSave, captureAiGenerate } from "@/lib/analytics";
-import { trackEvent, submitShowcase, getCarousel } from "@/lib/api";
+import { trackEvent, publishShowcase, unpublishShowcase, getCarousel } from "@/lib/api";
 import { AiDialog } from "@/components/AiDialog";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { getCredits } from "@/lib/api";
@@ -67,7 +67,7 @@ function HomeContent() {
   const [savedCarouselId, setSavedCarouselId] = useState<string | null>(null);
   const [savedTitle, setSavedTitle] = useState("");
   const [shareUrl, setShareUrl] = useState<string | null>(null);
-  const [showcaseStatus, setShowcaseStatus] = useState<"none" | "pending" | "approved">("none");
+  const [showcaseStatus, setShowcaseStatus] = useState<"none" | "showcased">("none");
   const [showcaseAuthor, setShowcaseAuthor] = useState("");
   const [showSettings, setShowSettings] = useState(false);
   const [undoStack, setUndoStack] = useState<Slide[][]>([]);
@@ -88,20 +88,32 @@ function HomeContent() {
   useEffect(() => {
     if (!savedCarouselId) return;
     getCarousel(savedCarouselId).then(c => {
-      setShowcaseStatus(c.showcased ? "approved" : c.showcase_submitted ? "pending" : "none");
+      setShowcaseStatus(c.showcased ? "showcased" : "none");
       setShowcaseAuthor(c.showcase_author || "");
     }).catch(() => {});
   }, [savedCarouselId, carouselRefreshKey]);
 
-  const handleShowcaseSubmit = useCallback(async (author?: string) => {
+  const handlePublishShowcase = useCallback(async (author?: string) => {
     if (!savedCarouselId) return;
     try {
-      await submitShowcase(savedCarouselId, author);
-      setShowcaseStatus("pending");
+      await publishShowcase(savedCarouselId, author);
+      setShowcaseStatus("showcased");
       setShowcaseAuthor(author || "");
-      toast("Submitted to showcase for review");
+      toast("Published to showcase!");
     } catch (err: any) {
-      toast(err.message || "Failed to submit");
+      toast(err.message || "Failed to publish");
+    }
+  }, [savedCarouselId, toast]);
+
+  const handleUnpublishShowcase = useCallback(async () => {
+    if (!savedCarouselId) return;
+    try {
+      await unpublishShowcase(savedCarouselId);
+      setShowcaseStatus("none");
+      setShowcaseAuthor("");
+      toast("Removed from showcase");
+    } catch (err: any) {
+      toast(err.message || "Failed to remove");
     }
   }, [savedCarouselId, toast]);
 
@@ -484,7 +496,8 @@ function HomeContent() {
                   onRevoked={() => setShareUrl(null)}
                   showcaseStatus={showcaseStatus}
                   showcaseAuthor={showcaseAuthor}
-                  onShowcaseSubmit={handleShowcaseSubmit}
+                  onShowcasePublish={handlePublishShowcase}
+                  onShowcaseUnpublish={handleUnpublishShowcase}
                 />
               )}
             </div>
@@ -625,7 +638,8 @@ function HomeContent() {
                 onRevoked={() => setShareUrl(null)}
                 showcaseStatus={showcaseStatus}
                 showcaseAuthor={showcaseAuthor}
-                onShowcaseSubmit={handleShowcaseSubmit}
+                onShowcasePublish={handlePublishShowcase}
+                  onShowcaseUnpublish={handleUnpublishShowcase}
               />
             )}
           </>
@@ -729,7 +743,8 @@ function HomeContent() {
                 onRevoked={() => setShareUrl(null)}
                 showcaseStatus={showcaseStatus}
                 showcaseAuthor={showcaseAuthor}
-                onShowcaseSubmit={handleShowcaseSubmit}
+                onShowcasePublish={handlePublishShowcase}
+                  onShowcaseUnpublish={handleUnpublishShowcase}
               />
             )}
           </>

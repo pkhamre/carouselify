@@ -91,7 +91,6 @@ export interface CarouselData {
   share_token: string | null;
   showcased: boolean;
   showcase_author: string | null;
-  showcase_submitted: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -239,23 +238,23 @@ export function getShowcaseCarousels(): Promise<ShowcaseItem[]> {
   return request("/api/showcase");
 }
 
-export function submitShowcase(carouselId: string, author?: string): Promise<CarouselData> {
-  return request(`/api/carousels/${carouselId}/submit-showcase`, {
+export function publishShowcase(carouselId: string, author?: string): Promise<CarouselData> {
+  return request(`/api/carousels/${carouselId}/publish-showcase`, {
     method: "POST",
     body: JSON.stringify({ author }),
   });
 }
 
-export function approveShowcase(carouselId: string): Promise<ShowcaseItem> {
-  return request(`/api/admin/showcase/${carouselId}/approve`, { method: "POST" });
+export function unpublishShowcase(carouselId: string): Promise<CarouselData> {
+  return request(`/api/carousels/${carouselId}/unpublish-showcase`, { method: "POST" });
 }
 
-export function rejectShowcase(carouselId: string): Promise<{ ok: boolean }> {
-  return request(`/api/admin/showcase/${carouselId}/reject`, { method: "POST" });
+export function adminListShowcase(): Promise<ShowcaseItem[]> {
+  return request("/api/admin/showcase/list");
 }
 
-export function getPendingShowcase(): Promise<ShowcaseItem[]> {
-  return request("/api/admin/showcase/pending");
+export function adminRemoveShowcase(carouselId: string): Promise<{ ok: boolean }> {
+  return request(`/api/admin/showcase/${carouselId}/remove`, { method: "POST" });
 }
 
 export interface LikeStatus {
@@ -276,7 +275,7 @@ export interface AdminStats {
   carousels: { total: number; shared: number; this_month: number; avg_slides: number };
   ai: { total_generations: number; total_credits_used: number };
   events: { total_views: number; views_this_month: number; total_exports: number; exports_this_month: number };
-  showcase: { pending_submissions: number; total_likes: number };
+  showcase: { total_likes: number };
 }
 
 export function getAdminStats(): Promise<AdminStats> {

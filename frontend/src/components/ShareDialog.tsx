@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { shareCarousel, revokeShare, submitShowcase } from "@/lib/api";
+import { shareCarousel, revokeShare, publishShowcase, unpublishShowcase } from "@/lib/api";
 import { captureShare } from "@/lib/analytics";
 
 interface ShareDialogProps {
@@ -9,9 +9,10 @@ interface ShareDialogProps {
   shareUrl: string | null;
   onShared: (url: string) => void;
   onRevoked: () => void;
-  showcaseStatus?: "none" | "pending" | "approved";
+  showcaseStatus?: "none" | "showcased";
   showcaseAuthor?: string;
-  onShowcaseSubmit?: (author?: string) => Promise<void>;
+  onShowcasePublish?: (author?: string) => Promise<void>;
+  onShowcaseUnpublish?: () => Promise<void>;
 }
 
 export function ShareDialog({
@@ -21,12 +22,13 @@ export function ShareDialog({
   onRevoked,
   showcaseStatus = "none",
   showcaseAuthor = "",
-  onShowcaseSubmit,
+  onShowcasePublish,
+  onShowcaseUnpublish,
 }: ShareDialogProps) {
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [authorName, setAuthorName] = useState(showcaseAuthor);
-  const [submitBusy, setSubmitBusy] = useState(false);
+  const [actionBusy, setActionBusy] = useState(false);
 
   const handleShare = useCallback(async () => {
     setBusy(true);
@@ -57,15 +59,25 @@ export function ShareDialog({
     setTimeout(() => setCopied(false), 2000);
   }, [shareUrl]);
 
-  const handleSubmitShowcase = useCallback(async () => {
-    if (!onShowcaseSubmit) return;
-    setSubmitBusy(true);
+  const handlePublish = useCallback(async () => {
+    if (!onShowcasePublish) return;
+    setActionBusy(true);
     try {
-      await onShowcaseSubmit(authorName || undefined);
+      await onShowcasePublish(authorName || undefined);
     } finally {
-      setSubmitBusy(false);
+      setActionBusy(false);
     }
-  }, [onShowcaseSubmit, authorName]);
+  }, [onShowcasePublish, authorName]);
+
+  const handleUnpublish = useCallback(async () => {
+    if (!onShowcaseUnpublish) return;
+    setActionBusy(true);
+    try {
+      await onShowcaseUnpublish();
+    } finally {
+      setActionBusy(false);
+    }
+  }, [onShowcaseUnpublish]);
 
   if (!shareUrl) {
     return (
@@ -111,17 +123,28 @@ export function ShareDialog({
         </button>
       </div>
 
-      {onShowcaseSubmit && showcaseStatus !== "approved" && (
+      {onShowcasePublish && (
         <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
           <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Showcase</h3>
-          {showcaseStatus === "pending" ? (
-            <p className="text-sm text-amber-600 dark:text-amber-400">
-              Submitted for review. An admin will review your carousel shortly.
-            </p>
+          {showcaseStatus === "showcased" ? (
+            <div className="space-y-3">
+              <p className="text-sm text-green-600 dark:text-green-400">
+                Your carousel is published in the showcase gallery.
+              </p>
+              {onShowcaseUnpublish && (
+                <button
+                  onClick={handleUnpublish}
+                  disabled={actionBusy}
+                  className="w-full py-2 text-sm font-medium text-red-600 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 transition-colors"
+                >
+                  {actionBusy ? "Removing..." : "Remove from showcase"}
+                </button>
+              )}
+            </div>
           ) : (
             <div className="space-y-2">
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Submit your carousel to the public showcase gallery.
+                Publish your carousel to the public showcase gallery.
               </p>
               <input
                 type="text"
@@ -132,23 +155,14 @@ export function ShareDialog({
                 className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
               />
               <button
-                onClick={handleSubmitShowcase}
-                disabled={submitBusy}
+                onClick={handlePublish}
+                disabled={actionBusy}
                 className="w-full py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
               >
-                {submitBusy ? "Submitting..." : "Submit for review"}
+                {actionBusy ? "Publishing..." : "Publish to showcase"}
               </button>
             </div>
           )}
-        </div>
-      )}
-
-      {showcaseStatus === "approved" && (
-        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Showcase</h3>
-          <p className="text-sm text-green-600 dark:text-green-400">
-            Your carousel is featured in the showcase gallery.
-          </p>
         </div>
       )}
     </div>

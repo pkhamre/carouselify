@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
 from app.models import Carousel, CarouselLike, User
-from app.schemas import CarouselCreate, CarouselOut, CarouselListItem, CarouselUpdate, GuestResponse, LikeResponse, LinkGuestRequest, ShareResponse, ShowcaseSubmitRequest
+from app.schemas import CarouselCreate, CarouselOut, CarouselListItem, CarouselUpdate, GuestResponse, LikeResponse, LinkGuestRequest, PublishShowcaseRequest, ShareResponse
 from app.users import current_active_user, get_jwt_strategy, optional_active_user
 from app.events import track_event
 
@@ -136,10 +136,10 @@ async def revoke_share(
     await track_event(session, "carousel_unshared", user_id=user.id, carousel_id=carousel.id)
 
 
-@router.post("/{carousel_id}/submit-showcase", response_model=CarouselOut)
-async def submit_showcase(
+@router.post("/{carousel_id}/publish-showcase", response_model=CarouselOut)
+async def publish_showcase(
     carousel_id: uuid.UUID,
-    body: ShowcaseSubmitRequest,
+    body: PublishShowcaseRequest,
     user: User = Depends(current_active_user),
     session: AsyncSession = Depends(get_session),
 ):
@@ -150,13 +150,32 @@ async def submit_showcase(
     if not carousel:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Carousel not found")
     if not carousel.share_token:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Carousel must be shared before submitting to showcase")
-    carousel.showcase_submitted = datetime.now(timezone.utc)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Carousel must be shared before publishing to showcase")
+    carousel.showcased = True
     carousel.showcase_author = body.author
-    carousel.showcased = False
     await session.commit()
     await session.refresh(carousel)
-    await track_event(session, "carousel_submitted_showcase", user_id=user.id, carousel_id=carousel.id)
+    await track_event(session, "carousel_published_showcase", user_id=user.id, carousel_id=carousel.id)
+    return carousel
+
+
+@router.post("/{carousel_id}/unpublish-showcase", response_model=CarouselOut)
+async def unpublish_showcase(
+    carousel_id: uuid.UUID,
+    user: User = Depends(current_active_user),
+    session: AsyncSession = Depends(get_session),
+):
+    result = await session.execute(
+        select(Carousel).where(Carousel.id == carousel_id, Carousel.user_id == user.id)
+    )
+    carousel = result.scalar_one_or_none()
+    if not carousel:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Carousel not found")
+    carousel.showcased = False
+    carousel.showcase_author = None
+    await session.commit()
+    await session.refresh(carousel)
+    await track_event(session, "carousel_unpublished_showcase", user_id=user.id, carousel_id=carousel.id)
     return carousel
 
 
