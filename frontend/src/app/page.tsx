@@ -18,7 +18,7 @@ import { UserMenu } from "@/components/UserMenu";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { exportSlideAsPNG, exportSlidesAsPDF, getFontEmbedCSS } from "@/lib/export";
 import { captureExport, captureSave, captureAiGenerate } from "@/lib/analytics";
-import { trackEvent } from "@/lib/api";
+import { trackEvent, submitShowcase, getCarousel } from "@/lib/api";
 import { AiDialog } from "@/components/AiDialog";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { getCredits } from "@/lib/api";
@@ -80,6 +80,13 @@ function HelpMenu() {
             FAQ
           </Link>
           <Link
+            href="/showcase"
+            onClick={() => setOpen(false)}
+            className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            Showcase
+          </Link>
+          <Link
             href="/privacy"
             onClick={() => setOpen(false)}
             className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
@@ -116,12 +123,34 @@ function HomeContent() {
   const [savedCarouselId, setSavedCarouselId] = useState<string | null>(null);
   const [savedTitle, setSavedTitle] = useState("");
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [showcaseStatus, setShowcaseStatus] = useState<"none" | "pending" | "approved">("none");
+  const [showcaseAuthor, setShowcaseAuthor] = useState("");
   const [showSettings, setShowSettings] = useState(false);
   const [undoStack, setUndoStack] = useState<Slide[][]>([]);
   const [exportProgress, setExportProgress] = useState<{ current: number; total: number } | null>(null);
   const [carouselRefreshKey, setCarouselRefreshKey] = useState(0);
   const [showAiDialog, setShowAiDialog] = useState(false);
   const [credits, setCredits] = useState<{ remaining: number; limit: number } | null>(null);
+
+  useEffect(() => {
+    if (!savedCarouselId) return;
+    getCarousel(savedCarouselId).then(c => {
+      setShowcaseStatus(c.showcased ? "approved" : c.showcase_submitted ? "pending" : "none");
+      setShowcaseAuthor(c.showcase_author || "");
+    }).catch(() => {});
+  }, [savedCarouselId, carouselRefreshKey]);
+
+  const handleShowcaseSubmit = useCallback(async (author?: string) => {
+    if (!savedCarouselId) return;
+    try {
+      await submitShowcase(savedCarouselId, author);
+      setShowcaseStatus("pending");
+      setShowcaseAuthor(author || "");
+      toast("Submitted to showcase for review");
+    } catch (err: any) {
+      toast(err.message || "Failed to submit");
+    }
+  }, [savedCarouselId, toast]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
@@ -518,6 +547,9 @@ function HomeContent() {
                   shareUrl={shareUrl}
                   onShared={setShareUrl}
                   onRevoked={() => setShareUrl(null)}
+                  showcaseStatus={showcaseStatus}
+                  showcaseAuthor={showcaseAuthor}
+                  onShowcaseSubmit={handleShowcaseSubmit}
                 />
               )}
             </div>
@@ -656,6 +688,9 @@ function HomeContent() {
                 shareUrl={shareUrl}
                 onShared={setShareUrl}
                 onRevoked={() => setShareUrl(null)}
+                showcaseStatus={showcaseStatus}
+                showcaseAuthor={showcaseAuthor}
+                onShowcaseSubmit={handleShowcaseSubmit}
               />
             )}
           </>
@@ -752,6 +787,9 @@ function HomeContent() {
                 shareUrl={shareUrl}
                 onShared={setShareUrl}
                 onRevoked={() => setShareUrl(null)}
+                showcaseStatus={showcaseStatus}
+                showcaseAuthor={showcaseAuthor}
+                onShowcaseSubmit={handleShowcaseSubmit}
               />
             )}
           </>

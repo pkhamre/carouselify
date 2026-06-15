@@ -28,6 +28,7 @@ class CarouselCreate(BaseModel):
 class CarouselUpdate(BaseModel):
     title: str | None = None
     data: dict | None = None
+    showcase_author: str | None = None
 
 
 class CarouselOut(BaseModel):
@@ -37,6 +38,9 @@ class CarouselOut(BaseModel):
     data: dict
     is_public: bool
     share_token: uuid.UUID | None
+    showcased: bool = False
+    showcase_author: str | None = None
+    showcase_submitted: datetime | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -52,6 +56,10 @@ class CarouselListItem(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class ShowcaseSubmitRequest(BaseModel):
+    author: str | None = None
 
 
 class GuestResponse(BaseModel):
@@ -123,11 +131,23 @@ class TrackEventRequest(BaseModel):
     metadata: dict | None = None
 
 
+class ShowcaseListItem(BaseModel):
+    id: uuid.UUID
+    title: str
+    showcase_author: str | None = None
+    share_token: uuid.UUID
+    created_at: datetime
+    slide_count: int = 0
+
+    model_config = {"from_attributes": True}
+
+
 class StatsResponse(BaseModel):
     users: dict
     carousels: dict
     ai: dict
     events: dict
+    showcase: dict
 
 
 class CustomSchemeOut(BaseModel):

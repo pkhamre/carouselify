@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
 from app.models import Carousel, Event, User
-from app.schemas import StatsResponse, TrackEventRequest
+from app.schemas import StatsResponse, TrackEventRequest, ShowcaseListItem
 from app.users import current_active_user, require_admin
 from app.events import track_event
 
@@ -65,6 +65,13 @@ async def get_stats(
         )
     ) or 0
 
+    pending_submissions = await session.scalar(
+        select(func.count(Carousel.id)).where(
+            Carousel.showcase_submitted.isnot(None),
+            Carousel.showcased == False,
+        )
+    ) or 0
+
     return StatsResponse(
         users={
             "total": user_total,
@@ -89,7 +96,76 @@ async def get_stats(
             "total_exports": exports_total,
             "exports_this_month": exports_this_month,
         },
+        showcase={
+            "pending_submissions": pending_submissions,
+        },
     )
+
+
+@router.post("/showcase/{carousel_id}/approve", response_model=ShowcaseListItem)
+async def approve_showcase(
+    carousel_id: uuid.UUID,
+    user: User = Depends(require_admin),
+    session: AsyncSession = Depends(get_session),
+):
+    result = await session.execute(select(Carousel).where(Carousel.id == carousel_id))
+    carousel = result.scalar_one_or_none()
+    if not carousel:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Carousel not found")
+    carousel.showcased = True
+    await session.commit()
+    await session.refresh(carousel)
+    slides = carousel.data.get("slides", []) if carousel.data else []
+    return ShowcaseListItem(
+        id=carousel.id,
+        title=carousel.title,
+        showcase_author=carousel.showcase_author,
+        share_token=carousel.share_token,
+        created_at=carousel.created_at,
+        slide_count=len(slides),
+    )
+
+
+@router.post("/showcase/{carousel_id}/reject", status_code=status.HTTP_200_OK)
+async def reject_showcase(
+    carousel_id: uuid.UUID,
+    user: User = Depends(require_admin),
+    session: AsyncSession = Depends(get_session),
+):
+    result = await session.execute(select(Carousel).where(Carousel.id == carousel_id))
+    carousel = result.scalar_one_or_none()
+    if not carousel:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Carousel not found")
+    carousel.showcased = False
+    carousel.showcase_submitted = None
+    carousel.showcase_author = None
+    await session.commit()
+    return {"ok": True}
+
+
+@router.get("/showcase/pending", response_model=list[ShowcaseListItem])
+async def list_pending_showcase(
+    user: User = Depends(require_admin),
+    session: AsyncSession = Depends(get_session),
+):
+    result = await session.execute(
+        select(Carousel)
+        .where(Carousel.showcase_submitted.isnot(None), Carousel.showcased == False)
+        .order_by(Carousel.showcase_submitted.desc())
+    )
+    carousels = result.scalars().all()
+    items = []
+    for c in carousels:
+        slides = c.data.get("slides", []) if c.data else []
+        items.append(ShowcaseListItem(
+            id=c.id,
+            title=c.title,
+            showcase_author=c.showcase_author,
+            share_token=c.share_token,
+            created_at=c.created_at,
+            slide_count=len(slides),
+        ))
+    return items
 
 
 track_public_router = APIRouter(prefix="/api/track", tags=["track"])

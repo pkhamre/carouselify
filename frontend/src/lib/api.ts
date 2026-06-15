@@ -89,6 +89,9 @@ export interface CarouselData {
   data: any;
   is_public: boolean;
   share_token: string | null;
+  showcased: boolean;
+  showcase_author: string | null;
+  showcase_submitted: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -221,11 +224,45 @@ export function trackEvent(eventType: string, metadata?: Record<string, any>): P
   });
 }
 
+// Showcase
+export interface ShowcaseItem {
+  id: string;
+  title: string;
+  showcase_author: string | null;
+  share_token: string;
+  created_at: string;
+  slide_count: number;
+}
+
+export function getShowcaseCarousels(): Promise<ShowcaseItem[]> {
+  return request("/api/showcase");
+}
+
+export function submitShowcase(carouselId: string, author?: string): Promise<CarouselData> {
+  return request(`/api/carousels/${carouselId}/submit-showcase`, {
+    method: "POST",
+    body: JSON.stringify({ author }),
+  });
+}
+
+export function approveShowcase(carouselId: string): Promise<ShowcaseItem> {
+  return request(`/api/admin/showcase/${carouselId}/approve`, { method: "POST" });
+}
+
+export function rejectShowcase(carouselId: string): Promise<{ ok: boolean }> {
+  return request(`/api/admin/showcase/${carouselId}/reject`, { method: "POST" });
+}
+
+export function getPendingShowcase(): Promise<ShowcaseItem[]> {
+  return request("/api/admin/showcase/pending");
+}
+
 export interface AdminStats {
   users: { total: number; registered: number; guests: number; premium: number; this_month: number };
   carousels: { total: number; shared: number; this_month: number; avg_slides: number };
   ai: { total_generations: number; total_credits_used: number };
   events: { total_views: number; views_this_month: number; total_exports: number; exports_this_month: number };
+  showcase: { pending_submissions: number };
 }
 
 export function getAdminStats(): Promise<AdminStats> {

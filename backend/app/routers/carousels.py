@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
 from app.models import Carousel, User
-from app.schemas import CarouselCreate, CarouselOut, CarouselListItem, CarouselUpdate, GuestResponse, LinkGuestRequest, ShareResponse
+from app.schemas import CarouselCreate, CarouselOut, CarouselListItem, CarouselUpdate, GuestResponse, LinkGuestRequest, ShareResponse, ShowcaseSubmitRequest
 from app.users import current_active_user, get_jwt_strategy
 from app.events import track_event
 
@@ -133,6 +133,30 @@ async def revoke_share(
     carousel.is_public = False
     await session.commit()
     await track_event(session, "carousel_unshared", user_id=user.id, carousel_id=carousel.id)
+
+
+@router.post("/{carousel_id}/submit-showcase", response_model=CarouselOut)
+async def submit_showcase(
+    carousel_id: uuid.UUID,
+    body: ShowcaseSubmitRequest,
+    user: User = Depends(current_active_user),
+    session: AsyncSession = Depends(get_session),
+):
+    result = await session.execute(
+        select(Carousel).where(Carousel.id == carousel_id, Carousel.user_id == user.id)
+    )
+    carousel = result.scalar_one_or_none()
+    if not carousel:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Carousel not found")
+    if not carousel.share_token:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Carousel must be shared before submitting to showcase")
+    carousel.showcase_submitted = datetime.now(timezone.utc)
+    carousel.showcase_author = body.author
+    carousel.showcased = False
+    await session.commit()
+    await session.refresh(carousel)
+    await track_event(session, "carousel_submitted_showcase", user_id=user.id, carousel_id=carousel.id)
+    return carousel
 
 
 guest_router = APIRouter(prefix="/auth", tags=["auth"])
