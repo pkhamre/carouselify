@@ -5,9 +5,6 @@ import Link from "next/link";
 import { UserMenu } from "./UserMenu";
 
 interface SiteHeaderProps {
-  title: string;
-  backHref?: string;
-  maxWidth?: string;
   onShowSettings?: () => void;
 }
 
@@ -16,7 +13,7 @@ function getDarkMode(): boolean {
   return localStorage.getItem("darkMode") === "true";
 }
 
-export function SiteHeader({ title, backHref = "/", maxWidth = "max-w-4xl", onShowSettings }: SiteHeaderProps) {
+export function SiteHeader({ onShowSettings }: SiteHeaderProps) {
   const [darkMode, setDarkMode] = useState(getDarkMode);
 
   useEffect(() => {
@@ -32,16 +29,10 @@ export function SiteHeader({ title, backHref = "/", maxWidth = "max-w-4xl", onSh
 
   return (
     <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 transition-colors">
-      <div className={`${maxWidth} mx-auto flex items-center justify-between`}>
-        <div className="flex items-center gap-4">
-          <Link
-            href={backHref}
-            className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-          >
-            &larr; Editor
-          </Link>
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h1>
-        </div>
+      <div className="mx-auto flex items-center justify-between">
+        <Link href="/" className="text-xl font-bold text-gray-900 dark:text-gray-100 hover:text-sky-600 dark:hover:text-sky-400 transition-colors">
+          carouselify
+        </Link>
         <div className="flex items-center gap-3">
           <button
             onClick={toggleDark}

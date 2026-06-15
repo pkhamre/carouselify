@@ -2,57 +2,34 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { seedCarousels, type SeedCarousel } from "@/lib/showcase";
 import { getShowcaseCarousels, type ShowcaseItem } from "@/lib/api";
 import { AuthProvider } from "@/lib/auth";
 import { SiteHeader } from "@/components/SiteHeader";
 
 function SeedCard({ carousel }: { carousel: SeedCarousel }) {
-  const router = useRouter();
-
-  const handleClone = () => {
-    sessionStorage.setItem("clone-data", JSON.stringify({
-      slides: carousel.slides,
-      schemeIndex: carousel.schemeIndex,
-      fontIndex: carousel.fontIndex,
-      logo: carousel.logo,
-      inverted: carousel.inverted,
-      presentationTitle: carousel.presentationTitle,
-    }));
-    router.push("/");
-  };
-
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 transition-colors hover:border-gray-300 dark:hover:border-gray-700">
-      <Link href={`/showcase/${carousel.id}`} className="block group">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 leading-snug group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">{carousel.title}</h3>
-      </Link>
+    <Link
+      href={`/showcase/${carousel.id}`}
+      className="block bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 transition-all duration-200 ease-out motion-reduce:transition-none hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md hover:-translate-y-0.5"
+    >
+      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 leading-snug hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{carousel.title}</h3>
       <p className="text-sm text-gray-400 dark:text-gray-500 mb-3">by {carousel.showcaseAuthor}</p>
-      <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">{carousel.slideCount} slides</p>
-      <button
-        onClick={handleClone}
-        className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-sky-600 border border-sky-200 dark:border-sky-800 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
-      >
-        Clone & Edit
-      </button>
-    </div>
+      <p className="text-xs text-gray-400 dark:text-gray-500">{carousel.slideCount} slides</p>
+    </Link>
   );
 }
 
 function ShowcaseCard({ item }: { item: ShowcaseItem }) {
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 transition-colors hover:border-gray-300 dark:hover:border-gray-700">
-      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 leading-snug">{item.title}</h3>
+    <Link
+      href={`/showcase/${item.share_token}`}
+      className="block bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 transition-all duration-200 ease-out motion-reduce:transition-none hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md hover:-translate-y-0.5"
+    >
+      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 leading-snug hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{item.title}</h3>
       <p className="text-sm text-gray-400 dark:text-gray-500 mb-3">by {item.showcase_author || "Anonymous"}</p>
-      <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">{item.slide_count} slides</p>
-      <Link
-        href={`/showcase/${item.share_token}`}
-        className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-sky-600 border border-sky-200 dark:border-sky-800 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
-      >
-        View
-      </Link>
-    </div>
+      <p className="text-xs text-gray-400 dark:text-gray-500">{item.slide_count} slides</p>
+    </Link>
   );
 }
 
@@ -69,9 +46,10 @@ function ShowcasePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
-      <SiteHeader title="Showcase" />
+      <SiteHeader />
 
       <main className="max-w-4xl mx-auto p-6">
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">Showcase</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-8 max-w-lg">
           Discover carousels created by the community. Featured examples to inspire your next project.
         </p>

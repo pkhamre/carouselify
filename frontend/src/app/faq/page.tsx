@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { AuthProvider } from "@/lib/auth";
 import { SiteHeader } from "@/components/SiteHeader";
 
@@ -72,9 +71,10 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 function FaqPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
-      <SiteHeader title="FAQ" maxWidth="max-w-3xl" />
+      <SiteHeader />
 
       <main className="max-w-3xl mx-auto p-6 space-y-8">
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">FAQ</h1>
         <section className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6 transition-colors">
           <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
             Frequently asked questions

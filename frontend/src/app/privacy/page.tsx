@@ -7,9 +7,10 @@ import { SiteHeader } from "@/components/SiteHeader";
 function PrivacyPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
-      <SiteHeader title="Privacy Policy" maxWidth="max-w-3xl" />
+      <SiteHeader />
 
       <main className="max-w-3xl mx-auto p-6">
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">Privacy Policy</h1>
         <article className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 md:p-6 transition-colors prose prose-sm prose-gray dark:prose-invert max-w-none">
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Last updated: June 15, 2026</p>
 

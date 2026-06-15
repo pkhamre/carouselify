@@ -123,9 +123,10 @@ function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
-      <SiteHeader title="Admin" />
+      <SiteHeader />
 
       <main className="max-w-4xl mx-auto p-6 space-y-8">
+        <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Admin</h1>
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center transition-colors">
             <p className="text-red-800 dark:text-red-200 font-medium mb-1">Access denied</p>
