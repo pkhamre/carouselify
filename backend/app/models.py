@@ -20,6 +20,11 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     carousels = relationship("Carousel", back_populates="user", cascade="all, delete-orphan")
     custom_schemes = relationship("CustomScheme", back_populates="user", cascade="all, delete-orphan")
 
+    @property
+    def is_admin(self) -> bool:
+        from app.config import settings
+        return bool(settings.admin_email and self.email == settings.admin_email)
+
 
 class Carousel(Base):
     __tablename__ = "carousel"

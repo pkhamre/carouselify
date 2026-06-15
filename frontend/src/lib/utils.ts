@@ -15,7 +15,7 @@ export function createSlide(type: SlideType, index: number): Slide {
         id,
         type: "cover",
         h1: "5 Design Tips for Standout Slides",
-        h2: "Create carousels that stop the scroll",
+        h2: "Stop the scrolling!",
         caption: "Simple principles that work every time, for any topic.",
       };
     case "content-b1":

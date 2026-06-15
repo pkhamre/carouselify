@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 class UserRead(users_schemas.BaseUser[uuid.UUID]):
     is_premium: bool = False
+    is_admin: bool = False
     ai_credits_used: int = 0
     ai_credits_reset_at: Optional[datetime] = None
     lemon_squeezy_subscription_id: Optional[str] = None

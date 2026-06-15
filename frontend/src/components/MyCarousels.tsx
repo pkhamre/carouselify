@@ -26,10 +26,10 @@ export function MyCarousels({ onLoad, refreshKey }: MyCarouselsProps) {
     try {
       setCarousels(await listCarousels());
     } catch {
-      toast("Failed to load carousels", "error");
+      setCarousels([]);
     }
     setLoading(false);
-  }, [isAuthenticated, toast]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     fetchList();

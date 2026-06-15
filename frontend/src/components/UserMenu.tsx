@@ -112,6 +112,18 @@ export function UserMenu({ onShowSettings }: UserMenuProps) {
           >
             Settings
           </button>
+          {user?.is_admin && (
+            <>
+              <div className="border-t border-gray-100 dark:border-gray-800 my-1" />
+              <Link
+                href="/admin"
+                onClick={close}
+                className="block px-3 py-2 text-sm text-sky-600 dark:text-sky-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              >
+                Admin
+              </Link>
+            </>
+          )}
           <div className="border-t border-gray-100 dark:border-gray-800 my-1" />
           {helpLinks}
           <div className="border-t border-gray-100 dark:border-gray-800 my-1" />

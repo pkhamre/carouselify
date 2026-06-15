@@ -39,9 +39,10 @@ function ShowcasePreviewPage() {
   const [likeBusy, setLikeBusy] = useState(false);
   const slideRef = useRef<HTMLDivElement>(null);
   const slideInnerRef = useRef<HTMLDivElement>(null);
-  const [slideScale, setSlideScale] = useState(0.5);
+  const [slideScale, setSlideScale] = useState<number | null>(null);
 
   useEffect(() => {
+    if (!data || loading) return;
     const el = slideInnerRef.current;
     if (!el) return;
     const measure = () => setSlideScale(el.offsetWidth / 1080);
@@ -49,7 +50,7 @@ function ShowcasePreviewPage() {
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [data, loading]);
 
   useEffect(() => {
     if (!shareToken) return;
@@ -236,22 +237,20 @@ function ShowcasePreviewPage() {
       </div>
 
       <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
-        <div className="w-full max-w-[600px]">
+        <div className="w-full max-w-[540px]">
           <div className="relative" ref={slideRef}>
-            <div
-              className="rounded-xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800"
-            >
-              <div ref={slideInnerRef} style={{ aspectRatio: "1", position: "relative", overflow: "hidden" }}>
+            <div ref={slideInnerRef} className="rounded-xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800" style={{ aspectRatio: "1", position: "relative" }}>
+              {slideScale !== null && (
                 <div
                   key={slide.id + currentIndex}
                   style={{
                     position: "absolute",
-                    top: "50%",
-                    left: "50%",
+                    top: 0,
+                    left: 0,
                     width: 1080,
                     height: 1080,
-                    transform: `translate(-50%, -50%) scale(${slideScale})`,
-                    transformOrigin: "center center",
+                    transform: `scale(${slideScale})`,
+                    transformOrigin: "top left",
                   }}
                 >
                   <SlideCanvas
@@ -264,7 +263,7 @@ function ShowcasePreviewPage() {
                     readOnly
                   />
                 </div>
-              </div>
+              )}
             </div>
 
             <button
