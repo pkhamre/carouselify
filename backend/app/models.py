@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Boolean, Integer, DateTime, ForeignKey, JSON, func
+from sqlalchemy import Column, String, Boolean, Integer, DateTime, ForeignKey, JSON, func, UniqueConstraint
 from sqlalchemy.orm import relationship
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID
 from fastapi_users_db_sqlalchemy.generics import GUID
@@ -77,3 +77,14 @@ class ContactMessage(Base):
     email = Column(String(255), nullable=False)
     message = Column(String(5000), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
+class CarouselLike(Base):
+    __tablename__ = "carousel_like"
+
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
+    carousel_id = Column(GUID, ForeignKey("carousel.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(GUID, ForeignKey("user.id", ondelete="CASCADE"), nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    __table_args__ = (UniqueConstraint("carousel_id", "user_id", name="uq_carousel_user_like"),)

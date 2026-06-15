@@ -28,7 +28,12 @@ function ShowcaseCard({ item }: { item: ShowcaseItem }) {
     >
       <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 leading-snug hover:text-sky-600 dark:hover:text-sky-400 transition-colors">{item.title}</h3>
       <p className="text-sm text-gray-400 dark:text-gray-500 mb-3">by {item.showcase_author || "Anonymous"}</p>
-      <p className="text-xs text-gray-400 dark:text-gray-500">{item.slide_count} slides</p>
+      <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
+        <span>{item.slide_count} slides</span>
+        {item.like_count !== undefined && item.like_count > 0 && (
+          <span>{item.like_count} like{item.like_count !== 1 ? "s" : ""}</span>
+        )}
+      </div>
     </Link>
   );
 }

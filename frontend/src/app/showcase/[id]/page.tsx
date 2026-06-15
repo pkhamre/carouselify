@@ -2,13 +2,13 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { getSharedCarousel } from "@/lib/api";
+import { getSharedCarousel, getLikeStatus, toggleLike } from "@/lib/api";
 import { seedCarousels } from "@/lib/showcase";
 import { SlideCanvas } from "@/components/slides/SlideCanvas";
 import type { Slide, ColorScheme, FontPairing, LogoConfig } from "@/lib/types";
 import { colorSchemes, fontPairings } from "@/lib/themes";
 import "@/components/slides/slideStyles.css";
-import { AuthProvider } from "@/lib/auth";
+import { AuthProvider, useAuth } from "@/lib/auth";
 import { SiteHeader } from "@/components/SiteHeader";
 
 interface SharedCarouselData {
@@ -24,6 +24,7 @@ interface SharedCarouselData {
 function ShowcasePreviewPage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuth();
   const shareToken = params?.id as string;
 
   const [loading, setLoading] = useState(true);
@@ -32,6 +33,10 @@ function ShowcasePreviewPage() {
   const [showcaseAuthor, setShowcaseAuthor] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState<"left" | "right">("right");
+  const [carouselId, setCarouselId] = useState<string | null>(null);
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [likeBusy, setLikeBusy] = useState(false);
   const slideRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -50,6 +55,7 @@ function ShowcasePreviewPage() {
           presentationTitle: seed.presentationTitle,
         });
         setShowcaseAuthor(seed.showcaseAuthor);
+        setCarouselId(null);
         setLoading(false);
         return;
       }
@@ -59,6 +65,11 @@ function ShowcasePreviewPage() {
       .then((res) => {
         setData(res.data as SharedCarouselData);
         setShowcaseAuthor((res as any).showcase_author || null);
+        setCarouselId(res.id);
+        return getLikeStatus(res.id).then((likeRes) => {
+          setLiked(likeRes.liked);
+          setLikeCount(likeRes.like_count);
+        }).catch(() => {});
       })
       .catch((err) => {
         setError(err.message || "Failed to load carousel");
@@ -96,6 +107,20 @@ function ShowcasePreviewPage() {
     if (!data) return;
     sessionStorage.setItem("clone-data", JSON.stringify(data));
     router.push("/");
+  };
+
+  const handleLike = async () => {
+    if (!carouselId || likeBusy || !user) return;
+    setLikeBusy(true);
+    try {
+      const res = await toggleLike(carouselId);
+      setLiked(res.liked);
+      setLikeCount(res.like_count);
+    } catch {
+      // silently fail
+    } finally {
+      setLikeBusy(false);
+    }
   };
 
   if (loading) {
@@ -175,6 +200,19 @@ function ShowcasePreviewPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
+            {carouselId && (
+              <button
+                onClick={handleLike}
+                disabled={likeBusy || !user}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                aria-label={liked ? "Unlike" : "Like"}
+              >
+                <svg className={`w-4 h-4 ${liked ? "text-red-500 fill-red-500" : "text-gray-400 dark:text-gray-500"}`} viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                <span className="text-gray-600 dark:text-gray-300 tabular-nums">{likeCount}</span>
+              </button>
+            )}
             <button
               onClick={handleClone}
               className="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"

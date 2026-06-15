@@ -232,6 +232,7 @@ export interface ShowcaseItem {
   share_token: string;
   created_at: string;
   slide_count: number;
+  like_count?: number;
 }
 
 export function getShowcaseCarousels(): Promise<ShowcaseItem[]> {
@@ -257,12 +258,25 @@ export function getPendingShowcase(): Promise<ShowcaseItem[]> {
   return request("/api/admin/showcase/pending");
 }
 
+export interface LikeStatus {
+  liked: boolean;
+  like_count: number;
+}
+
+export function getLikeStatus(carouselId: string): Promise<LikeStatus> {
+  return request(`/api/carousels/${carouselId}/likes`);
+}
+
+export function toggleLike(carouselId: string): Promise<LikeStatus> {
+  return request(`/api/carousels/${carouselId}/like`, { method: "POST" });
+}
+
 export interface AdminStats {
   users: { total: number; registered: number; guests: number; premium: number; this_month: number };
   carousels: { total: number; shared: number; this_month: number; avg_slides: number };
   ai: { total_generations: number; total_credits_used: number };
   events: { total_views: number; views_this_month: number; total_exports: number; exports_this_month: number };
-  showcase: { pending_submissions: number };
+  showcase: { pending_submissions: number; total_likes: number };
 }
 
 export function getAdminStats(): Promise<AdminStats> {

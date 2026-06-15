@@ -5,7 +5,7 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
-from app.models import Carousel, ContactMessage, Event, User
+from app.models import Carousel, CarouselLike, ContactMessage, Event, User
 from app.schemas import ContactMessageCreate, ContactMessageOut, StatsResponse, TrackEventRequest, ShowcaseListItem
 from app.users import current_active_user, require_admin
 from app.events import track_event
@@ -72,6 +72,10 @@ async def get_stats(
         )
     ) or 0
 
+    total_likes = await session.scalar(
+        select(func.count(CarouselLike.id))
+    ) or 0
+
     return StatsResponse(
         users={
             "total": user_total,
@@ -98,6 +102,7 @@ async def get_stats(
         },
         showcase={
             "pending_submissions": pending_submissions,
+            "total_likes": total_likes,
         },
     )
 

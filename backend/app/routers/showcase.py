@@ -1,10 +1,11 @@
 import uuid
+from sqlalchemy import func
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
-from app.models import Carousel
+from app.models import Carousel, CarouselLike
 from app.schemas import ShowcaseListItem
 
 router = APIRouter(prefix="/api/showcase", tags=["showcase"])
@@ -23,6 +24,9 @@ async def list_showcase(
     items = []
     for c in carousels:
         slides = c.data.get("slides", []) if c.data else []
+        like_count = await session.scalar(
+            select(func.count(CarouselLike.id)).where(CarouselLike.carousel_id == c.id)
+        ) or 0
         items.append(ShowcaseListItem(
             id=c.id,
             title=c.title,
@@ -30,5 +34,6 @@ async def list_showcase(
             share_token=c.share_token,
             created_at=c.created_at,
             slide_count=len(slides),
+            like_count=like_count,
         ))
     return items

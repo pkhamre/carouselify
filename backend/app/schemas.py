@@ -138,8 +138,14 @@ class ShowcaseListItem(BaseModel):
     share_token: uuid.UUID
     created_at: datetime
     slide_count: int = 0
+    like_count: int = 0
 
     model_config = {"from_attributes": True}
+
+
+class LikeResponse(BaseModel):
+    liked: bool
+    like_count: int
 
 
 class ContactMessageCreate(BaseModel):

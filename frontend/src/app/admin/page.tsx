@@ -245,6 +245,10 @@ function AdminPage() {
                   <span className="text-gray-500 dark:text-gray-400">Pending submissions</span>
                   <span className="font-medium text-gray-900 dark:text-gray-100 tabular-nums">{stats.showcase.pending_submissions.toLocaleString()}</span>
                 </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500 dark:text-gray-400">Total likes</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100 tabular-nums">{stats.showcase.total_likes.toLocaleString()}</span>
+                </div>
               </div>
 
               {pendingLoading ? (

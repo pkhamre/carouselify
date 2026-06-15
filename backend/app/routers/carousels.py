@@ -4,13 +4,13 @@ import uuid
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_users.password import PasswordHelper
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_session
-from app.models import Carousel, User
-from app.schemas import CarouselCreate, CarouselOut, CarouselListItem, CarouselUpdate, GuestResponse, LinkGuestRequest, ShareResponse, ShowcaseSubmitRequest
-from app.users import current_active_user, get_jwt_strategy
+from app.models import Carousel, CarouselLike, User
+from app.schemas import CarouselCreate, CarouselOut, CarouselListItem, CarouselUpdate, GuestResponse, LikeResponse, LinkGuestRequest, ShareResponse, ShowcaseSubmitRequest
+from app.users import current_active_user, get_jwt_strategy, optional_active_user
 from app.events import track_event
 
 router = APIRouter(prefix="/api/carousels", tags=["carousels"])
@@ -158,6 +158,62 @@ async def submit_showcase(
     await session.refresh(carousel)
     await track_event(session, "carousel_submitted_showcase", user_id=user.id, carousel_id=carousel.id)
     return carousel
+
+
+@router.get("/{carousel_id}/likes", response_model=LikeResponse)
+async def get_likes(
+    carousel_id: uuid.UUID,
+    user: User | None = Depends(optional_active_user),
+    session: AsyncSession = Depends(get_session),
+):
+    count_result = await session.execute(
+        select(func.count(CarouselLike.id)).where(CarouselLike.carousel_id == carousel_id)
+    )
+    like_count = count_result.scalar() or 0
+
+    liked = False
+    if user:
+        like_result = await session.execute(
+            select(CarouselLike).where(
+                CarouselLike.carousel_id == carousel_id,
+                CarouselLike.user_id == user.id,
+            )
+        )
+        liked = like_result.scalar_one_or_none() is not None
+
+    return LikeResponse(liked=liked, like_count=like_count)
+
+
+@router.post("/{carousel_id}/like", response_model=LikeResponse)
+async def toggle_like(
+    carousel_id: uuid.UUID,
+    user: User = Depends(current_active_user),
+    session: AsyncSession = Depends(get_session),
+):
+    result = await session.execute(
+        select(CarouselLike).where(
+            CarouselLike.carousel_id == carousel_id,
+            CarouselLike.user_id == user.id,
+        )
+    )
+    existing = result.scalar_one_or_none()
+
+    if existing:
+        await session.delete(existing)
+        await session.commit()
+        liked = False
+    else:
+        like = CarouselLike(carousel_id=carousel_id, user_id=user.id)
+        session.add(like)
+        await session.commit()
+        liked = True
+
+    count_result = await session.execute(
+        select(func.count(CarouselLike.id)).where(CarouselLike.carousel_id == carousel_id)
+    )
+    like_count = count_result.scalar() or 0
+
+    return LikeResponse(liked=liked, like_count=like_count)
 
 
 guest_router = APIRouter(prefix="/auth", tags=["auth"])
