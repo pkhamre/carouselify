@@ -24,7 +24,7 @@ interface SharedCarouselData {
 function ShowcasePreviewPage() {
   const params = useParams();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const shareToken = params?.id as string;
 
   const [loading, setLoading] = useState(true);
@@ -38,6 +38,18 @@ function ShowcasePreviewPage() {
   const [likeCount, setLikeCount] = useState(0);
   const [likeBusy, setLikeBusy] = useState(false);
   const slideRef = useRef<HTMLDivElement>(null);
+  const slideInnerRef = useRef<HTMLDivElement>(null);
+  const [slideScale, setSlideScale] = useState(0.5);
+
+  useEffect(() => {
+    const el = slideInnerRef.current;
+    if (!el) return;
+    const measure = () => setSlideScale(el.offsetWidth / 1080);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!shareToken) return;
@@ -110,7 +122,7 @@ function ShowcasePreviewPage() {
   };
 
   const handleLike = async () => {
-    if (!carouselId || likeBusy || !user) return;
+    if (!carouselId || likeBusy) return;
     setLikeBusy(true);
     try {
       const res = await toggleLike(carouselId);
@@ -203,7 +215,7 @@ function ShowcasePreviewPage() {
             {carouselId && (
               <button
                 onClick={handleLike}
-                disabled={likeBusy || !user}
+                disabled={likeBusy || authLoading}
                 className="flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 aria-label={liked ? "Unlike" : "Like"}
               >
@@ -229,7 +241,7 @@ function ShowcasePreviewPage() {
             <div
               className="rounded-xl overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-800"
             >
-              <div style={{ aspectRatio: "1", position: "relative", overflow: "hidden" }}>
+              <div ref={slideInnerRef} style={{ aspectRatio: "1", position: "relative", overflow: "hidden" }}>
                 <div
                   key={slide.id + currentIndex}
                   style={{
@@ -238,7 +250,7 @@ function ShowcasePreviewPage() {
                     left: "50%",
                     width: 1080,
                     height: 1080,
-                    transform: "translate(-50%, -50%) scale(0.5)",
+                    transform: `translate(-50%, -50%) scale(${slideScale})`,
                     transformOrigin: "center center",
                   }}
                 >

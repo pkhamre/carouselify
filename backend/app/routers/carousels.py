@@ -12,7 +12,7 @@ from app.database import get_session
 from app.limiter import limiter
 from app.models import Carousel, CarouselLike, User
 from app.schemas import CarouselCreate, CarouselOut, CarouselListItem, CarouselUpdate, GuestResponse, LikeResponse, LinkGuestRequest, PublishShowcaseRequest, ShareResponse
-from app.users import current_active_user, get_jwt_strategy, optional_active_user
+from app.users import current_active_user, get_jwt_strategy, optional_active_user, transport
 from app.events import track_event
 
 router = APIRouter(prefix="/api/carousels", tags=["carousels"])
@@ -267,13 +267,7 @@ async def create_guest(
 
     content = {"access_token": token, "token_type": "bearer", "user_id": str(user.id)}
     response = JSONResponse(content=content)
-    response.set_cookie(
-        "carouselify_token",
-        token,
-        max_age=2592000,
-        httponly=True,
-        samesite="lax",
-    )
+    await transport.get_login_response(token, response)
     return response
 
 
