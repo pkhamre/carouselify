@@ -16,7 +16,8 @@ import { ShareDialog } from "@/components/ShareDialog";
 import { UserMenu } from "@/components/UserMenu";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { exportSlideAsPNG, exportSlidesAsPDF, getFontEmbedCSS } from "@/lib/export";
-import { captureExport } from "@/lib/analytics";
+import { captureExport, captureSave, captureAiGenerate } from "@/lib/analytics";
+import { trackEvent } from "@/lib/api";
 import { AiDialog } from "@/components/AiDialog";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { getCredits } from "@/lib/api";
@@ -27,6 +28,7 @@ const THUMBNAIL_SIZE = 64;
 
 function SaveButtonWithToast({ carouselData, savedId, defaultTitle, onSaved }: Parameters<typeof SaveButton>[0]) {
   const { toast } = useToast();
+  const slideCount = (carouselData?.slides?.length) || 0;
   return (
     <SaveButton
       carouselData={carouselData}
@@ -34,6 +36,7 @@ function SaveButtonWithToast({ carouselData, savedId, defaultTitle, onSaved }: P
       defaultTitle={defaultTitle}
       onSaved={(id, title) => {
         onSaved(id, title);
+        captureSave(slideCount);
         toast("Carousel saved!");
       }}
     />
@@ -171,6 +174,7 @@ function HomeContent() {
       }
       setExportProgress(null);
       captureExport(slides.length);
+      trackEvent("carousel_exported", { slide_count: slides.length }).catch(() => {});
     } catch (err) {
       setExportProgress(null);
       toast("Export failed. Please try again.", "error");
@@ -188,6 +192,7 @@ function HomeContent() {
       await exportSlidesAsPDF(elements, fontEmbedCSS);
       setExportProgress(null);
       captureExport(slides.length);
+      trackEvent("carousel_exported", { slide_count: slides.length }).catch(() => {});
     } catch (err) {
       setExportProgress(null);
       toast("PDF export failed. Please try again.", "error");
@@ -250,6 +255,7 @@ function HomeContent() {
   const handleAiGenerated = useCallback((newSlides: any[]) => {
     setSlides(newSlides);
     setActiveSlideIndex(0);
+    captureAiGenerate(newSlides.length);
     if (user?.is_premium) {
       getCredits().then(setCredits).catch(() => {});
     }

@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { shareCarousel, revokeShare } from "@/lib/api";
+import { captureShare } from "@/lib/analytics";
 
 interface ShareDialogProps {
   carouselId: string;
@@ -19,6 +20,7 @@ export function ShareDialog({ carouselId, shareUrl, onShared, onRevoked }: Share
     try {
       const res = await shareCarousel(carouselId);
       onShared(res.url);
+      captureShare();
     } finally {
       setBusy(false);
     }

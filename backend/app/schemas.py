@@ -117,6 +117,19 @@ class CustomSchemeUpdate(BaseModel):
     bg_on_accent: str | None = None
 
 
+class TrackEventRequest(BaseModel):
+    event_type: str
+    carousel_id: uuid.UUID | None = None
+    metadata: dict | None = None
+
+
+class StatsResponse(BaseModel):
+    users: dict
+    carousels: dict
+    ai: dict
+    events: dict
+
+
 class CustomSchemeOut(BaseModel):
     id: uuid.UUID
     name: str

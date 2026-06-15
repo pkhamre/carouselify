@@ -10,6 +10,7 @@ from app.database import get_session
 from app.models import Carousel, User
 from app.schemas import CarouselCreate, CarouselOut, CarouselListItem, CarouselUpdate, GuestResponse, LinkGuestRequest, ShareResponse
 from app.users import current_active_user, get_jwt_strategy
+from app.events import track_event
 
 router = APIRouter(prefix="/api/carousels", tags=["carousels"])
 
@@ -28,6 +29,7 @@ async def create_carousel(
     session.add(carousel)
     await session.commit()
     await session.refresh(carousel)
+    await track_event(session, "carousel_created", user_id=user.id, carousel_id=carousel.id)
     return carousel
 
 
@@ -111,6 +113,7 @@ async def share_carousel(
     carousel.is_public = True
     await session.commit()
     await session.refresh(carousel)
+    await track_event(session, "carousel_shared", user_id=user.id, carousel_id=carousel.id)
     return ShareResponse(url=f"/s/{carousel.share_token}", share_token=carousel.share_token)
 
 
@@ -129,6 +132,7 @@ async def revoke_share(
     carousel.share_token = None
     carousel.is_public = False
     await session.commit()
+    await track_event(session, "carousel_unshared", user_id=user.id, carousel_id=carousel.id)
 
 
 guest_router = APIRouter(prefix="/auth", tags=["auth"])
@@ -199,4 +203,5 @@ async def get_shared_carousel(
     carousel = result.scalar_one_or_none()
     if not carousel:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shared carousel not found")
+    await track_event(session, "carousel_viewed", carousel_id=carousel.id)
     return carousel

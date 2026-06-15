@@ -213,3 +213,21 @@ export function deleteScheme(id: string): Promise<void> {
 export function getConfig(): Promise<{ subscriptions_enabled: boolean }> {
   return request("/api/config");
 }
+
+export function trackEvent(eventType: string, metadata?: Record<string, any>): Promise<{ ok: boolean }> {
+  return request("/api/track/event", {
+    method: "POST",
+    body: JSON.stringify({ event_type: eventType, metadata }),
+  });
+}
+
+export interface AdminStats {
+  users: { total: number; registered: number; guests: number; premium: number; this_month: number };
+  carousels: { total: number; shared: number; this_month: number; avg_slides: number };
+  ai: { total_generations: number; total_credits_used: number };
+  events: { total_views: number; views_this_month: number; total_exports: number; exports_this_month: number };
+}
+
+export function getAdminStats(): Promise<AdminStats> {
+  return request("/api/admin/stats");
+}

@@ -36,6 +36,20 @@ class Carousel(Base):
     user = relationship("User", back_populates="carousels")
 
 
+class Event(Base):
+    __tablename__ = "event"
+
+    id = Column(GUID, primary_key=True, default=uuid.uuid4)
+    event_type = Column(String(50), nullable=False, index=True)
+    user_id = Column(GUID, ForeignKey("user.id", ondelete="SET NULL"), nullable=True, index=True)
+    carousel_id = Column(GUID, ForeignKey("carousel.id", ondelete="SET NULL"), nullable=True, index=True)
+    metadata_ = Column("metadata", JSON, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)
+
+    user = relationship("User")
+    carousel = relationship("Carousel")
+
+
 class CustomScheme(Base):
     __tablename__ = "custom_scheme"
 

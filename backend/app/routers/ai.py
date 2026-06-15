@@ -9,6 +9,7 @@ from app.database import get_session
 from app.models import User
 from app.schemas import AiGenerateRequest, AiGenerateResponse, CreditsResponse
 from app.users import current_active_user
+from app.events import track_event
 
 router = APIRouter(prefix="/api/ai", tags=["ai"])
 
@@ -106,6 +107,7 @@ async def generate_slides(
     deduction = 1
     user.ai_credits_used = used + deduction
     await session.commit()
+    await track_event(session, "ai_generated", user_id=user.id, metadata={"prompt": body.prompt[:100], "slide_count": len(slides)})
 
     remaining = CREDITS_LIMIT - user.ai_credits_used
     return AiGenerateResponse(

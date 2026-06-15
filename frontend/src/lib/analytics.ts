@@ -14,13 +14,29 @@ function initPostHog() {
   initialized = true;
 }
 
-export function captureExport(slideCount: number) {
+function posthogCapture(event: string, properties?: Record<string, any>) {
   try {
     initPostHog();
     if (initialized) {
-      posthog.capture("export_completed", { slide_count: slideCount });
+      posthog.capture(event, properties);
     }
   } catch {
     // analytics is optional
   }
+}
+
+export function captureExport(slideCount: number) {
+  posthogCapture("export_completed", { slide_count: slideCount });
+}
+
+export function captureSave(slideCount: number) {
+  posthogCapture("carousel_saved", { slide_count: slideCount });
+}
+
+export function captureShare() {
+  posthogCapture("carousel_shared");
+}
+
+export function captureAiGenerate(slideCount: number) {
+  posthogCapture("ai_generated", { slide_count: slideCount });
 }

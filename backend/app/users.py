@@ -56,3 +56,12 @@ async def require_premium(user: User = Depends(premium_user)):
     if not user.is_premium:
         raise HTTPException(status.HTTP_402_PAYMENT_REQUIRED, detail="Premium subscription required")
     return user
+
+
+admin_user = fastapi_users.current_user(active=True)
+
+
+async def require_admin(user: User = Depends(admin_user)):
+    if not settings.admin_email or user.email != settings.admin_email:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="Admin access required")
+    return user

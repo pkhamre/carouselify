@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
     subscriptions_enabled: bool = False
+    admin_email: str = ""
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
