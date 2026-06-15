@@ -76,6 +76,19 @@ function HomeContent() {
   const [carouselRefreshKey, setCarouselRefreshKey] = useState(0);
   const [showAiDialog, setShowAiDialog] = useState(false);
   const [credits, setCredits] = useState<{ remaining: number; limit: number } | null>(null);
+  const mobilePreviewRef = useRef<HTMLDivElement>(null);
+  const [mobileScale, setMobileScale] = useState(0.333);
+
+  useEffect(() => {
+    const el = mobilePreviewRef.current;
+    if (!el) return;
+    const measure = () => setMobileScale(el.offsetWidth / 1080);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const [hasSeenWelcome, setHasSeenWelcome] = useState(() => {
     if (typeof window !== "undefined") return localStorage.getItem("has_seen_welcome") === "true";
     return false;
@@ -135,6 +148,13 @@ function HomeContent() {
   }, []);
 
   useEffect(() => {
+    function isEditing() {
+      const el = document.activeElement;
+      if (!el) return false;
+      const tag = el.tagName;
+      return tag === "INPUT" || tag === "TEXTAREA" || (el as HTMLElement).isContentEditable;
+    }
+
     function handleKeyDown(e: KeyboardEvent) {
       const isCtrl = e.ctrlKey || e.metaKey;
       if (isCtrl && e.key === "z") {
@@ -144,14 +164,14 @@ function HomeContent() {
         e.preventDefault();
         const btn = document.querySelector("[data-save-btn]");
         (btn as HTMLButtonElement)?.click();
-      } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+      } else if ((e.key === "ArrowUp" || e.key === "ArrowLeft") && !isEditing()) {
         e.preventDefault();
         setActiveSlideIndex((p) => Math.max(0, p - 1));
-      } else if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+      } else if ((e.key === "ArrowDown" || e.key === "ArrowRight") && !isEditing()) {
         e.preventDefault();
         setActiveSlideIndex((p) => Math.min(slides.length - 1, p + 1));
       } else if (e.key === "Delete" || e.key === "Backspace") {
-        if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") return;
+        if (isEditing()) return;
         e.preventDefault();
         if (slides.length > 1) {
           removeSlideWithUndo(activeSlideIndex);
@@ -568,9 +588,9 @@ function HomeContent() {
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <div className="flex-1 max-w-[360px] bg-slate-50 dark:bg-gray-800 rounded-lg transition-colors" style={{ aspectRatio: "1", position: "relative", overflow: "hidden" }}>
+                <div ref={mobilePreviewRef} className="flex-1 max-w-[360px] bg-slate-50 dark:bg-gray-800 rounded-lg transition-colors" style={{ aspectRatio: "1", position: "relative", overflow: "hidden" }}>
                   {slides.length > 0 ? (
-                    <div style={{ position: "absolute", top: 0, left: 0, width: 1080, height: 1080, transform: "scale(0.333)", transformOrigin: "top left" }}>
+                    <div style={{ position: "absolute", top: 0, left: 0, width: 1080, height: 1080, transform: `scale(${mobileScale})`, transformOrigin: "top left" }}>
                         <SlideCanvas
                           slide={activeSlide}
                           scheme={effectiveScheme}
