@@ -75,6 +75,15 @@ function HomeContent() {
   const [carouselRefreshKey, setCarouselRefreshKey] = useState(0);
   const [showAiDialog, setShowAiDialog] = useState(false);
   const [credits, setCredits] = useState<{ remaining: number; limit: number } | null>(null);
+  const [hasSeenWelcome, setHasSeenWelcome] = useState(() => {
+    if (typeof window !== "undefined") return localStorage.getItem("has_seen_welcome") === "true";
+    return false;
+  });
+
+  const handleDismissWelcome = useCallback(() => {
+    localStorage.setItem("has_seen_welcome", "true");
+    setHasSeenWelcome(true);
+  }, []);
 
   useEffect(() => {
     if (!savedCarouselId) return;
@@ -193,6 +202,10 @@ function HomeContent() {
       setExportProgress(null);
       captureExport(slides.length);
       trackEvent("carousel_exported", { slide_count: slides.length }).catch(() => {});
+      if (!hasSeenWelcome) {
+        localStorage.setItem("has_seen_welcome", "true");
+        setHasSeenWelcome(true);
+      }
     } catch (err) {
       setExportProgress(null);
       toast("Export failed. Please try again.", "error");
@@ -211,6 +224,10 @@ function HomeContent() {
       setExportProgress(null);
       captureExport(slides.length);
       trackEvent("carousel_exported", { slide_count: slides.length }).catch(() => {});
+      if (!hasSeenWelcome) {
+        localStorage.setItem("has_seen_welcome", "true");
+        setHasSeenWelcome(true);
+      }
     } catch (err) {
       setExportProgress(null);
       toast("PDF export failed. Please try again.", "error");
@@ -396,7 +413,12 @@ function HomeContent() {
               </div>
             )}
 
-            <MyCarousels onLoad={handleLoadCarousel} refreshKey={carouselRefreshKey} />
+            <MyCarousels
+              onLoad={handleLoadCarousel}
+              refreshKey={carouselRefreshKey}
+              showWelcome={!hasSeenWelcome}
+              onDismissWelcome={handleDismissWelcome}
+            />
           </div>
 
           <div className="col-span-5">
@@ -612,7 +634,12 @@ function HomeContent() {
         {mobileTab === "edit" && (
           <>
             <div className="space-y-4">
-            <MyCarousels onLoad={handleLoadCarousel} refreshKey={carouselRefreshKey} />
+            <MyCarousels
+              onLoad={handleLoadCarousel}
+              refreshKey={carouselRefreshKey}
+              showWelcome={!hasSeenWelcome}
+              onDismissWelcome={handleDismissWelcome}
+            />
 
               <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Slides</h3>

@@ -14,45 +14,45 @@ export function createSlide(type: SlideType, index: number): Slide {
       return {
         id,
         type: "cover",
-        h1: "Your headline goes here",
-        h2: "The punchline hooks them",
-        caption: "A brief caption that adds context and makes them want to read more.",
+        h1: "5 Design Tips for Standout Slides",
+        h2: "Create carousels that stop the scroll",
+        caption: "Simple principles that work every time, for any topic.",
       };
     case "content-b1":
       return {
         id,
         type: "content-b1",
-        intro: "Here's the thing nobody tells you:",
-        h2: "It changes everything",
-        body: "This is the supporting explanation that makes it click.",
+        intro: "The golden rule:",
+        h2: "One idea per slide",
+        body: "Your audience's attention is limited. Each slide should communicate exactly one main idea — anything else is noise.",
       };
     case "content-b2":
       return {
         id,
         type: "content-b2",
-        h1: "The setup topic",
-        h2: "The bold payoff",
-        body: "Supporting text that explains why this matters to the reader.",
+        h1: "Typography",
+        h2: "Choose fonts with purpose",
+        body: "Pair a bold display font for headings with a clean body font. Two is enough; three is too many.",
       };
     case "list":
       return {
         id,
         type: "list",
-        intro: "Three things you need to know:",
-        h2: "The key insight",
+        intro: "Three questions to ask yourself:",
+        h2: "Before you publish",
         items: [
-          "First important point",
-          "Second important point",
-          "Third important point",
+          "Does the headline grab attention?",
+          "Is the message clear at a glance?",
+          "Does the ending drive action?",
         ],
       };
     case "cta":
       return {
         id,
         type: "cta",
-        h1: "Ready to take action?",
-        ctaText: "Follow for more",
-        body: "Drop a comment if this resonated with you.",
+        h1: "Ready to make your own?",
+        ctaText: "Start editing",
+        body: "Change the text, pick a new color scheme, and export when you're done.",
       };
   }
 }

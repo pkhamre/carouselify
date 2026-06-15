@@ -5,13 +5,16 @@ import { useAuth } from "@/lib/auth";
 import { listCarousels, getCarousel, deleteCarousel } from "@/lib/api";
 import type { CarouselListItem, CarouselData } from "@/lib/api";
 import { useToast } from "./Toast";
+import { WelcomePanel } from "./WelcomePanel";
 
 interface MyCarouselsProps {
   onLoad: (data: CarouselData) => void;
   refreshKey?: number;
+  showWelcome?: boolean;
+  onDismissWelcome?: () => void;
 }
 
-export function MyCarousels({ onLoad, refreshKey }: MyCarouselsProps) {
+export function MyCarousels({ onLoad, refreshKey, showWelcome, onDismissWelcome }: MyCarouselsProps) {
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [carousels, setCarousels] = useState<CarouselListItem[]>([]);
@@ -73,12 +76,16 @@ export function MyCarousels({ onLoad, refreshKey }: MyCarouselsProps) {
           </div>
         )}
         {!loading && carousels.length === 0 && (
-          <div className="py-4 text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">No saved carousels yet</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500">
-              Save your current work to find it here later
-            </p>
-          </div>
+          showWelcome ? (
+            <WelcomePanel onDismiss={onDismissWelcome!} />
+          ) : (
+            <div className="py-4 text-center">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">No saved carousels yet</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">
+                Save your current work to find it here later
+              </p>
+            </div>
+          )
         )}
         {carousels.map((c) => (
           <div key={c.id} className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
