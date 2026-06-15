@@ -319,7 +319,7 @@ function HomeContent() {
     if (d.inverted !== undefined) setInverted(d.inverted);
     setSavedCarouselId(data.id);
     setSavedTitle(data.title || "");
-    setShareUrl(data.share_token ? `/s/${data.share_token}` : null);
+    setShareUrl(data.share_token ? `/showcase/${data.share_token}` : null);
   }, []);
 
   const { user } = useAuth();

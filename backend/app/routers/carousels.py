@@ -114,7 +114,7 @@ async def share_carousel(
     await session.commit()
     await session.refresh(carousel)
     await track_event(session, "carousel_shared", user_id=user.id, carousel_id=carousel.id)
-    return ShareResponse(url=f"/s/{carousel.share_token}", share_token=carousel.share_token)
+    return ShareResponse(url=f"/showcase/{carousel.share_token}", share_token=carousel.share_token)
 
 
 @router.delete("/{carousel_id}/share", status_code=status.HTTP_204_NO_CONTENT)
