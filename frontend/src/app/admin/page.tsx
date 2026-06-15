@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { getAdminStats, adminListShowcase, adminRemoveShowcase, getContactMessages, type AdminStats, type ShowcaseItem, type ContactMessage } from "@/lib/api";
+import { getAdminStats, adminListShowcase, adminRemoveShowcase, getContactMessages, toggleArchiveContactMessage, deleteContactMessage, type AdminStats, type ShowcaseItem, type ContactMessage } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { AuthProvider } from "@/lib/auth";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -37,6 +37,7 @@ function AdminPage() {
   const [showcased, setShowcased] = useState<ShowcaseItem[]>([]);
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [contactsLoading, setContactsLoading] = useState(true);
+  const [showArchived, setShowArchived] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showcasedLoading, setShowcasedLoading] = useState(true);
@@ -50,7 +51,7 @@ function AdminPage() {
       const [statsData, showcasedData, contactsData] = await Promise.all([
         getAdminStats(),
         adminListShowcase(),
-        getContactMessages(),
+        getContactMessages(showArchived),
       ]);
       setStats(statsData);
       setShowcased(showcasedData);
@@ -66,7 +67,7 @@ function AdminPage() {
       setShowcasedLoading(false);
       setContactsLoading(false);
     }
-  }, [user]);
+  }, [user, showArchived]);
 
   useEffect(() => {
     if (!authLoading) fetchData();
@@ -79,6 +80,28 @@ function AdminPage() {
       setShowcased((prev) => prev.filter((p) => p.id !== id));
     } finally {
       setActionBusy(null);
+    }
+  }, []);
+
+  const [contactActionBusy, setContactActionBusy] = useState<string | null>(null);
+
+  const handleArchive = useCallback(async (id: string) => {
+    setContactActionBusy(id);
+    try {
+      await toggleArchiveContactMessage(id);
+      await fetchData();
+    } finally {
+      setContactActionBusy(null);
+    }
+  }, [fetchData]);
+
+  const handleDeleteContact = useCallback(async (id: string) => {
+    setContactActionBusy(id);
+    try {
+      await deleteContactMessage(id);
+      setContactMessages((prev) => prev.filter((m) => m.id !== id));
+    } finally {
+      setContactActionBusy(null);
     }
   }, []);
 
@@ -274,9 +297,17 @@ function AdminPage() {
             </section>
 
             <section className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
-              <h2 className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
-                Contact Messages
-              </h2>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                  Contact Messages
+                </h2>
+                <button
+                  onClick={() => setShowArchived((v) => !v)}
+                  className="text-xs px-2 py-1 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  {showArchived ? "Hide archived" : "Show archived"}
+                </button>
+              </div>
               {contactsLoading ? (
                 <div className="space-y-2">
                   <ShowcasedSkeleton />
@@ -287,10 +318,27 @@ function AdminPage() {
               ) : (
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {contactMessages.map((msg) => (
-                    <div key={msg.id} className="p-3 rounded-lg border border-gray-100 dark:border-gray-800">
+                    <div key={msg.id} className={`p-3 rounded-lg border ${msg.archived ? "border-gray-50 dark:border-gray-800/50 opacity-60" : "border-gray-100 dark:border-gray-800"}`}>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{msg.name}</span>
-                        <span className="text-xs text-gray-400">{new Date(msg.created_at).toLocaleDateString()}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs text-gray-400">{new Date(msg.created_at).toLocaleDateString()}</span>
+                          <button
+                            onClick={() => handleArchive(msg.id)}
+                            disabled={contactActionBusy === msg.id}
+                            className="text-xs px-2 py-1 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                            title={msg.archived ? "Unarchive" : "Archive"}
+                          >
+                            {msg.archived ? "Unarchive" : "Archive"}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteContact(msg.id)}
+                            disabled={contactActionBusy === msg.id}
+                            className="text-xs px-2 py-1 rounded-md text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{msg.email}</p>
                       <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{msg.message}</p>

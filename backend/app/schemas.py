@@ -158,6 +158,7 @@ class ContactMessageOut(BaseModel):
     name: str
     email: str
     message: str
+    archived: bool = False
     created_at: datetime
 
     model_config = {"from_attributes": True}

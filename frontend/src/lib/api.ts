@@ -288,9 +288,19 @@ export interface ContactMessage {
   name: string;
   email: string;
   message: string;
+  archived: boolean;
   created_at: string;
 }
 
-export function getContactMessages(): Promise<ContactMessage[]> {
-  return request("/api/admin/contact-messages");
+export function getContactMessages(includeArchived?: boolean): Promise<ContactMessage[]> {
+  const params = includeArchived ? "?include_archived=true" : "";
+  return request(`/api/admin/contact-messages${params}`);
+}
+
+export function toggleArchiveContactMessage(id: string): Promise<ContactMessage> {
+  return request(`/api/admin/contact-messages/${id}/archive`, { method: "PATCH" });
+}
+
+export function deleteContactMessage(id: string): Promise<void> {
+  return request(`/api/admin/contact-messages/${id}`, { method: "DELETE" });
 }

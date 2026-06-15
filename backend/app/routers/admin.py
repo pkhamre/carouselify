@@ -163,11 +163,42 @@ async def submit_contact(
 async def list_contact_messages(
     user: User = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
+    include_archived: bool = False,
 ):
-    result = await session.execute(
-        select(ContactMessage).order_by(ContactMessage.created_at.desc())
-    )
+    query = select(ContactMessage)
+    if not include_archived:
+        query = query.where(ContactMessage.archived == False)
+    query = query.order_by(ContactMessage.created_at.desc())
+    result = await session.execute(query)
     return result.scalars().all()
+
+
+@router.patch("/contact-messages/{message_id}/archive", response_model=ContactMessageOut)
+async def toggle_archive_message(
+    message_id: uuid.UUID,
+    user: User = Depends(require_admin),
+    session: AsyncSession = Depends(get_session),
+):
+    msg = await session.get(ContactMessage, message_id)
+    if not msg:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
+    msg.archived = not msg.archived
+    await session.commit()
+    await session.refresh(msg)
+    return msg
+
+
+@router.delete("/contact-messages/{message_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_contact_message(
+    message_id: uuid.UUID,
+    user: User = Depends(require_admin),
+    session: AsyncSession = Depends(get_session),
+):
+    msg = await session.get(ContactMessage, message_id)
+    if not msg:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
+    await session.delete(msg)
+    await session.commit()
 
 
 track_public_router = APIRouter(prefix="/api/track", tags=["track"])
