@@ -68,7 +68,7 @@ export function logout(): Promise<void> {
   return request("/auth/jwt/logout", { method: "POST" });
 }
 
-export function getMe(): Promise<{ id: string; email: string; is_active: boolean; is_superuser: boolean; is_verified: boolean; is_premium?: boolean; is_admin?: boolean }> {
+export function getMe(): Promise<{ id: string; email: string; is_active: boolean; is_superuser: boolean; is_verified: boolean; is_premium?: boolean; is_admin?: boolean; polar_subscription_status?: string; polar_subscription_period_end?: string; polar_cancel_at_period_end?: boolean }> {
   return request("/auth/me");
 }
 

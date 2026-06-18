@@ -5,10 +5,11 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     database_url: str = "sqlite+aiosqlite:///./carouselify.db"
     secret: str = "change-me-in-production"
-    lemon_squeezy_api_key: str = ""
-    lemon_squeezy_webhook_secret: str = ""
-    lemon_squeezy_store_id: str = ""
-    lemon_squeezy_product_variant_id: str = ""
+    polar_access_token: str = ""
+    polar_webhook_secret: str = ""
+    polar_organization_id: str = ""
+    polar_product_id: str = ""
+    polar_server: str = "production"
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
     subscriptions_enabled: bool = False

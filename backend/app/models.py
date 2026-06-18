@@ -13,8 +13,11 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
 
     is_guest = Column(Boolean, default=False, nullable=False)
     is_premium = Column(Boolean, default=False, nullable=False)
-    lemon_squeezy_customer_id = Column(String, nullable=True, index=True)
-    lemon_squeezy_subscription_id = Column(String, nullable=True)
+    polar_customer_id = Column(String, nullable=True, index=True)
+    polar_subscription_id = Column(String, nullable=True)
+    polar_subscription_status = Column(String, nullable=True)
+    polar_subscription_period_end = Column(DateTime(timezone=True), nullable=True)
+    polar_cancel_at_period_end = Column(Boolean, default=False)
     ai_credits_used = Column(Integer, default=0, nullable=False)
     ai_credits_reset_at = Column(DateTime(timezone=True), nullable=True)
     carousels = relationship("Carousel", back_populates="user", cascade="all, delete-orphan")

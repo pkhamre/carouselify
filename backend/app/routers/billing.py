@@ -1,21 +1,17 @@
-import json
-import hmac
-import hashlib
-from datetime import datetime
-import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from polar_sdk import Polar
+from polar_sdk.webhooks import validate_event, WebhookVerificationError, WebhookUnknownTypeError
 
 from app.config import settings
 from app.database import get_session
 from app.models import User
 from app.schemas import CheckoutRequest, CheckoutResponse, PortalResponse
 from app.users import current_active_user
-
+import json as _json
+import uuid as _uuid
 router = APIRouter(prefix="/api/billing", tags=["billing"])
-
-LEMON_API = "https://api.lemonsqueezy.com/v1"
 
 
 @router.post("/checkout", response_model=CheckoutResponse)
@@ -25,56 +21,17 @@ async def create_checkout(
 ):
     if not settings.subscriptions_enabled:
         raise HTTPException(503, detail="Subscriptions are temporarily unavailable")
-    if not settings.lemon_squeezy_api_key or not settings.lemon_squeezy_product_variant_id:
-        raise HTTPException(502, detail="Lemon Squeezy not configured")
-    async with httpx.AsyncClient() as client:
-        resp = await client.post(
-            f"{LEMON_API}/checkouts",
-            headers={
-                "Authorization": f"Bearer {settings.lemon_squeezy_api_key}",
-                "Accept": "application/vnd.api+json",
-                "Content-Type": "application/vnd.api+json",
-            },
-            json={
-                "data": {
-                    "type": "checkouts",
-                    "attributes": {
-                        "variant_id": int(settings.lemon_squeezy_product_variant_id),
-                        "product_options": {
-                            "enabled_variants": [int(settings.lemon_squeezy_product_variant_id)],
-                            "redirect_url": data.return_url,
-                        },
-                        "checkout_data": {
-                            "email": user.email,
-                            "custom": {"user_id": str(user.id)},
-                        },
-                        "test_mode": True,
-                    },
-                    "relationships": {
-                        "store": {
-                            "data": {
-                                "type": "stores",
-                                "id": settings.lemon_squeezy_store_id,
-                            },
-                        },
-                        "variant": {
-                            "data": {
-                                "type": "variants",
-                                "id": str(int(settings.lemon_squeezy_product_variant_id)),
-                            },
-                        },
-                    },
-                }
-            },
-        )
-        res = resp.json()
-        if resp.status_code >= 400:
-            err_msg = res.get("errors", [{"detail": "Unknown Lemon Squeezy error"}])[0].get("detail", "Unknown error")
-            print(f"Lemon Squeezy checkout error ({resp.status_code}): {err_msg}")
-            print(f"Full response: {json.dumps(res, indent=2)}")
-            raise HTTPException(502, detail=err_msg)
-        checkout_url = res["data"]["attributes"]["url"]
-        return CheckoutResponse(url=checkout_url)
+    if not settings.polar_access_token or not settings.polar_product_id:
+        raise HTTPException(502, detail="Polar.sh not configured")
+
+    async with Polar(access_token=settings.polar_access_token, server=settings.polar_server) as polar:
+        checkout = await polar.checkouts.create_async(request={
+            "products": [settings.polar_product_id],
+            "customer_email": user.email,
+            "success_url": data.return_url,
+            "external_customer_id": str(user.id),
+        })
+        return CheckoutResponse(url=checkout.url)
 
 
 @router.post("/portal", response_model=PortalResponse)
@@ -84,96 +41,83 @@ async def create_portal(
 ):
     if not settings.subscriptions_enabled:
         raise HTTPException(503, detail="Subscriptions are temporarily unavailable")
-    if not settings.lemon_squeezy_api_key:
-        raise HTTPException(502, detail="Lemon Squeezy not configured")
-    if not user.lemon_squeezy_customer_id:
-        raise HTTPException(400, detail="No subscription found")
+    if not settings.polar_access_token:
+        raise HTTPException(502, detail="Polar.sh not configured")
 
-    async with httpx.AsyncClient() as client:
-        resp = await client.post(
-            f"{LEMON_API}/customer-portal",
-            headers={
-                "Authorization": f"Bearer {settings.lemon_squeezy_api_key}",
-                "Accept": "application/vnd.api+json",
-                "Content-Type": "application/vnd.api+json",
-            },
-            json={
-                "data": {
-                    "type": "customer-portals",
-                    "attributes": {
-                        "customer_id": int(user.lemon_squeezy_customer_id),
-                        "return_url": data.return_url,
-                    },
-                }
-            },
-        )
-        res = resp.json()
-        if resp.status_code >= 400:
-            err_msg = res.get("errors", [{"detail": "Unknown Lemon Squeezy error"}])[0].get("detail", "Unknown error")
-            print(f"Lemon Squeezy portal error ({resp.status_code}): {err_msg}")
-            raise HTTPException(502, detail=err_msg)
-        portal_url = res["data"]["attributes"]["url"]
-        return PortalResponse(url=portal_url)
+    async with Polar(access_token=settings.polar_access_token, server=settings.polar_server) as polar:
+        session = await polar.customer_sessions.create_async(request={
+            "external_customer_id": str(user.id),
+            "return_url": data.return_url,
+        })
+        return PortalResponse(url=session.customer_portal_url)
 
 
-@router.post("/webhook")
-async def webhook_handler(request: Request, session: AsyncSession = Depends(get_session)):
-    if not settings.lemon_squeezy_webhook_secret:
-        raise HTTPException(502, detail="Lemon Squeezy not configured")
+@router.post("/webhook", status_code=status.HTTP_202_ACCEPTED)
+async def webhook_handler(
+    request: Request,
+    session: AsyncSession = Depends(get_session),
+):
+    if not settings.polar_webhook_secret:
+        raise HTTPException(502, detail="Polar.sh not configured")
 
     raw_body = await request.body()
-    signature = request.headers.get("x-signature", "")
+    try:
+        event = validate_event(
+            body=raw_body,
+            headers=dict(request.headers),
+            secret=settings.polar_webhook_secret,
+        )
+    except (WebhookVerificationError, WebhookUnknownTypeError):
+        raise HTTPException(401, detail="Invalid webhook signature")
 
-    computed = hmac.new(
-        settings.lemon_squeezy_webhook_secret.encode(),
-        raw_body,
-        hashlib.sha256,
-    ).hexdigest()
-
-    if not hmac.compare_digest(signature, computed):
-        raise HTTPException(401, detail="Invalid signature")
-
-    payload = json.loads(raw_body)
-    event_name = payload["meta"]["event_name"]
-    sub_data = payload.get("data", {}).get("attributes", {})
-
-    # Look up user by: custom_data.user_id → customer_id → user_email
-    custom_data = payload["meta"].get("custom_data", {}) or {}
-    user_id = custom_data.get("user_id")
-    user = None
-
-    if user_id:
-        result = await session.execute(select(User).where(User.id == user_id))
-        user = result.scalar_one_or_none()
-
-    if not user:
-        customer_id = sub_data.get("customer_id")
-        if customer_id:
-            result = await session.execute(select(User).where(User.lemon_squeezy_customer_id == str(customer_id)))
-            user = result.scalar_one_or_none()
-
-    if not user:
-        user_email = sub_data.get("user_email")
-        if user_email:
-            result = await session.execute(select(User).where(User.email == user_email))
-            user = result.scalar_one_or_none()
-
-    if not user:
-        print(f"Webhook {event_name}: no user found (user_id={user_id}, customer_id={sub_data.get('customer_id')}, email={sub_data.get('user_email')})")
+    ev_type = _json.loads(raw_body)["type"]
+    sub = event.data
+    if not sub.customer or not sub.customer.external_id:
+        print(f"[webhook] {ev_type}: no customer or external_id, skipping")
         return {"ok": True}
 
-    if event_name == "subscription_created":
-        user.is_premium = True
-        user.lemon_squeezy_customer_id = str(sub_data["customer_id"])
-        user.lemon_squeezy_subscription_id = str(payload["data"]["id"])
-        user.ai_credits_used = 0
-        renews_at = sub_data.get("renews_at")
-        if renews_at:
-            user.ai_credits_reset_at = datetime.fromisoformat(renews_at.replace("Z", "+00:00"))
-    elif event_name == "subscription_updated":
-        user.is_premium = True
-    elif event_name in ("subscription_cancelled", "subscription_expired"):
-        user.is_premium = False
+    user_id = _uuid.UUID(sub.customer.external_id)
+    result = await session.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user:
+        print(f"[webhook] {ev_type}: user not found for external_id={sub.customer.external_id}")
+        return {"ok": True}
 
-    await session.commit()
+    print(f"[webhook] {ev_type}: user={user.id} status={sub.status.value}")
+
+    vals = {}
+
+    if ev_type in ("subscription.created", "subscription.active"):
+        vals["is_premium"] = True
+        vals["polar_subscription_id"] = sub.id
+        vals["polar_customer_id"] = sub.customer_id
+        vals["polar_subscription_status"] = sub.status.value
+        vals["polar_subscription_period_end"] = sub.current_period_end
+        vals["polar_cancel_at_period_end"] = sub.cancel_at_period_end
+        vals["ai_credits_used"] = 0
+        vals["ai_credits_reset_at"] = sub.current_period_end
+
+    elif ev_type == "subscription.updated":
+        vals["polar_subscription_status"] = sub.status.value
+        vals["polar_cancel_at_period_end"] = sub.cancel_at_period_end
+        vals["polar_subscription_period_end"] = sub.current_period_end
+
+    elif ev_type == "subscription.canceled":
+        vals["is_premium"] = False
+        vals["polar_subscription_status"] = "canceled"
+
+    elif ev_type == "subscription.uncanceled":
+        vals["polar_cancel_at_period_end"] = False
+        vals["is_premium"] = True
+        vals["polar_subscription_status"] = "active"
+
+    elif ev_type == "subscription.revoked":
+        vals["is_premium"] = False
+        vals["polar_subscription_status"] = "revoked"
+
+    if vals:
+        await session.execute(update(User).where(User.id == user_id).values(**vals))
+        await session.commit()
+        print(f"[webhook] {ev_type}: updated {vals}")
+
     return {"ok": True}

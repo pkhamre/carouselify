@@ -10,7 +10,10 @@ class UserRead(users_schemas.BaseUser[uuid.UUID]):
     is_admin: bool = False
     ai_credits_used: int = 0
     ai_credits_reset_at: Optional[datetime] = None
-    lemon_squeezy_subscription_id: Optional[str] = None
+    polar_subscription_id: Optional[str] = None
+    polar_subscription_status: Optional[str] = None
+    polar_subscription_period_end: Optional[datetime] = None
+    polar_cancel_at_period_end: bool = False
 
 
 class UserCreate(users_schemas.BaseUserCreate):

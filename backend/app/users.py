@@ -21,6 +21,21 @@ class CookieBearerTransport(CookieTransport):
             return auth[7:]
         return None
 
+    async def get_login_response(self, token: str, response: Optional[Response] = None) -> Response:
+        if response is None:
+            return await super().get_login_response(token)
+        response.set_cookie(
+            key=self.cookie_name,
+            value=token,
+            max_age=self.cookie_max_age,
+            path=self.cookie_path,
+            domain=self.cookie_domain,
+            secure=self.cookie_secure,
+            httponly=self.cookie_httponly,
+            samesite=self.cookie_samesite,
+        )
+        return response
+
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     reset_password_token_secret = settings.secret

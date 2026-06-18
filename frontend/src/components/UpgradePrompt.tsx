@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createCheckout } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
+import { useAuth, setPendingUpgrade } from "@/lib/auth";
 
 interface UpgradePromptProps {
   feature: string;
@@ -17,6 +17,7 @@ export function UpgradePrompt({ feature, compact }: UpgradePromptProps) {
     setBusy(true);
     try {
       const res = await createCheckout(window.location.origin);
+      setPendingUpgrade();
       window.location.href = res.url;
     } catch {}
     setBusy(false);

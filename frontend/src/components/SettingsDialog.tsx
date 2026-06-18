@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/lib/auth";
+import { useAuth, setPendingUpgrade } from "@/lib/auth";
 import { getCredits, createCheckout, createPortal } from "@/lib/api";
 
 interface SettingsDialogProps {
@@ -27,6 +27,7 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
     setBusy(true);
     try {
       const res = await createCheckout(window.location.origin);
+      setPendingUpgrade();
       window.location.href = res.url;
     } catch {}
     setBusy(false);
@@ -76,6 +77,11 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
             {isPremium && credits && (
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 {credits.remaining}/{credits.limit} AI credits remaining
+              </span>
+            )}
+            {isPremium && user?.polar_subscription_status === "active" && user?.polar_cancel_at_period_end && user?.polar_subscription_period_end && (
+              <span className="text-xs text-amber-600 dark:text-amber-400">
+                Premium until {new Date(user.polar_subscription_period_end).toLocaleDateString()}
               </span>
             )}
           </div>

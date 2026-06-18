@@ -9,6 +9,9 @@ interface AuthUser {
   isGuest?: boolean;
   is_premium?: boolean;
   is_admin?: boolean;
+  polar_subscription_status?: string;
+  polar_subscription_period_end?: string;
+  polar_cancel_at_period_end?: boolean;
 }
 
 interface AuthContextType {
@@ -42,15 +45,45 @@ function getTokenValue(): string | null {
   return localStorage.getItem("token");
 }
 
+function setUserFromMe(u: any, setUser: (u: AuthUser) => void) {
+  setUser({ id: u.id, email: u.email, is_premium: u.is_premium, is_admin: u.is_admin, polar_subscription_status: u.polar_subscription_status, polar_subscription_period_end: u.polar_subscription_period_end, polar_cancel_at_period_end: u.polar_cancel_at_period_end });
+}
+
+export function setPendingUpgrade() {
+  if (typeof window === "undefined") return;
+  sessionStorage.setItem("pending_upgrade", "1");
+}
+
+async function pollPremium(getMe: () => Promise<any>, setUser: (u: AuthUser) => void) {
+  for (let i = 0; i < 10; i++) {
+    await new Promise((r) => setTimeout(r, 1500));
+    try {
+      const u = await getMe();
+      if (u.is_premium) {
+        setUserFromMe(u, setUser);
+        sessionStorage.removeItem("pending_upgrade");
+        return true;
+      }
+    } catch {}
+  }
+  sessionStorage.removeItem("pending_upgrade");
+  return false;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [subscriptionsEnabled, setSubscriptionsEnabled] = useState(true);
 
   useEffect(() => {
+    const wasPending = typeof window !== "undefined" && sessionStorage.getItem("pending_upgrade");
+
     getMe()
       .then((u) => {
-        setUser({ id: u.id, email: u.email, is_premium: u.is_premium, is_admin: u.is_admin });
+        setUserFromMe(u, setUser);
+        if (wasPending && u.is_premium) {
+          sessionStorage.removeItem("pending_upgrade");
+        }
       })
       .catch(() => {
         const existingToken = getTokenValue();
@@ -60,7 +93,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser({ id: res.user_id, email: "guest", isGuest: true });
         });
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (wasPending) {
+          pollPremium(getMe, setUser).finally(() => setLoading(false));
+        } else {
+          setLoading(false);
+        }
+      });
   }, []);
 
   useEffect(() => {
