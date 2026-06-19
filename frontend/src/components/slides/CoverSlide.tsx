@@ -39,9 +39,10 @@ export function CoverSlideComponent({ slide, scheme, fonts, logo, slideNumber, t
             style={{
               fontFamily: fonts.display,
               color: scheme.textPrimary,
+              opacity: slide.h1 ? 1 : 0.35,
             }}
           >
-            {slide.h1}
+            {slide.h1 || "Your headline here"}
           </h1>
         </div>
 
@@ -50,9 +51,10 @@ export function CoverSlideComponent({ slide, scheme, fonts, logo, slideNumber, t
           style={{
             fontFamily: fonts.display,
             color: scheme.accent,
+            opacity: slide.h2 ? 1 : 0.35,
           }}
         >
-          {slide.h2}
+          {slide.h2 || "What's the one thing people should remember?"}
         </h2>
 
         <div className="punchline-spacer-bottom">
@@ -61,9 +63,10 @@ export function CoverSlideComponent({ slide, scheme, fonts, logo, slideNumber, t
             style={{
               fontFamily: fonts.body,
               color: scheme.textPrimary,
+              opacity: slide.caption ? 1 : 0.35,
             }}
           >
-            {slide.caption}
+            {slide.caption || "Add a supporting line (optional)"}
           </p>
         </div>
       </div>

@@ -8,6 +8,7 @@ from pydantic import BaseModel
 class UserRead(users_schemas.BaseUser[uuid.UUID]):
     is_premium: bool = False
     is_admin: bool = False
+    ai_free_used: bool = False
     ai_credits_used: int = 0
     ai_credits_reset_at: Optional[datetime] = None
     polar_subscription_id: Optional[str] = None
@@ -101,7 +102,7 @@ class CreditsResponse(BaseModel):
 
 class AiGenerateRequest(BaseModel):
     prompt: str
-    slide_count: int = 5
+    slide_count: int = 1
 
 
 class AiGenerateResponse(BaseModel):

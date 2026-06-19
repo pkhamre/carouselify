@@ -9,6 +9,7 @@ interface AuthUser {
   isGuest?: boolean;
   is_premium?: boolean;
   is_admin?: boolean;
+  ai_free_used?: boolean;
   polar_subscription_status?: string;
   polar_subscription_period_end?: string;
   polar_cancel_at_period_end?: boolean;
@@ -46,7 +47,7 @@ function getTokenValue(): string | null {
 }
 
 function setUserFromMe(u: any, setUser: (u: AuthUser) => void) {
-  setUser({ id: u.id, email: u.email, is_premium: u.is_premium, is_admin: u.is_admin, polar_subscription_status: u.polar_subscription_status, polar_subscription_period_end: u.polar_subscription_period_end, polar_cancel_at_period_end: u.polar_cancel_at_period_end });
+  setUser({ id: u.id, email: u.email, is_premium: u.is_premium, is_admin: u.is_admin, ai_free_used: u.ai_free_used, polar_subscription_status: u.polar_subscription_status, polar_subscription_period_end: u.polar_subscription_period_end, polar_cancel_at_period_end: u.polar_cancel_at_period_end });
 }
 
 export function setPendingUpgrade() {

@@ -12,16 +12,18 @@ import { LogoSettings } from "@/components/LogoSettings";
 import { AuthProvider } from "@/lib/auth";
 import { SaveButton } from "@/components/SaveButton";
 import { MyCarousels } from "@/components/MyCarousels";
-import { WelcomeModal } from "@/components/WelcomeModal";
+
 import { ShareDialog } from "@/components/ShareDialog";
 import { UserMenu } from "@/components/UserMenu";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { exportSlideAsPNG, exportSlidesAsPDF, getFontEmbedCSS } from "@/lib/export";
 import { captureExport, captureSave, captureAiGenerate } from "@/lib/analytics";
-import { trackEvent, publishShowcase, unpublishShowcase, getCarousel } from "@/lib/api";
+import { trackEvent, publishShowcase, unpublishShowcase, getCarousel, generateSlides } from "@/lib/api";
 import { AiDialog } from "@/components/AiDialog";
 import { SettingsDialog } from "@/components/SettingsDialog";
+import { AuthModal } from "@/components/AuthModal";
+import { AboveCanvasPrompt } from "@/components/AboveCanvasPrompt";
 import { getCredits } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import "@/components/slides/slideStyles.css";
@@ -75,6 +77,10 @@ function HomeContent() {
   const [exportProgress, setExportProgress] = useState<{ current: number; total: number } | null>(null);
   const [carouselRefreshKey, setCarouselRefreshKey] = useState(0);
   const [showAiDialog, setShowAiDialog] = useState(false);
+  const [promptBusy, setPromptBusy] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "register">("register");
+  const [registerPrompt, setRegisterPrompt] = useState(false);
   const [credits, setCredits] = useState<{ remaining: number; limit: number } | null>(null);
   const mobilePreviewRef = useRef<HTMLDivElement>(null);
   const [mobileScale, setMobileScale] = useState(0.333);
@@ -89,15 +95,28 @@ function HomeContent() {
     return () => ro.disconnect();
   }, []);
 
-  const [hasSeenWelcome, setHasSeenWelcome] = useState(() => {
-    if (typeof window !== "undefined") return localStorage.getItem("has_seen_welcome") === "true";
-    return false;
-  });
-
-  const handleDismissWelcome = useCallback(() => {
-    localStorage.setItem("has_seen_welcome", "true");
-    setHasSeenWelcome(true);
+  const openAuth = useCallback((mode: "login" | "register" = "register") => {
+    setAuthMode(mode);
+    setShowAuth(true);
   }, []);
+
+  const handlePromptGenerate = useCallback(async (prompt: string) => {
+    setPromptBusy(true);
+    try {
+      const res = await generateSlides(prompt, 1);
+      setSlides(res.slides);
+      setActiveSlideIndex(0);
+      captureAiGenerate(res.slides.length);
+      setCredits({ remaining: res.credits_remaining, limit: credits?.limit ?? 1 });
+    } catch (e: any) {
+      if (e.message?.includes("free account")) {
+        setRegisterPrompt(true);
+      } else {
+        toast(e.message || "Generation failed");
+      }
+    }
+    setPromptBusy(false);
+  }, [toast, credits?.limit]);
 
   useEffect(() => {
     if (!savedCarouselId) return;
@@ -235,10 +254,6 @@ function HomeContent() {
       setExportProgress(null);
       captureExport(slides.length);
       trackEvent("carousel_exported", { slide_count: slides.length }).catch(() => {});
-      if (!hasSeenWelcome) {
-        localStorage.setItem("has_seen_welcome", "true");
-        setHasSeenWelcome(true);
-      }
     } catch (err) {
       setExportProgress(null);
       toast("Export failed. Please try again.", "error");
@@ -257,10 +272,6 @@ function HomeContent() {
       setExportProgress(null);
       captureExport(slides.length);
       trackEvent("carousel_exported", { slide_count: slides.length }).catch(() => {});
-      if (!hasSeenWelcome) {
-        localStorage.setItem("has_seen_welcome", "true");
-        setHasSeenWelcome(true);
-      }
     } catch (err) {
       setExportProgress(null);
       toast("PDF export failed. Please try again.", "error");
@@ -315,10 +326,10 @@ function HomeContent() {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user?.is_premium) {
+    if (user) {
       getCredits().then(setCredits).catch(() => {});
     }
-  }, [user?.is_premium]);
+  }, [user]);
 
   const handleAiGenerated = useCallback((newSlides: any[]) => {
     setSlides(newSlides);
@@ -452,7 +463,8 @@ function HomeContent() {
             />
           </div>
 
-          <div className="col-span-5">
+          <div className="col-span-5 space-y-4">
+            <AboveCanvasPrompt onGenerate={handlePromptGenerate} busy={promptBusy} registerPrompt={registerPrompt} onDismissRegister={() => setRegisterPrompt(false)} openAuth={() => openAuth("register")} />
             <div className="bg-slate-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 sticky top-6 transition-colors">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100">Preview</h3>
@@ -528,9 +540,12 @@ function HomeContent() {
       <div className="hidden lg:block fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-6 py-3 transition-colors">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            {user?.is_premium && credits !== null && (
+            {credits !== null && (
               <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-                AI: {credits.remaining}/{credits.limit}
+                {user?.isGuest
+                  ? credits.remaining > 0 ? "1 free AI credit" : "Free"
+                  : `AI: ${credits.remaining}/${credits.limit}`
+                }
               </span>
             )}
             <button
@@ -572,6 +587,7 @@ function HomeContent() {
       <div className="lg:hidden space-y-4 p-6 pb-24">
         {mobileTab === "preview" && (
           <>
+            <AboveCanvasPrompt onGenerate={handlePromptGenerate} busy={promptBusy} registerPrompt={registerPrompt} onDismissRegister={() => setRegisterPrompt(false)} openAuth={() => openAuth("register")} />
             <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100">Preview</h3>
@@ -834,11 +850,6 @@ function HomeContent() {
         ))}
       </div>
 
-      <WelcomeModal
-        open={!hasSeenWelcome}
-        onDismiss={handleDismissWelcome}
-      />
-
       <SettingsDialog
         open={showSettings}
         onClose={() => setShowSettings(false)}
@@ -848,6 +859,13 @@ function HomeContent() {
         open={showAiDialog}
         onClose={() => setShowAiDialog(false)}
         onGenerate={handleAiGenerated}
+        openAuth={openAuth}
+      />
+
+      <AuthModal
+        open={showAuth}
+        onClose={() => setShowAuth(false)}
+        mode={authMode}
       />
     </div>
   );

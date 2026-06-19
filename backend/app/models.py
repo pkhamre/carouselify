@@ -18,6 +18,7 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     polar_subscription_status = Column(String, nullable=True)
     polar_subscription_period_end = Column(DateTime(timezone=True), nullable=True)
     polar_cancel_at_period_end = Column(Boolean, default=False)
+    ai_free_used = Column(Boolean, default=False, nullable=False)
     ai_credits_used = Column(Integer, default=0, nullable=False)
     ai_credits_reset_at = Column(DateTime(timezone=True), nullable=True)
     carousels = relationship("Carousel", back_populates="user", cascade="all, delete-orphan")
