@@ -18,7 +18,7 @@ async def upload_logo(
     file: UploadFile = File(...),
     user: User = Depends(current_active_user),
 ):
-    if not user.is_premium:
+    if not user.is_premium and not user.is_admin:
         raise HTTPException(status.HTTP_402_PAYMENT_REQUIRED, detail="Premium required")
 
     if file.content_type not in ALLOWED_TYPES:

@@ -70,7 +70,7 @@ async def _deduct_credit(user: User, session: AsyncSession) -> tuple[int, int]:
         await session.commit()
         return (0, 0)
 
-    if user.is_premium:
+    if user.is_premium or user.is_admin:
         if user.ai_credits_reset_at and user.ai_credits_reset_at.replace(tzinfo=None) < now:
             user.ai_credits_used = 0
         used = user.ai_credits_used or 0
@@ -101,7 +101,7 @@ async def get_credits(
             resets_at=None,
         )
 
-    if user.is_premium:
+    if user.is_premium or user.is_admin:
         if user.ai_credits_reset_at and user.ai_credits_reset_at.replace(tzinfo=None) < now:
             user.ai_credits_used = 0
             await session.commit()
@@ -115,7 +115,7 @@ async def get_credits(
         used=used,
         limit=limit,
         remaining=remaining,
-        resets_at=user.ai_credits_reset_at if user.is_premium else None,
+        resets_at=user.ai_credits_reset_at if user.is_premium or user.is_admin else None,
     )
 
 
@@ -136,7 +136,7 @@ async def generate_slides(
                 status.HTTP_402_PAYMENT_REQUIRED,
                 detail="Create a free account to get 5 more AI credits",
             )
-    elif user.is_premium:
+    elif user.is_premium or user.is_admin:
         if user.ai_credits_reset_at and user.ai_credits_reset_at.replace(tzinfo=None) < now:
             user.ai_credits_used = 0
         if (user.ai_credits_used or 0) >= CREDITS_PREMIUM:

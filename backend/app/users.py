@@ -80,6 +80,8 @@ optional_active_user = fastapi_users.current_user(active=True, optional=True)
 premium_user = fastapi_users.current_user(active=True)
 
 async def require_premium(user: User = Depends(premium_user)):
+    if user.is_admin:
+        return user
     if not user.is_premium:
         raise HTTPException(status.HTTP_402_PAYMENT_REQUIRED, detail="Premium subscription required")
     return user

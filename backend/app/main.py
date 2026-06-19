@@ -3,7 +3,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.database import engine, Base
+from sqlalchemy import select
+from app.database import engine, Base, async_session
+from app.models import User
 from app.schemas import UserRead, UserCreate, UserUpdate
 from app.users import fastapi_users, auth_backend
 from app.config import settings
@@ -24,6 +26,13 @@ from app.routers.showcase import router as showcase_router
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    if settings.admin_email:
+        async with async_session() as session:
+            result = await session.execute(select(User).where(User.email == settings.admin_email))
+            user = result.scalar_one_or_none()
+            if user and not user.is_premium:
+                user.is_premium = True
+                await session.commit()
     yield
 
 
