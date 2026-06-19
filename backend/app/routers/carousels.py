@@ -248,7 +248,7 @@ async def create_guest(
 ):
     pw_helper = PasswordHelper()
     random_pw = "".join(random.choices(string.ascii_letters + string.digits, k=32))
-    guest_email = f"guest-{uuid.uuid4()}@carouselify.local"
+    guest_email = f"guest-{uuid.uuid4()}@carouselify.app"
 
     user = User(
         id=uuid.uuid4(),
