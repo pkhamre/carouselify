@@ -62,7 +62,13 @@ function HomeContent() {
   const { toast } = useToast();
   const [scheme, setScheme] = useState<ColorScheme>(defaultScheme);
   const [fonts, setFonts] = useState<FontPairing>(defaultFonts);
-  const [logo, setLogo] = useState<LogoConfig>(defaultLogo);
+  const [logo, setLogo] = useState<LogoConfig>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("logoLetter");
+      if (saved) return { ...defaultLogo, letter: saved };
+    }
+    return defaultLogo;
+  });
   const [inverted, setInverted] = useState(false);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [mobileTab, setMobileTab] = useState<"preview" | "edit" | "design">("preview");

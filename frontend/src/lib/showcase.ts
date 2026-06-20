@@ -14,7 +14,7 @@ export interface SeedCarousel {
 }
 
 const defaultLogo: LogoConfig = {
-  letter: "p",
+  letter: "c",
   shape: "blob-1",
   position: "top-right",
   showLogo: true,

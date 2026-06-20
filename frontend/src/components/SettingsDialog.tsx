@@ -14,6 +14,10 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
   const [credits, setCredits] = useState<{ remaining: number; limit: number; resets_at: string | null } | null>(null);
   const [busy, setBusy] = useState(false);
   const [darkMode, setDarkMode] = useState(() => typeof window !== "undefined" && localStorage.getItem("darkMode") === "true");
+  const [logoLetter, setLogoLetter] = useState(() => {
+    if (typeof window === "undefined") return "c";
+    return localStorage.getItem("logoLetter") || "c";
+  });
 
   const isPremium = user?.is_premium;
 
@@ -132,9 +136,23 @@ export function SettingsDialog({ open, onClose }: SettingsDialogProps) {
           </div>
         </div>
 
-        <p className="text-xs text-gray-400 dark:text-gray-500">
-          Premium unlocks custom logo uploads and AI-powered slide generation.
-        </p>
+        <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-800">
+          <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Logo</label>
+          <div className="mt-2 flex items-center justify-between">
+            <span className="text-sm text-gray-900 dark:text-gray-100">Default letter</span>
+            <input
+              type="text"
+              maxLength={2}
+              value={logoLetter}
+              onChange={(e) => {
+                const v = e.target.value.slice(0, 2);
+                setLogoLetter(v);
+                localStorage.setItem("logoLetter", v);
+              }}
+              className="w-14 text-center text-sm font-bold text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-1.5 focus:outline-none focus:ring-2 focus:ring-sky-600 transition-colors"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
