@@ -81,6 +81,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     getMe()
       .then((u) => {
+        // Guests (email: guest-<uuid>@carouselify.app) keep a token for API calls
+        // but are not exposed as logged-in users in the UI
+        if (typeof u.email === "string" && u.email.endsWith("@carouselify.app")) {
+          return;
+        }
         setUserFromMe(u, setUser);
         if (wasPending && u.is_premium) {
           sessionStorage.removeItem("pending_upgrade");
