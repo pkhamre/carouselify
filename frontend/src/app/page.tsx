@@ -112,8 +112,14 @@ function HomeContent() {
       const res = await generateSlides(prompt, 1);
       setSlides(res.slides);
       setActiveSlideIndex(0);
+      setSavedCarouselId(null);
+      setSavedTitle("");
+      setShareUrl(null);
+      setShowcaseStatus("none");
+      setShowcaseAuthor("");
       captureAiGenerate(res.slides.length);
       setCredits({ remaining: res.credits_remaining, limit: credits?.limit ?? 1 });
+      toast("New carousel generated! Save it when you're ready.");
     } catch (e: any) {
       if (e.message?.includes("free account")) {
         setRegisterPrompt(true);
@@ -358,6 +364,11 @@ function HomeContent() {
   const handleAiGenerated = useCallback((newSlides: any[]) => {
     setSlides(newSlides);
     setActiveSlideIndex(0);
+    setSavedCarouselId(null);
+    setSavedTitle("");
+    setShareUrl(null);
+    setShowcaseStatus("none");
+    setShowcaseAuthor("");
     captureAiGenerate(newSlides.length);
     if (user?.is_premium) {
       getCredits().then(setCredits).catch(() => {});
