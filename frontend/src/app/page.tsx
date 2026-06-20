@@ -13,13 +13,13 @@ import { AuthProvider } from "@/lib/auth";
 import { SaveButton } from "@/components/SaveButton";
 import { MyCarousels } from "@/components/MyCarousels";
 
-import { ShareDialog } from "@/components/ShareDialog";
+import { ShareButton, ShowcaseButton } from "@/components/ShareDialog";
 import { UserMenu } from "@/components/UserMenu";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { exportSlideAsPNG, exportSlidesAsPDF, getFontEmbedCSS } from "@/lib/export";
-import { captureExport, captureSave, captureAiGenerate } from "@/lib/analytics";
-import { trackEvent, publishShowcase, unpublishShowcase, getCarousel, generateSlides } from "@/lib/api";
+import { captureExport, captureSave, captureAiGenerate, captureShare } from "@/lib/analytics";
+import { trackEvent, shareCarousel, publishShowcase, unpublishShowcase, getCarousel, generateSlides } from "@/lib/api";
 import { AiDialog } from "@/components/AiDialog";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { AuthModal } from "@/components/AuthModal";
@@ -155,6 +155,24 @@ function HomeContent() {
       toast(err.message || "Failed to remove");
     }
   }, [savedCarouselId, toast]);
+
+  const handleShare = useCallback(async () => {
+    if (!savedCarouselId) return;
+    if (shareUrl) {
+      await navigator.clipboard.writeText(`${window.location.origin}${shareUrl}`);
+      toast("Link copied!");
+      return;
+    }
+    try {
+      const res = await shareCarousel(savedCarouselId);
+      setShareUrl(res.url);
+      captureShare();
+      await navigator.clipboard.writeText(`${window.location.origin}${res.url}`);
+      toast("Share link copied!");
+    } catch (err: any) {
+      toast(err.message || "Failed to share");
+    }
+  }, [savedCarouselId, shareUrl, toast]);
 
   useEffect(() => {
     const cloneData = sessionStorage.getItem("clone-data");
@@ -526,11 +544,8 @@ function HomeContent() {
                 onChange={setLogo}
               />
               {savedCarouselId && (
-                <ShareDialog
+                <ShowcaseButton
                   carouselId={savedCarouselId}
-                  shareUrl={shareUrl}
-                  onShared={setShareUrl}
-                  onRevoked={() => setShareUrl(null)}
                   showcaseStatus={showcaseStatus}
                   showcaseAuthor={showcaseAuthor}
                   onShowcasePublish={handlePublishShowcase}
@@ -563,6 +578,13 @@ function HomeContent() {
             </button>
           </div>
           <div className="flex items-center gap-3">
+            {savedCarouselId && (
+              <ShareButton
+                carouselId={savedCarouselId}
+                shareUrl={shareUrl}
+                onShare={handleShare}
+              />
+            )}
             <SaveButtonWithToast
               carouselData={carouselData}
               savedId={savedCarouselId}
@@ -672,16 +694,20 @@ function HomeContent() {
               </div>
             </div>
             {savedCarouselId && (
-              <ShareDialog
-                carouselId={savedCarouselId}
-                shareUrl={shareUrl}
-                onShared={setShareUrl}
-                onRevoked={() => setShareUrl(null)}
-                showcaseStatus={showcaseStatus}
-                showcaseAuthor={showcaseAuthor}
-                onShowcasePublish={handlePublishShowcase}
+              <div className="flex gap-2">
+                <ShareButton
+                  carouselId={savedCarouselId}
+                  shareUrl={shareUrl}
+                  onShare={handleShare}
+                />
+                <ShowcaseButton
+                  carouselId={savedCarouselId}
+                  showcaseStatus={showcaseStatus}
+                  showcaseAuthor={showcaseAuthor}
+                  onShowcasePublish={handlePublishShowcase}
                   onShowcaseUnpublish={handleUnpublishShowcase}
-              />
+                />
+              </div>
             )}
           </>
         )}
@@ -775,15 +801,12 @@ function HomeContent() {
               )}
             </div>
             {savedCarouselId && (
-              <ShareDialog
+              <ShowcaseButton
                 carouselId={savedCarouselId}
-                shareUrl={shareUrl}
-                onShared={setShareUrl}
-                onRevoked={() => setShareUrl(null)}
                 showcaseStatus={showcaseStatus}
                 showcaseAuthor={showcaseAuthor}
                 onShowcasePublish={handlePublishShowcase}
-                  onShowcaseUnpublish={handleUnpublishShowcase}
+                onShowcaseUnpublish={handleUnpublishShowcase}
               />
             )}
           </>

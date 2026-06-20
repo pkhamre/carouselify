@@ -152,7 +152,8 @@ async def publish_showcase(
     if not carousel:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Carousel not found")
     if not carousel.share_token:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Carousel must be shared before publishing to showcase")
+        carousel.share_token = uuid.uuid4()
+        carousel.is_public = True
     carousel.showcased = True
     carousel.showcase_author = body.author
     await session.commit()
