@@ -89,10 +89,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .catch(() => {
         const existingToken = getTokenValue();
         if (existingToken) setToken(null);
-        return createGuest().then((res) => {
+        createGuest().then((res) => {
           setGuestUserId(res.user_id);
-          setUser({ id: res.user_id, email: "guest", isGuest: true });
-        });
+          setToken(res.access_token);
+        }).catch(() => {});
       })
       .finally(() => {
         if (wasPending) {
@@ -131,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try { await apiLogout(); } catch {}
+    setToken(null);
     setGuestUserId(null);
     setUser(null);
   }, []);

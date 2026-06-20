@@ -61,17 +61,6 @@ function ShowcasePage() {
 
         <section className="mb-10">
           <h2 className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">
-            Featured examples
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {seedCarousels.map((c) => (
-              <SeedCard key={c.id} carousel={c} />
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <h2 className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">
             Community showcase
           </h2>
           {loading ? (
@@ -93,6 +82,17 @@ function ShowcasePage() {
               ))}
             </div>
           )}
+        </section>
+
+        <section>
+          <h2 className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">
+            Featured examples
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {seedCarousels.map((c) => (
+              <SeedCard key={c.id} carousel={c} />
+            ))}
+          </div>
         </section>
       </main>
     </div>
