@@ -2,136 +2,89 @@
 
 ## Commands
 - `cd frontend && npm run dev -- -p 4000` — Turbopack dev server (port 4000)
-- `cd frontend && npm run build` — production build (primary verification; no separate typecheck step)
-- `cd frontend && npm run start -- -p 4000` — production server (port 4000)
+- `cd frontend && npm run build` — production build (primary verification; no separate typecheck)
+- `cd frontend && npm run start -- -p 4000` — production server
 - `cd frontend && npm run lint` — ESLint via `next lint`
-- `docker compose up --build` — Start all services (backend, frontend)
-- `docker compose up --build -d carouselify-backend` — Build and start backend only
-- `docker compose down -v` — Wipe SQLite data volume (needed when models change since dev uses `create_all`)
+- `docker compose up --build` — Start all services
+- `docker compose up --build -d carouselify-backend` — Backend only
+- `docker compose down -v` — Wipe SQLite data volume (needed when models change)
+- Backend dev: `cd backend && uvicorn app.main:app --reload` (no Docker)
 
 ## Architecture
-- Monorepo: `frontend/` (Next.js 15 App Router) + `backend/` (FastAPI) + root `docker-compose.yml`.
+- Monorepo: `frontend/` (Next.js 15 App Router) + `backend/` (FastAPI + SQLite + Polar.sh) + root `docker-compose.yml`.
 - Frontend single-page editor at `/` → `frontend/src/app/page.tsx`.
-- Public shared view at `/s/[id]` → `frontend/src/app/s/[id]/page.tsx`.
-- Guests get auto-assigned JWT on first visit (no registration needed). Save works for guests.
-- Tailwind `darkMode: "class"` — toggle `class="dark"` on `<html>` for app UI only (slides unaffected).
+- Public shared view at `/showcase/[id]` → `frontend/src/app/showcase/[id]/page.tsx` (no `/s/` route).
+- Showcase gallery at `/showcase` → `frontend/src/app/showcase/page.tsx`.
+- Tailwind `darkMode: "class"` — toggle `class="dark"` on `<html>` app UI only (slides unaffected).
 - UI accent color is `sky-600` everywhere.
 
-## Slide system
-- 5 slide types: `cover`, `content-b1`, `content-b2`, `list`, `cta` (typed as discriminated union `Slide`).
-- All slide components accept `scheme`, `fonts`, `logo`, `slideNumber`, `totalSlides`, `readOnly`.
-- Slide canvas: 1080×1080px, 72px margins, 8px accent bar at bottom (progress line).
-- `punchline` spacer pattern: `.punchline-spacer-top` (flex-end) + `.punchline-spacer-bottom` (flex-start) with `flex: 1` each, punchline in middle with `padding: 60px 0`.
-- Logo rendered via `{logo.showLogo && <div className="slide-logo slide-logo-${logo.position}">}` in each slide component. Supports custom uploaded URL (`logo.isCustom && logo.customUrl` → `<img>`).
-- CTA button: `display: inline-flex; align-items: center; justify-content: center; height: 64px` (NOT line-height — html-to-image doesn't render line-height centering correctly).
-- Color schemes are in `frontend/src/lib/themes.ts`; Ocean is index 0 (default). Custom scheme auto-derives `textOnAccent`/`bgOnAccent` from `background`.
-- 10 schemes, 4 font pairings, 5 blob logo shapes.
-- When adding new slide features, every slide component type must be updated (Cover, ContentB1, ContentB2, List, CTA).
+## Auth flow
+- Guests auto-create on first visit: `POST /auth/guest` → JWT stored, but `user` stays `null` (not authenticated in UI).
+- Guest detection: email domain `@carouselify.app` in `getMe()` then-discard. No `is_guest` field in `UserRead`.
+- `UserRead` (from `/auth/me`) exposes: `id`, `email`, `is_premium`, `is_admin`, `ai_credits_*`, `polar_subscription_*`, `polar_cancel_at_period_end`.
+- Login/Register: `POST /auth/jwt/login` (form-urlencoded: `username=email&password=...`), `POST /auth/register`.
+- On register, guest carousels merge via `POST /auth/link-guest` (reads `guest_user_id` from localStorage).
+- `Depends(premium_user)` in `backend/app/users.py:82` returns 402 if not premium.
+- `/auth/logout` clears token and `guest_user_id` from localStorage.
 
-## Preview rendering
-- Preview scaled via CSS `transform: scale(0.5)` (desktop) / `scale(0.333)` (mobile) with `transform-origin: top left` on 1080×1080 inner div.
-- Gray wrapper: `mx-auto max-w-[540px]` desktop / `max-w-[360px]` mobile — no flex centering.
-- Desktop: 3-column grid (left sidebar + preview + right sidebar). Mobile below `lg` (1024px): tabbed layout with fixed bottom tab bar.
-- Save/Export buttons in a floating bottom bar (desktop) / preview tab (mobile).
+## Share + Showcase
+- `ShareDialog.tsx` was gutted — now exports `ShareButton` + `ShowcaseButton` (NOT a dialog modal).
+- Sharing is permanent from UI (no revoke). `ShareButton` calls `shareCarousel()`, copies URL to clipboard, shows toast.
+- Showcase publish (`POST /api/carousels/:id/publish-showcase`) auto-creates `share_token` if missing — no "must share first" error.
+- Unpublish from gallery: `POST /api/carousels/:id/unpublish-showcase` (keeps share link active).
+- Showcase gallery: `GET /api/showcase` lists `showcased == true AND share_token IS NOT NULL`.
+
+## Custom fonts (premium)
+- `frontend/src/lib/googleFonts.ts` — 56 curated Google Fonts, `buildGoogleFontsUrl()`, `buildPreviewFontsUrl()`.
+- ThemePicker.tsx: "Custom" option for premium → two searchable font pickers with live typeface preview in dropdown (20 popular fonts preloaded via combined URL).
+- Custom fonts dynamically injected into `<head>` via `<link>` and cleaned up when switching to presets.
+
+## Backend
+- SQLite WAL mode via PRAGMA in `database.py`. Single-writer lock under heavy load.
+- **Both** `create_all` (dev lifespan) and alembic (production `entrypoint.sh`: `alembic upgrade head` then uvicorn).
+- Rate limit: `slowapi` `Limiter`, 429 handler in `main.py`.
+- Guest endpoint (`POST /auth/guest`) in `routers/carousels.py`, rate-limited 10/hour.
+
+### Routers (all in `backend/app/routers/`)
+
+| File | Prefix | Purpose |
+|------|--------|---------|
+| `carousels.py` | `/api/carousels` | CRUD + share/guest/link-guest + publish/unpublish-showcase + public `/api/s/{token}` |
+| `showcase.py` | `/api/showcase` | Public gallery listing |
+| `schemes.py` | `/api/schemes` | Custom color schemes |
+| `billing.py` | `/api/billing` | Polar.sh checkout, portal, webhook |
+| `upload.py` | `/api/upload` | Logo upload (premium, 2MB, PNG/JPEG/WebP/GIF) |
+| `ai.py` | `/api/ai` | AI generation (gpt-4o-mini) + credits |
+| `admin.py` | `/api/admin` | Stats, showcase management, contact messages |
+| `config.py` | `/api/config` | Public config (subscriptions_enabled) |
+| `track.py` | (in admin router) | Public event tracking |
+
+### Premium / Polar.sh
+- NOT Lemon Squeezy. Uses `polar-sdk` (`polar_sdk`).
+- `SUBSCRIPTIONS_ENABLED` env var gates checkout (set `true` for dev testing).
+- Webhook handles: `subscription.created`, `.active`, `.updated`, `.canceled`, `.uncanceled`, `.revoked`.
+- AI credits (50/month) reset when `ai_credits_reset_at < now`.
+
+## Slide system
+- 5 types: `cover`, `content-b1`, `content-b2`, `list`, `cta` (discriminated union `Slide`).
+- 1080×1080px canvas, 72px margins, 8px accent bar (progress line).
+- CTA button: `display: inline-flex; align-items: center; justify-content: center; height: 64px` (NOT line-height — html-to-image bug).
+- All slide components accept `scheme`, `fonts`, `logo`, `slideNumber`, `totalSlides`, `readOnly`.
+- 10 color schemes, 4 font pairings (+ custom for premium), 5 blob logo shapes.
+- Preview: CSS `transform: scale(0.5)` desktop / `scale(0.333)` mobile with `transform-origin: top left`.
+- Desktop: 3-column grid. Mobile < lg (1024px): tabbed layout with fixed bottom tab bar.
 
 ## Export (html-to-image)
-- `getFontEmbedCSS()` called once per export batch, passed as `fontEmbedCSS` option to `toPng()`.
 - Options: `width: 1080, height: 1080, pixelRatio: 1, cacheBust: true, preferredFontFormat: 'woff2'`.
-- Capture source: hidden off-screen div (`position: fixed; left: -9999px; pointer-events: none`) at native 1080×1080.
-- Output: `carouselify-01.png`, `carouselify-02.png`, etc.
-- **PostHog analytics** (optional): export events tracked if `NEXT_PUBLIC_POSTHOG_KEY` is set.
-
-## Keyboard shortcuts
-- `Ctrl+Z` — Undo slide delete
-- `Ctrl+S` — Save carousel
-- Arrow keys — Navigate slides (up/left = previous, down/right = next)
-- `Delete` / `Backspace` — Remove selected slide
-
-## Undo system
-- Slide deletes push to undo stack; Toast shows "Slide deleted" with Undo action button.
-- Undo restores the deleted slide at its original position.
-
-## Build & deploy
-- `NEXT_BASE_PATH` env var for subdirectory deploys (must be set at build + runtime).
-- `NEXT_OUTPUT=standalone` or `NEXT_OUTPUT=export` for those modes; otherwise no output config.
-- Static export artifact is `frontend/out/`; `.next/` + `out/` are gitignored.
-- Docker: multi-stage `frontend/Dockerfile` (node:24-alpine, non-root `nextjs` user).
-
-## Backend (FastAPI + SQLite)
-
-### Dev
-- SQLite file at `backend/carouselify.db` (auto-created). Wipe by deleting the file or running `docker compose down -v`.
-- Dev uses `Base.metadata.create_all` in lifespan (not Alembic migrations). Drop data volume with `docker compose down -v` when models change.
-- `docker compose up --build -d backend` after code changes.
-
-### Auth
-- `fastapi-users[sqlalchemy]` with JWT Bearer tokens, 30-day expiry.
-- `POST /auth/guest` — Creates guest user, returns JWT (auto-called on frontend first visit).
-- `POST /auth/link-guest` — Transfers carousels from guest user to registered user, deletes guest.
-- `POST /auth/jwt/login` — Accepts `application/x-www-form-urlencoded` (username=email, password=...).
-- Register creates new user; `POST /auth/link-guest` merges guest carousels afterward.
-- `Depends(premium_user)` guards premium-only endpoints.
-
-### Endpoints
-| Method | Path | Auth | Purpose |
-|--------|------|------|---------|
-| POST | `/auth/guest` | None | Create guest user |
-| POST | `/auth/register` | None | Register |
-| POST | `/auth/jwt/login` | None | Login (form-urlencoded) |
-| POST | `/auth/jwt/logout` | Bearer | Logout |
-| GET | `/auth/me` | Bearer | Current user |
-| GET/POST/PUT/DELETE | `/api/carousels[/:id]` | Bearer | Carousel CRUD |
-| POST/DELETE | `/api/carousels/:id/share` | Bearer | Share/revoke |
-| GET | `/api/s/:token` | None | Public shared carousel |
-| POST | `/api/billing/checkout` | Bearer | Lemon Squeezy checkout |
-| POST | `/api/billing/portal` | Bearer | Customer portal |
-| POST | `/api/billing/webhook` | Signature | Lemon Squeezy webhook |
-| POST | `/api/upload/logo` | Bearer+Premium | Upload logo (2MB, PNG/JPEG/WebP/GIF) |
-| GET | `/api/ai/credits` | Bearer | AI credits (50/mo, premium) |
-| POST | `/api/ai/generate` | Bearer+Premium | Generate slides (gpt-4o-mini) |
-| GET | `/health` | None | Health check |
-
-### Premium
-- User model has `is_premium`, `lemon_squeezy_*`, `ai_credits_*` fields.
-- AI credits reset when `ai_credits_reset_at < now` (checked on `/api/ai/credits` and `/api/ai/generate`).
-- Webhook handles `subscription_created` / `updated` / `cancelled` / `expired`.
-- `Depends(premium_user)` in `backend/app/users.py` returns 402 if not premium.
-
-## Files worth knowing
-| File | Purpose |
-|------|---------|
-| `frontend/src/app/page.tsx` | All state, layout, tab bar, export, AiDialog, credit badge |
-| `frontend/src/app/s/[id]/page.tsx` | Public shared carousel view + Clone & Edit |
-| `frontend/src/lib/types.ts` | All slide/theme/logo types, `defaultLogo` |
-| `frontend/src/lib/themes.ts` | `colorSchemes`, `fontPairings` |
-| `frontend/src/lib/api.ts` | Full API client (auth, carousels, billing, upload, AI) |
-| `frontend/src/lib/auth.tsx` | AuthProvider — guest auto-login, register, logout |
-| `frontend/src/lib/export.ts` | `exportSlideAsPNG` — double-toPng workaround |
-| `frontend/src/lib/analytics.ts` | PostHog analytics init + `captureExport` |
-| `frontend/src/components/SaveButton.tsx` | Save carousel with title input |
-| `frontend/src/components/ShareDialog.tsx` | Generate/copy/revoke share links |
-| `frontend/src/components/AuthModal.tsx` | Login/Register tabbed modal |
-| `frontend/src/components/Toast.tsx` | Auto-dismissing toasts with action buttons |
-| `frontend/src/components/MyCarousels.tsx` | List/load/delete saved carousels |
-| `frontend/src/components/UserMenu.tsx` | Guest Login/Register or avatar dropdown |
-| `frontend/src/components/LogoSettings.tsx` | Logo config + premium upload UI |
-| `frontend/src/components/UpgradePrompt.tsx` | Premium gate component |
-| `frontend/src/components/AiDialog.tsx` | AI generation dialog (premium) |
-| `frontend/src/components/slides/slideStyles.css` | All slide CSS |
-| `backend/app/main.py` | FastAPI app assembly, CORS, lifespan, router includes |
-| `backend/app/models.py` | User + Carousel SQLAlchemy models |
-| `backend/app/schemas.py` | All Pydantic schemas |
-| `backend/app/users.py` | fastapi-users setup, `premium_user` dep |
-| `backend/app/routers/carousels.py` | CRUD, share, guest, public endpoints |
-| `backend/app/routers/billing.py` | Checkout, portal, webhook |
-| `backend/app/routers/upload.py` | Logo upload |
-| `backend/app/routers/ai.py` | AI generation + credits |
+- Capture: hidden off-screen div (`position: fixed; left: -9999px; pointer-events: none`) at native 1080×1080.
+- `getFontEmbedCSS()` called once per batch, passed as `fontEmbedCSS` to `toPng()`.
+- PostHog optional (`NEXT_PUBLIC_POSTHOG_KEY`).
 
 ## Gotchas
-- `build` is the only verification command. Run from `frontend/` directory.
-- Google Fonts loaded via `<link>` in `layout.tsx`; html-to-image sometimes needs two passes to embed.
-- `transform: scale()` on slide doesn't affect layout — 1080×1080 inner element still occupies layout space, clipped by `overflow: hidden`.
-- `URLSearchParams` body in `api.ts` must NOT have `Content-Type` overwritten (the `request` helper exempts `URLSearchParams` alongside `FormData`).
-- SQLite: concurrent writes use WAL mode for better concurrency. Single-writer lock applies under heavy load.
+- `build` is the only verification command (no separate typecheck/lint step).
+- `URLSearchParams` body in `api.ts` must NOT have `Content-Type` overwritten (the `request` helper exempts `FormData` and `URLSearchParams`).
 - `get_register_router`, `get_users_router`, `get_verify_router` in fastapi-users 14+ require schema arguments.
-- PostHog is optional — only activates if `NEXT_PUBLIC_POSTHOG_KEY` is set.
+- Google Fonts loaded via `<link>` in `layout.tsx` — html-to-image sometimes needs two passes to embed.
+- `transform: scale()` on preview doesn't affect layout — 1080×1080 inner element occupies layout space, clipped by `overflow: hidden`.
+- When adding new slide features, every slide component type must be updated (Cover, ContentB1, ContentB2, List, CTA).
+- `NEXT_BASE_PATH` env var for subdirectory deploys (must be set at build + runtime).

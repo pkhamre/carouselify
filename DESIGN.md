@@ -168,7 +168,8 @@ A restrained palette where neutral surfaces provide the stage and one accent col
 **Label Font:** System UI stack (same family, uppercase + letter-spacing for section labels)
 **Mono Font:** ui-monospace, 'Cascadia Code', 'Fira Code', monospace
 
-**Character:** One family, multiple weights. The editor uses system fonts for instant rendering and zero FOUT. Hierarchy comes from weight contrast (400 vs 500 vs 600) and size steps, not from competing typefaces. The slide output uses Google Fonts (Fraunces, Playfair Display, Bitter, Fredoka paired with DM Sans, Inter, Nunito Sans, Lexend Deca) but the editor chrome never does.
+**Character:** One family, multiple weights. The editor uses system fonts for instant rendering and zero FOUT. Hierarchy comes from weight contrast (400 vs 500 vs 600) and size steps, not from competing typefaces. 
+**Slide output** uses Google Fonts loaded dynamically. Premium users can pick any pair from 56 curated fonts across 5 categories (sans-serif, serif, display, handwriting, monospace) via two searchable pickers with live typeface preview. Basic users choose from 4 preset pairings (Fraunces+DM Sans, Playfair Display+Inter, Bitter+Nunito Sans, Fredoka+Lexend Deca). The editor chrome uses system fonts only.
 
 ### Hierarchy
 
@@ -182,7 +183,7 @@ A restrained palette where neutral surfaces provide the stage and one accent col
 
 **The System Font Rule.** The editor chrome uses system fonts exclusively. Google Fonts are loaded for slide output only. This eliminates FOUT, ensures instant rendering, and keeps the tool feeling like a native application.
 
-**The Weight Hierarchy Rule.** Typography hierarchy is expressed through font weight (400 → 500 → 600), not through size alone. The size scale is tight (0.75 → 0.8125 → 0.875 → 1rem) because product UI needs density, not display drama.
+**The Weight Hierarchy Rule.** Typography hierarchy is expressed through font weight (400 to 500 to 600), not through size alone. The size scale is tight (0.75, 0.8125, 0.875, 1rem) because product UI needs density, not display drama.
 
 ## 4. Elevation
 
@@ -196,14 +197,14 @@ The system uses restrained shadows on elevated panels. Surfaces are flat at rest
 
 ### Named Rules
 
-**The Flat-By-Default Rule.** Surfaces are flat at rest. Shadows appear only as a response to state or elevation need. If an element doesn't float above its container, it has no shadow.
+**The Flat-By-Default Rule.** Surfaces are flat at rest. Shadows appear only as a response to state or elevation need. If an element does not float above its container, it has no shadow.
 
 ## 5. Components
 
 ### Buttons
 
 - **Shape:** Gently curved edges (8px radius)
-- **Primary:** Accent blue background (#0A7EAD), white text, 8px 16px padding, 500 weight. For the single primary action in any context (Save, Export PDF, Generate share link).
+- **Primary:** Accent blue background (#0A7EAD), white text, 8px 16px padding, 500 weight. For the single primary action in any context (Save, Export PDF, Share).
 - **Secondary:** White background, gray border, dark text. For alternative actions (Export PNG, Update, Copy).
 - **Ghost:** Transparent background, muted text. For tertiary actions (Cancel, close).
 - **Hover:** Primary darkens to accent-hover (#086A92). Secondary gets gray-50 background. Ghost gets gray-100 background.
@@ -242,6 +243,13 @@ The system uses restrained shadows on elevated panels. Surfaces are flat at rest
 - **Active:** Accent blue text, 2px top border in accent blue, light blue background.
 - **Inactive:** Muted text, no border, transparent background.
 
+### Share & Showcase
+
+Sharing and showcasing are two separate actions, not a dialog.
+
+- **ShareButton:** A top-level button in the bottom toolbar. One click creates a share link and copies the URL to the clipboard. No revoke, no modal. Link is permanent.
+- **ShowcaseButton:** A standalone card in the right sidebar. Publishes the carousel to the public showcase gallery at `/showcase`. Requires a saved carousel. Offers an optional author name input. Unpublish is available from the same card (removes from gallery, keeps share link active). No "must share first" error: publish-showcase auto-creates a share token if one does not exist.
+
 ## 6. Do's and Don'ts
 
 ### Do:
@@ -249,7 +257,7 @@ The system uses restrained shadows on elevated panels. Surfaces are flat at rest
 - **Do** use system fonts for all editor UI. Google Fonts are for slide output only.
 - **Do** use the accent blue (#0A7EAD) only for primary actions, selection states, and focus rings. Nothing else.
 - **Do** maintain the 8% accent rule. If a screen feels "blue", too many elements are accented.
-- **Do** use weight contrast (400 → 500 → 600) for typographic hierarchy, not size alone.
+- **Do** use weight contrast (400 to 500 to 600) for typographic hierarchy, not size alone.
 - **Do** keep cards flat with subtle shadows. The shadow is ambient, not structural.
 - **Do** use consistent button shapes: same radius (8px), same padding, same weight across all contexts.
 - **Do** show keyboard shortcuts in tooltips and aria-labels. Power users rely on them.
@@ -262,7 +270,7 @@ The system uses restrained shadows on elevated panels. Surfaces are flat at rest
 - **Don't** use gray text (gray-400, gray-500) on colored backgrounds (sky-50, red-50). Use the background's own darkened hue or a higher-contrast neutral.
 - **Don't** make every card identical (white bg, gray border, rounded-xl, p-4). Vary surface temperature between panels to create hierarchy.
 - **Don't** use gradient text, glassmorphism, or decorative blur effects anywhere in the editor.
-- **Don't** add decorative motion that doesn't convey state change. Transitions are 150-250ms and purposeful.
+- **Don't** add decorative motion that does not convey state change. Transitions are 150-250ms and purposeful.
 - **Don't** use modal dialogs as the first thought. Inline and progressive alternatives first.
 - **Don't** reinvent standard affordances. Native `<select>`, native `<dialog>`, native color picker.
 - **Don't** use arbitrary z-index values (z-[100], z-[999]). Use a semantic scale: dropdown (z-40), sticky (z-30), modal-backdrop (z-50), modal (z-50), toast (z-[100]).

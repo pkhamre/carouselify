@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 import { listSchemes, createScheme, updateScheme, deleteScheme } from "@/lib/api";
 import type { ColorScheme, FontPairing } from "@/lib/types";
 import { colorSchemes, fontPairings } from "@/lib/themes";
+import { curatedFonts, buildGoogleFontsUrl, buildPreviewFontsUrl } from "@/lib/googleFonts";
+import type { GoogleFont } from "@/lib/googleFonts";
 
 interface ThemePickerProps {
   selectedScheme: ColorScheme;
@@ -25,6 +27,14 @@ interface SavedScheme {
   bg_on_accent: string;
 }
 
+const categoryLabels: Record<string, string> = {
+  "sans-serif": "Sans",
+  serif: "Serif",
+  display: "Display",
+  handwriting: "Hand",
+  monospace: "Mono",
+};
+
 export function ThemePicker({
   selectedScheme,
   selectedFonts,
@@ -33,8 +43,10 @@ export function ThemePicker({
   onFontsChange,
   onInvertChange,
 }: ThemePickerProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const isPremium = user?.is_premium ?? false;
   const isCustom = selectedScheme.name === "Custom";
+  const isCustomFont = selectedFonts.name === "Custom";
   const [customBg, setCustomBg] = useState("#EAF0F6");
   const [customAccent, setCustomAccent] = useState("#0A7EAD");
   const [customText, setCustomText] = useState("#0D1B2A");
@@ -45,6 +57,129 @@ export function ThemePicker({
   const [editName, setEditName] = useState("");
   const [editingColorScheme, setEditingColorScheme] = useState<string | null>(null);
   const [editColors, setEditColors] = useState({ background: "", accent: "", text_primary: "", text_on_accent: "", bg_on_accent: "" });
+
+  const [customDisplay, setCustomDisplay] = useState(selectedFonts.display);
+  const [customBody, setCustomBody] = useState(selectedFonts.body);
+  const [displaySearch, setDisplaySearch] = useState(isCustomFont ? selectedFonts.display : "");
+  const [bodySearch, setBodySearch] = useState(isCustomFont ? selectedFonts.body : "");
+  const [showDisplayDropdown, setShowDisplayDropdown] = useState(false);
+  const [showBodyDropdown, setShowBodyDropdown] = useState(false);
+
+  const fontLinkRef = useRef<HTMLLinkElement | null>(null);
+  const previewLinkRef = useRef<HTMLLinkElement | null>(null);
+  const displayDropdownRef = useRef<HTMLDivElement | null>(null);
+  const bodyDropdownRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (isCustomFont) {
+      setCustomDisplay(selectedFonts.display);
+      setCustomBody(selectedFonts.body);
+      setDisplaySearch(selectedFonts.display);
+      setBodySearch(selectedFonts.body);
+    }
+  }, [selectedFonts, isCustomFont]);
+
+  useEffect(() => {
+    if (!isCustomFont || !selectedFonts.googleFontsUrl) {
+      if (fontLinkRef.current) {
+        fontLinkRef.current.remove();
+        fontLinkRef.current = null;
+      }
+      return;
+    }
+    if (fontLinkRef.current?.href === selectedFonts.googleFontsUrl) return;
+    if (fontLinkRef.current) fontLinkRef.current.remove();
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = selectedFonts.googleFontsUrl;
+    link.crossOrigin = "anonymous";
+    document.head.appendChild(link);
+    fontLinkRef.current = link;
+  }, [isCustomFont, selectedFonts]);
+
+  useEffect(() => {
+    if (!isCustomFont) {
+      if (previewLinkRef.current) {
+        previewLinkRef.current.remove();
+        previewLinkRef.current = null;
+      }
+      return;
+    }
+    if (previewLinkRef.current) return;
+    const popularFonts = curatedFonts
+      .filter((f) => f.popular)
+      .map((f) => f.family);
+    const url = buildPreviewFontsUrl(popularFonts);
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = url;
+    link.crossOrigin = "anonymous";
+    document.head.appendChild(link);
+    previewLinkRef.current = link;
+  }, [isCustomFont]);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (displayDropdownRef.current && !displayDropdownRef.current.contains(e.target as Node)) {
+        setShowDisplayDropdown(false);
+      }
+      if (bodyDropdownRef.current && !bodyDropdownRef.current.contains(e.target as Node)) {
+        setShowBodyDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (fontLinkRef.current) fontLinkRef.current.remove();
+      if (previewLinkRef.current) previewLinkRef.current.remove();
+    };
+  }, []);
+
+  const filteredFonts = (search: string): GoogleFont[] => {
+    if (!search.trim()) return curatedFonts;
+    const q = search.toLowerCase();
+    return curatedFonts.filter((f) => f.family.toLowerCase().includes(q));
+  };
+
+  const selectDisplayFont = (font: GoogleFont) => {
+    setCustomDisplay(font.family);
+    setDisplaySearch(font.family);
+    setShowDisplayDropdown(false);
+    const body = customBody || selectedFonts.body;
+    onFontsChange({
+      name: "Custom",
+      display: font.family,
+      body,
+      googleFontsUrl: buildGoogleFontsUrl(font.family, body),
+    });
+  };
+
+  const selectBodyFont = (font: GoogleFont) => {
+    setCustomBody(font.family);
+    setBodySearch(font.family);
+    setShowBodyDropdown(false);
+    const display = customDisplay || selectedFonts.display;
+    onFontsChange({
+      name: "Custom",
+      display,
+      body: font.family,
+      googleFontsUrl: buildGoogleFontsUrl(display, font.family),
+    });
+  };
+
+  const groupedFonts = (search: string) => {
+    const filtered = filteredFonts(search);
+    const groups: { category: string; fonts: GoogleFont[] }[] = [];
+    const order = ["sans-serif", "serif", "display", "handwriting", "monospace"];
+    for (const cat of order) {
+      const f = filtered.filter((f) => f.category === cat);
+      if (f.length > 0) groups.push({ category: cat, fonts: f });
+    }
+    return groups;
+  };
 
   const fetchSchemes = useCallback(async () => {
     if (!isAuthenticated) return;
@@ -356,24 +491,146 @@ export function ThemePicker({
         </div>
       )}
 
-      <div>
-        <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
-          Font Pairing
-        </label>
-        <select
-          value={selectedFonts.name}
-          onChange={(e) => {
-            const fonts = fontPairings.find((f) => f.name === e.target.value);
-            if (fonts) onFontsChange(fonts);
-          }}
-          className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-600 focus:border-transparent"
-        >
-          {fontPairings.map((fonts) => (
-            <option key={fonts.name} value={fonts.name}>
-              {fonts.name} — {fonts.display} + {fonts.body}
-            </option>
-          ))}
-        </select>
+      <div className="space-y-3">
+        <div>
+          <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+            Font Pairing
+          </label>
+          <select
+            value={selectedFonts.name}
+            onChange={(e) => {
+              if (e.target.value === "Custom") {
+                const display = customDisplay || selectedFonts.display;
+                const body = customBody || selectedFonts.body;
+                setCustomDisplay(display);
+                setCustomBody(body);
+                setDisplaySearch(display);
+                setBodySearch(body);
+                onFontsChange({
+                  name: "Custom",
+                  display,
+                  body,
+                  googleFontsUrl: buildGoogleFontsUrl(display, body),
+                });
+              } else {
+                const fonts = fontPairings.find((f) => f.name === e.target.value);
+                if (fonts) onFontsChange(fonts);
+              }
+            }}
+            className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-600 focus:border-transparent"
+          >
+            {fontPairings.map((fonts) => (
+              <option key={fonts.name} value={fonts.name}>
+                {fonts.name} — {fonts.display} + {fonts.body}
+              </option>
+            ))}
+            {(isPremium || selectedFonts.name === "Custom") && (
+              <option value="Custom">Custom</option>
+            )}
+          </select>
+        </div>
+
+        {isCustomFont && (
+          <div className="space-y-3 pt-1">
+            <div className="space-y-1.5">
+              <label className="text-xs text-gray-500 dark:text-gray-400">Display Font</label>
+              <div ref={displayDropdownRef} className="relative">
+                <input
+                  value={displaySearch}
+                  onChange={(e) => {
+                    setDisplaySearch(e.target.value);
+                    setShowDisplayDropdown(true);
+                  }}
+                  onFocus={() => setShowDisplayDropdown(true)}
+                  placeholder="Search fonts..."
+                  disabled={!isPremium}
+                  className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-600 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+                {showDisplayDropdown && isPremium && (
+                  <div className="absolute z-20 top-full mt-1 left-0 right-0 max-h-56 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+                    {groupedFonts(displaySearch).map((group) => (
+                      <div key={group.category}>
+                        <div className="px-3 py-1.5 text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider bg-gray-50 dark:bg-gray-900/50">
+                          {categoryLabels[group.category]}
+                        </div>
+                        {group.fonts.map((font) => (
+                          <button
+                            key={font.family}
+                            onClick={() => selectDisplayFont(font)}
+                            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between ${
+                              selectedFonts.display === font.family ? "bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-300" : "text-gray-700 dark:text-gray-300"
+                            }`}
+                            style={{ fontFamily: `"${font.family}", sans-serif` }}
+                          >
+                            <span className="font-medium">{font.family}</span>
+                            <span className="text-[10px] text-gray-400 dark:text-gray-500 font-sans">{font.weights.slice(0, 3).join(", ")}{font.weights.length > 3 ? "…" : ""}</span>
+                          </button>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs text-gray-500 dark:text-gray-400">Body Font</label>
+              <div ref={bodyDropdownRef} className="relative">
+                <input
+                  value={bodySearch}
+                  onChange={(e) => {
+                    setBodySearch(e.target.value);
+                    setShowBodyDropdown(true);
+                  }}
+                  onFocus={() => setShowBodyDropdown(true)}
+                  placeholder="Search fonts..."
+                  disabled={!isPremium}
+                  className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-600 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+                {showBodyDropdown && isPremium && (
+                  <div className="absolute z-20 top-full mt-1 left-0 right-0 max-h-56 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+                    {groupedFonts(bodySearch).map((group) => (
+                      <div key={group.category}>
+                        <div className="px-3 py-1.5 text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider bg-gray-50 dark:bg-gray-900/50">
+                          {categoryLabels[group.category]}
+                        </div>
+                        {group.fonts.map((font) => (
+                          <button
+                            key={font.family}
+                            onClick={() => selectBodyFont(font)}
+                            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between ${
+                              selectedFonts.body === font.family ? "bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-300" : "text-gray-700 dark:text-gray-300"
+                            }`}
+                            style={{ fontFamily: `"${font.family}", sans-serif` }}
+                          >
+                            <span className="font-medium">{font.family}</span>
+                            <span className="text-[10px] text-gray-400 dark:text-gray-500 font-sans">{font.weights.slice(0, 3).join(", ")}{font.weights.length > 3 ? "…" : ""}</span>
+                          </button>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+              <div className="flex flex-col gap-1">
+                <span className="text-3xl font-bold" style={{ fontFamily: `"${selectedFonts.display}", serif` }}>
+                  Aa
+                </span>
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-sm leading-snug" style={{ fontFamily: `"${selectedFonts.display}", serif` }}>
+                    The quick brown fox jumps over the lazy dog.
+                  </span>
+                  <span className="text-xs leading-snug" style={{ fontFamily: `"${selectedFonts.body}", sans-serif` }}>
+                    The quick brown fox jumps over the lazy dog.
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="mt-4">
