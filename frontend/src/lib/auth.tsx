@@ -117,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     await apiLogin(email, password);
     const me = await getMe();
-    setUser({ id: me.id, email: me.email });
+    setUserFromMe(me, setUser);
   }, []);
 
   const register = useCallback(async (email: string, password: string) => {
@@ -125,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await apiRegister(email, password);
     await apiLogin(email, password);
     const me = await getMe();
-    setUser({ id: me.id, email: me.email });
+    setUserFromMe(me, setUser);
     if (guestId) {
       try {
         await linkGuestAccount(guestId);
