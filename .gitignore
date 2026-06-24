@@ -8,3 +8,6 @@ __pycache__/
 *.pyc
 *.egg-info/
 .venv/
+.agents/
+.opencode/
+opencode.json
