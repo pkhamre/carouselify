@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
-import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe, setToken, createGuest, linkGuestAccount, getConfig } from "./api";
+import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe, setToken as apiSetToken, getToken as getTokenValue, createGuest, linkGuestAccount, getConfig } from "./api";
 
 interface AuthUser {
   id: string;
@@ -28,12 +28,10 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 function getGuestUserId(): string | null {
-  if (typeof window === "undefined") return null;
   return localStorage.getItem("guest_user_id");
 }
 
 function setGuestUserId(id: string | null) {
-  if (typeof window === "undefined") return;
   if (id) {
     localStorage.setItem("guest_user_id", id);
   } else {
@@ -41,17 +39,11 @@ function setGuestUserId(id: string | null) {
   }
 }
 
-function getTokenValue(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("token");
-}
-
 function setUserFromMe(u: any, setUser: (u: AuthUser) => void) {
   setUser({ id: u.id, email: u.email, is_premium: u.is_premium, is_admin: u.is_admin, ai_free_used: u.ai_free_used, polar_subscription_status: u.polar_subscription_status, polar_subscription_period_end: u.polar_subscription_period_end, polar_cancel_at_period_end: u.polar_cancel_at_period_end });
 }
 
 export function setPendingUpgrade() {
-  if (typeof window === "undefined") return;
   sessionStorage.setItem("pending_upgrade", "1");
 }
 
@@ -77,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [subscriptionsEnabled, setSubscriptionsEnabled] = useState(true);
 
   useEffect(() => {
-    const wasPending = typeof window !== "undefined" && sessionStorage.getItem("pending_upgrade");
+    const wasPending = sessionStorage.getItem("pending_upgrade");
 
     getMe()
       .then((u) => {
@@ -93,10 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       .catch(() => {
         const existingToken = getTokenValue();
-        if (existingToken) setToken(null);
+        if (existingToken) apiSetToken(null);
         createGuest().then((res) => {
           setGuestUserId(res.user_id);
-          setToken(res.access_token);
+          apiSetToken(res.access_token);
         }).catch(() => {});
       })
       .finally(() => {
@@ -136,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try { await apiLogout(); } catch {}
-    setToken(null);
+    apiSetToken(null);
     setGuestUserId(null);
     setUser(null);
   }, []);

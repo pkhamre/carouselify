@@ -5,12 +5,10 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 export { API_URL };
 
 export function getToken(): string | null {
-  if (typeof window === "undefined") return null;
   return localStorage.getItem("token");
 }
 
 export function setToken(token: string | null) {
-  if (typeof window === "undefined") return;
   if (token) {
     localStorage.setItem("token", token);
   } else {
@@ -123,10 +121,6 @@ export function deleteCarousel(id: string): Promise<void> {
 
 export function shareCarousel(id: string): Promise<{ url: string; share_token: string }> {
   return request(`/api/carousels/${id}/share`, { method: "POST" });
-}
-
-export function revokeShare(id: string): Promise<void> {
-  return request(`/api/carousels/${id}/share`, { method: "DELETE" });
 }
 
 export function createGuest(): Promise<{ access_token: string; token_type: string; user_id: string }> {

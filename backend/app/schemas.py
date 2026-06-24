@@ -66,12 +66,6 @@ class PublishShowcaseRequest(BaseModel):
     author: str | None = None
 
 
-class GuestResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    user_id: str
-
-
 class LinkGuestRequest(BaseModel):
     guest_user_id: str
 

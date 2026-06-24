@@ -20,6 +20,7 @@ async def get_stats(
     session: AsyncSession = Depends(get_session),
 ):
     now = datetime.now(timezone.utc)
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
     user_total = await session.scalar(select(func.count(User.id))) or 0
     user_registered = await session.scalar(select(func.count(User.id)).where(User.is_guest == False)) or 0
@@ -30,7 +31,7 @@ async def get_stats(
     car_shared = await session.scalar(select(func.count(Carousel.id)).where(Carousel.share_token.isnot(None))) or 0
     car_this_month = await session.scalar(
         select(func.count(Carousel.id)).where(
-            Carousel.created_at >= now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            Carousel.created_at >= month_start
         )
     ) or 0
 
@@ -53,7 +54,7 @@ async def get_stats(
     views_this_month = await session.scalar(
         select(func.count(Event.id)).where(
             Event.event_type == "carousel_viewed",
-            Event.created_at >= now.replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+            Event.created_at >= month_start,
         )
     ) or 0
     exports_total = await session.scalar(
@@ -62,7 +63,7 @@ async def get_stats(
     exports_this_month = await session.scalar(
         select(func.count(Event.id)).where(
             Event.event_type == "carousel_exported",
-            Event.created_at >= now.replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+            Event.created_at >= month_start,
         )
     ) or 0
 

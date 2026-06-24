@@ -3,7 +3,7 @@ import re
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from openai import AsyncOpenAI
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
@@ -26,6 +26,9 @@ INJECTION_PATTERNS = [
 
 CREDITS_PREMIUM = 50
 CREDITS_REGISTERED = 5
+
+# ponytail: lambda avoids repeating .replace(tzinfo=None); switch to timezone-aware column if perf matters
+_utcnow = lambda: datetime.now(timezone.utc).replace(tzinfo=None)
 
 def _build_system_prompt(slide_count: int) -> str:
     types = """1. cover: { "type": "cover", "h1": "...", "h2": "...", "caption": "..." }
@@ -62,8 +65,7 @@ Keep ALL text short and punchy. No field may exceed 15 words."""
 
 
 async def _deduct_credit(user: User, session: AsyncSession) -> tuple[int, int]:
-    """Deduct one credit and return (deducted, remaining)."""
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    now = _utcnow()
 
     if user.is_guest:
         user.ai_free_used = True
@@ -73,14 +75,12 @@ async def _deduct_credit(user: User, session: AsyncSession) -> tuple[int, int]:
     if user.is_premium or user.is_admin:
         if user.ai_credits_reset_at and user.ai_credits_reset_at.replace(tzinfo=None) < now:
             user.ai_credits_used = 0
-        used = user.ai_credits_used or 0
-        user.ai_credits_used = used + 1
+        user.ai_credits_used = (user.ai_credits_used or 0) + 1
         remaining = max(0, CREDITS_PREMIUM - user.ai_credits_used)
         await session.commit()
         return (1, remaining)
 
-    used = user.ai_credits_used or 0
-    user.ai_credits_used = used + 1
+    user.ai_credits_used = (user.ai_credits_used or 0) + 1
     remaining = max(0, CREDITS_REGISTERED - user.ai_credits_used)
     await session.commit()
     return (1, remaining)
@@ -91,7 +91,7 @@ async def get_credits(
     user: User = Depends(current_active_user),
     session: AsyncSession = Depends(get_session),
 ):
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    now = _utcnow()
 
     if user.is_guest:
         return CreditsResponse(
@@ -127,7 +127,7 @@ async def generate_slides(
     user: User = Depends(current_active_user),
     session: AsyncSession = Depends(get_session),
 ):
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    now = _utcnow()
 
     # Credit check
     if user.is_guest:

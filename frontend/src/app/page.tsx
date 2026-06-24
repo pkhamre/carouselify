@@ -591,7 +591,6 @@ function HomeContent() {
           <div className="flex items-center gap-3">
             {savedCarouselId && (
               <ShareButton
-                carouselId={savedCarouselId}
                 shareUrl={shareUrl}
                 onShare={handleShare}
               />
@@ -707,7 +706,6 @@ function HomeContent() {
             {savedCarouselId && (
               <div className="flex gap-2">
                 <ShareButton
-                  carouselId={savedCarouselId}
                   shareUrl={shareUrl}
                   onShare={handleShare}
                 />

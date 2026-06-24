@@ -1,10 +1,7 @@
 import type { Slide, SlideType } from "./types";
 
-let idCounter = 0;
-
 export function generateId(): string {
-  idCounter++;
-  return `slide-${Date.now()}-${idCounter}`;
+  return `slide-${crypto.randomUUID()}`;
 }
 
 export function createSlide(type: SlideType, index: number): Slide {
@@ -49,10 +46,6 @@ export function createSlide(type: SlideType, index: number): Slide {
 
 export function createDefaultSlides(): Slide[] {
   return [createSlide("cover", 0)];
-}
-
-export function createEmptyCoverSlide(): Slide {
-  return { id: generateId(), type: "cover", h1: "", h2: "", caption: "" };
 }
 
 export function getSlideLabel(type: SlideType): string {

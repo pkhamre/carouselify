@@ -28,7 +28,7 @@ async def upload_logo(
     if len(contents) > MAX_SIZE:
         raise HTTPException(400, detail="File too large (max 2MB)")
 
-    ext = file.filename.rsplit(".", 1)[-1] if "." in file.filename else "png"
+    ext = Path(file.filename or "logo.png").suffix[1:] or "png"
     filename = f"{user.id}-{uuid.uuid4()}.{ext}"
 
     upload_dir = Path("uploads/logos")

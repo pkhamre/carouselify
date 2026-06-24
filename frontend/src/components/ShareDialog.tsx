@@ -4,12 +4,11 @@ import { useState, useCallback } from "react";
 import { publishShowcase, unpublishShowcase } from "@/lib/api";
 
 interface ShareButtonProps {
-  carouselId: string;
   shareUrl: string | null;
   onShare: () => Promise<void>;
 }
 
-export function ShareButton({ shareUrl, onShare, carouselId: _carouselId }: ShareButtonProps) {
+export function ShareButton({ shareUrl, onShare }: ShareButtonProps) {
   const [busy, setBusy] = useState(false);
 
   const handleClick = useCallback(async () => {

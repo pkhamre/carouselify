@@ -65,12 +65,13 @@ export const curatedFonts: GoogleFont[] = [
 ];
 
 export function buildGoogleFontsUrl(display: string, body: string): string {
-  const encode = (s: string) => s.replace(/ /g, "+");
-  return `https://fonts.googleapis.com/css2?family=${encode(display)}:wght@400;700;900&family=${encode(body)}:wght@400;500;600;700&display=swap`;
+  const p = new URLSearchParams({ display: "swap" });
+  p.append("family", `${display}:wght@400;700;900`);
+  p.append("family", `${body}:wght@400;500;600;700`);
+  return `https://fonts.googleapis.com/css2?${p}`;
 }
 
 export function buildPreviewFontsUrl(families: string[]): string {
-  const encode = (s: string) => s.replace(/ /g, "+");
-  const params = families.map((f) => `family=${encode(f)}:wght@400`).join("&");
+  const params = families.map((f) => `family=${f}:wght@400`).join("&");
   return `https://fonts.googleapis.com/css2?${params}&display=swap`;
 }

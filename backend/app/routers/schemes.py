@@ -62,18 +62,8 @@ async def update_scheme(
     if not scheme:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Scheme not found")
 
-    if data.name is not None:
-        scheme.name = data.name
-    if data.background is not None:
-        scheme.background = data.background
-    if data.accent is not None:
-        scheme.accent = data.accent
-    if data.text_primary is not None:
-        scheme.text_primary = data.text_primary
-    if data.text_on_accent is not None:
-        scheme.text_on_accent = data.text_on_accent
-    if data.bg_on_accent is not None:
-        scheme.bg_on_accent = data.bg_on_accent
+    for field, value in data.model_dump(exclude_unset=True).items():
+        setattr(scheme, field, value)
 
     await session.commit()
     await session.refresh(scheme)

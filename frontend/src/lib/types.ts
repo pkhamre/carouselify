@@ -71,13 +71,6 @@ export interface LogoConfig {
   isCustom?: boolean;
 }
 
-export interface ThemeConfig {
-  scheme: ColorScheme;
-  fonts: FontPairing;
-  logo: LogoConfig;
-  inverted: boolean;
-}
-
 export const defaultLogo: LogoConfig = {
   letter: "c",
   shape: "blob-1",

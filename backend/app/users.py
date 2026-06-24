@@ -21,7 +21,8 @@ class CookieBearerTransport(CookieTransport):
             return auth[7:]
         return None
 
-    async def get_login_response(self, token: str, response: Optional[Response] = None) -> Response:
+    async def get_login_response(self, token: str, response: Response | None = None) -> Response:
+        # ponytail: response always provided from our routes, optional for fastapi-users framework
         if response is None:
             return await super().get_login_response(token)
         response.set_cookie(
@@ -40,16 +41,6 @@ class CookieBearerTransport(CookieTransport):
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     reset_password_token_secret = settings.secret
     verification_token_secret = settings.secret
-
-    async def on_after_register(self, user: User, request: Optional[Request] = None):
-        pass
-
-    async def on_after_forgot_password(self, user: User, token: str, request: Optional[Request] = None):
-        pass
-
-    async def on_after_request_verify(self, user: User, token: str, request: Optional[Request] = None):
-        pass
-
 
 async def get_user_db(session: AsyncSession = Depends(get_session)):
     yield SQLAlchemyUserDatabase(session, User)

@@ -1,7 +1,5 @@
-import random
-import string
+import secrets
 import uuid
-from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from fastapi_users.password import PasswordHelper
@@ -11,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session
 from app.limiter import limiter
 from app.models import Carousel, CarouselLike, User
-from app.schemas import CarouselCreate, CarouselOut, CarouselListItem, CarouselUpdate, GuestResponse, LikeResponse, LinkGuestRequest, PublishShowcaseRequest, ShareResponse
+from app.schemas import CarouselCreate, CarouselOut, CarouselListItem, CarouselUpdate, LikeResponse, LinkGuestRequest, PublishShowcaseRequest, ShareResponse
 from app.users import current_active_user, get_jwt_strategy, optional_active_user, transport
 from app.events import track_event
 
@@ -248,7 +246,7 @@ async def create_guest(
     session: AsyncSession = Depends(get_session),
 ):
     pw_helper = PasswordHelper()
-    random_pw = "".join(random.choices(string.ascii_letters + string.digits, k=32))
+    random_pw = secrets.token_urlsafe(24)
     guest_email = f"guest-{uuid.uuid4()}@carouselify.app"
 
     user = User(
