@@ -1,8 +1,4 @@
-<p align="center">
-  <img src="./assets/readme/hero.svg" width="100%" alt="carouselify — Design-consistent LinkedIn carousels in minutes">
-</p>
-
-## What it is
+## What is carouselify?
 
 carouselify is a visual editor for LinkedIn carousels. Pick a theme, arrange slides, and export PNG or PDF — no design skills required.
 
