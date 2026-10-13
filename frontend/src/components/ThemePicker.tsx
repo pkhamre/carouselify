@@ -4,7 +4,9 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 import { listSchemes, createScheme, updateScheme, deleteScheme } from "@/lib/api";
 import type { ColorScheme, FontPairing } from "@/lib/types";
+import type { DesignVariant } from "@/lib/types";
 import { colorSchemes, fontPairings } from "@/lib/themes";
+import { DesignPicker } from "./DesignPicker";
 import { curatedFonts, buildGoogleFontsUrl, buildPreviewFontsUrl } from "@/lib/googleFonts";
 import type { GoogleFont } from "@/lib/googleFonts";
 
@@ -15,6 +17,8 @@ interface ThemePickerProps {
   onSchemeChange: (scheme: ColorScheme) => void;
   onFontsChange: (fonts: FontPairing) => void;
   onInvertChange: (inverted: boolean) => void;
+  designVariant: DesignVariant;
+  onDesignVariantChange: (variant: DesignVariant) => void;
 }
 
 interface SavedScheme {
@@ -42,6 +46,8 @@ export function ThemePicker({
   onSchemeChange,
   onFontsChange,
   onInvertChange,
+  designVariant,
+  onDesignVariantChange,
 }: ThemePickerProps) {
   const { isAuthenticated, user } = useAuth();
   const isPremium = user?.is_premium ?? false;
@@ -292,6 +298,10 @@ export function ThemePicker({
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
       <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Theme</h3>
+
+      <div className="mb-5">
+        <DesignPicker value={designVariant} onChange={onDesignVariantChange} />
+      </div>
 
       <div className="mb-4">
         <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">

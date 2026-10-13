@@ -29,8 +29,8 @@ export function AboveCanvasPrompt({ onGenerate, busy, registerPrompt, onDismissR
     return (
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-4 transition-colors">
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-          You&apos;ve used your free AI credit. Create a free account to get{" "}
-          <strong>5 more AI credits</strong>.
+          You&apos;ve used your free AI credits. Create a free account to get{" "}
+          <strong>10 AI credits</strong>.
         </p>
         <div className="flex gap-2">
           <button

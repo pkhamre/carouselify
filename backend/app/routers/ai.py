@@ -1,13 +1,12 @@
 import json
 import re
-from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from openai import AsyncOpenAI
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.database import get_session
+from app.entitlements import balance, check, deduct
 from app.limiter import limiter
 from app.models import User
 from app.schemas import AiGenerateRequest, AiGenerateResponse, CreditsResponse
@@ -23,12 +22,6 @@ INJECTION_PATTERNS = [
     r"disregard",
     r"forget\s+(your\s+)?(instructions|prompt)",
 ]
-
-CREDITS_PREMIUM = 50
-CREDITS_REGISTERED = 5
-
-# ponytail: lambda avoids repeating .replace(tzinfo=None); switch to timezone-aware column if perf matters
-_utcnow = lambda: datetime.now(timezone.utc).replace(tzinfo=None)
 
 def _build_system_prompt(slide_count: int) -> str:
     types = """1. cover: { "type": "cover", "h1": "...", "h2": "...", "caption": "..." }
@@ -64,58 +57,16 @@ Generate exactly {slide_count} slide(s). When generating 1 slide, use type "cove
 Keep ALL text short and punchy. No field may exceed 15 words."""
 
 
-async def _deduct_credit(user: User, session: AsyncSession) -> tuple[int, int]:
-    now = _utcnow()
-
-    if user.is_guest:
-        user.ai_free_used = True
-        await session.commit()
-        return (0, 0)
-
-    if user.is_premium or user.is_admin:
-        if user.ai_credits_reset_at and user.ai_credits_reset_at.replace(tzinfo=None) < now:
-            user.ai_credits_used = 0
-        user.ai_credits_used = (user.ai_credits_used or 0) + 1
-        remaining = max(0, CREDITS_PREMIUM - user.ai_credits_used)
-        await session.commit()
-        return (1, remaining)
-
-    user.ai_credits_used = (user.ai_credits_used or 0) + 1
-    remaining = max(0, CREDITS_REGISTERED - user.ai_credits_used)
-    await session.commit()
-    return (1, remaining)
-
-
 @router.get("/credits", response_model=CreditsResponse)
 async def get_credits(
     user: User = Depends(current_active_user),
-    session: AsyncSession = Depends(get_session),
 ):
-    now = _utcnow()
-
-    if user.is_guest:
-        return CreditsResponse(
-            used=1 if user.ai_free_used else 0,
-            limit=1,
-            remaining=0 if user.ai_free_used else 1,
-            resets_at=None,
-        )
-
-    if user.is_premium or user.is_admin:
-        if user.ai_credits_reset_at and user.ai_credits_reset_at.replace(tzinfo=None) < now:
-            user.ai_credits_used = 0
-            await session.commit()
-        limit = CREDITS_PREMIUM
-    else:
-        limit = CREDITS_REGISTERED
-
-    used = user.ai_credits_used or 0
-    remaining = max(0, limit - used)
+    b = balance(user)
     return CreditsResponse(
-        used=used,
-        limit=limit,
-        remaining=remaining,
-        resets_at=user.ai_credits_reset_at if user.is_premium or user.is_admin else None,
+        used=b.used,
+        limit=b.limit,
+        remaining=b.remaining,
+        resets_at=b.resets_at,
     )
 
 
@@ -127,26 +78,20 @@ async def generate_slides(
     user: User = Depends(current_active_user),
     session: AsyncSession = Depends(get_session),
 ):
-    now = _utcnow()
-
     # Credit check
-    if user.is_guest:
-        if user.ai_free_used:
+    result = check(user)
+    if not result.ok:
+        if user.is_guest:
             raise HTTPException(
                 status.HTTP_402_PAYMENT_REQUIRED,
-                detail="Create a free account to get 5 more AI credits",
+                detail="Create a free account to get 10 AI credits",
             )
-    elif user.is_premium or user.is_admin:
-        if user.ai_credits_reset_at and user.ai_credits_reset_at.replace(tzinfo=None) < now:
-            user.ai_credits_used = 0
-        if (user.ai_credits_used or 0) >= CREDITS_PREMIUM:
+        if user.is_premium or user.is_admin:
             raise HTTPException(status.HTTP_402_PAYMENT_REQUIRED, detail="Out of credits")
-    else:
-        if (user.ai_credits_used or 0) >= CREDITS_REGISTERED:
-            raise HTTPException(
-                status.HTTP_402_PAYMENT_REQUIRED,
-                detail="Upgrade to Premium for 50 AI credits per month",
-            )
+        raise HTTPException(
+            status.HTTP_402_PAYMENT_REQUIRED,
+            detail="Upgrade to Premium for 100 AI credits per month",
+        )
 
     for pattern in INJECTION_PATTERNS:
         if re.search(pattern, body.prompt, re.IGNORECASE):
@@ -174,7 +119,8 @@ async def generate_slides(
     except (json.JSONDecodeError, KeyError, TypeError):
         raise HTTPException(500, detail="AI response parsing failed")
 
-    deduction, remaining = await _deduct_credit(user, session)
+    deduction, remaining = deduct(user)
+    await session.commit()
     await track_event(session, "ai_generated", user_id=user.id, metadata={"prompt": body.prompt[:100], "slide_count": len(slides)})
 
     return AiGenerateResponse(

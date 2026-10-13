@@ -72,7 +72,7 @@ docker compose -f docker-compose-prod.yml up --build
 | **Logo** | Configurable letter, blob shape, and position. Toggle visibility. Premium users can upload a custom image (PNG/JPEG/WebP/GIF, 2MB). |
 | **Sharing** | Save carousels and share via a public link. Publish to the showcase gallery. Clone & Edit shared carousels. |
 | **Account** | Guest mode on first visit (auto-assigned JWT, save works immediately). Register to keep carousels across devices. Guest carousels merge on register. |
-| **AI** | Premium users generate slides with AI (gpt-4o-mini, 50 credits/month). Registered users get 5 credits; guests get 1 free use. |
+| **AI** | AI generation uses gpt-5-mini: guests get 5 credits, free accounts get 10 credits, and premium accounts get 100 credits/month. |
 | **Export** | Individual PNG files or a multi-page PDF. |
 | **Premium** | Custom logo upload, AI generation, and custom Google Fonts via Polar.sh subscription. |
 
@@ -152,7 +152,7 @@ docker compose -f docker-compose-prod.yml up --build
 | POST | `/api/billing/webhook` | Signature | Polar.sh webhook |
 | POST | `/api/upload/logo` | Yes+Premium | Upload custom logo (2MB, PNG/JPEG/WebP/GIF) |
 | GET | `/api/ai/credits` | Yes | Check AI credits |
-| POST | `/api/ai/generate` | Yes+Premium | Generate slides via gpt-4o-mini |
+| POST | `/api/ai/generate` | Yes+Premium | Generate slides via gpt-5-mini |
 | GET | `/api/config` | No | Public config (`subscriptions_enabled`) |
 | POST | `/api/track/event` | No | Public event tracking |
 | GET | `/health` | No | Health check |

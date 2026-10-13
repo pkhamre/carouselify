@@ -54,7 +54,7 @@
 | `schemes.py` | `/api/schemes` | Custom color schemes |
 | `billing.py` | `/api/billing` | Polar.sh checkout, portal, webhook |
 | `upload.py` | `/api/upload` | Logo upload (premium, 2MB, PNG/JPEG/WebP/GIF) |
-| `ai.py` | `/api/ai` | AI generation (gpt-4o-mini) + credits |
+| `ai.py` | `/api/ai` | AI generation (gpt-5-mini) + credits |
 | `admin.py` | `/api/admin` | Stats, showcase management, contact messages |
 | `config.py` | `/api/config` | Public config (subscriptions_enabled) |
 | `track.py` | (in admin router) | Public event tracking |

@@ -1,4 +1,4 @@
-import type { Slide, ColorScheme, FontPairing, LogoConfig } from "@/lib/types";
+import type { Slide, ColorScheme, FontPairing, LogoConfig, DesignVariant } from "@/lib/types";
 import { SlideLogo } from "./SlideLogo";
 
 interface SlideRendererProps {
@@ -9,11 +9,12 @@ interface SlideRendererProps {
   slideNumber: number;
   totalSlides: number;
   readOnly?: boolean;
+  designVariant?: DesignVariant;
 }
 
 // ponytail: single SlideRenderer replaces 5 individual slide components (CoverSlide, ContentB1Slide, ContentB2Slide, ListSlide, CtaSlide)
 // ponytail: inner switch is verbose but keeps each type's content independently readable
-export function SlideRenderer({ slide, scheme, fonts, logo, slideNumber, totalSlides }: SlideRendererProps) {
+export function SlideRenderer({ slide, scheme, fonts, logo, slideNumber, totalSlides, designVariant = "signal" }: SlideRendererProps) {
   const progress = (slideNumber / totalSlides) * 100;
   const counter = `${String(slideNumber).padStart(2, "0")} / ${String(totalSlides).padStart(2, "0")}`;
   const isCover = slide.type === "cover";
@@ -21,13 +22,18 @@ export function SlideRenderer({ slide, scheme, fonts, logo, slideNumber, totalSl
 
   return (
     <div
-      className="slide-canvas"
+      className={`slide-canvas slide-variant-${designVariant}`}
       style={{
         backgroundColor: isCta ? scheme.accent : scheme.background,
+        color: isCta ? scheme.textOnAccent : scheme.textPrimary,
         fontFamily: fonts.body,
       }}
     >
       <SlideLogo logo={logo} scheme={scheme} fonts={fonts} isInverted={isCta} />
+
+      <div className="slide-variant-mark" aria-hidden="true">
+        <span>{String(slideNumber).padStart(2, "0")}</span>
+      </div>
 
       <div className="slide-content">
         {slide.type === "cover" && (

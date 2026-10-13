@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     polar_product_id: str = ""
     polar_server: str = "production"
     openai_api_key: str = ""
-    openai_model: str = "gpt-4o-mini"
+    openai_model: str = "gpt-5-mini"
     subscriptions_enabled: bool = False
     admin_email: str = ""
     environment: str = "development"

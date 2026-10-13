@@ -1,4 +1,4 @@
-import type { Slide, ColorScheme, FontPairing, LogoConfig } from "@/lib/types";
+import type { Slide, ColorScheme, FontPairing, LogoConfig, DesignVariant } from "@/lib/types";
 import { SlideRenderer } from "./SlideRenderer";
 
 interface SlideCanvasProps {
@@ -9,6 +9,7 @@ interface SlideCanvasProps {
   slideNumber: number;
   totalSlides: number;
   readOnly?: boolean;
+  designVariant?: DesignVariant;
 }
 
 export function SlideCanvas(props: SlideCanvasProps) {

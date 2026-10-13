@@ -18,4 +18,3 @@ async def track_event(
         metadata_=metadata,
     )
     session.add(event)
-    await session.commit()

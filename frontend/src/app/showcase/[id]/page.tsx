@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getSharedCarousel, getLikeStatus, toggleLike } from "@/lib/api";
 import { seedCarousels } from "@/lib/showcase";
 import { SlideCanvas } from "@/components/slides/SlideCanvas";
-import type { Slide, ColorScheme, FontPairing, LogoConfig } from "@/lib/types";
+import type { Slide, ColorScheme, FontPairing, LogoConfig, DesignVariant } from "@/lib/types";
 import { colorSchemes, fontPairings } from "@/lib/themes";
 import "@/components/slides/slideStyles.css";
 import { AuthProvider, useAuth } from "@/lib/auth";
@@ -19,6 +19,7 @@ interface SharedCarouselData {
   logo: LogoConfig;
   inverted: boolean;
   presentationTitle: string;
+  designVariant?: DesignVariant;
 }
 
 function ShowcasePreviewPage() {
@@ -260,6 +261,7 @@ function ShowcasePreviewPage() {
                     logo={data.logo}
                     slideNumber={currentIndex + 1}
                     totalSlides={totalSlides}
+                    designVariant={data.designVariant}
                     readOnly
                   />
                 </div>

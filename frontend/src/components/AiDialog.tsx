@@ -41,7 +41,7 @@ export function AiDialog({ open, onClose, onGenerate, openAuth }: AiDialogProps)
 
   if (!open) return null;
 
-  const isGuest = credits?.limit === 1;
+  const isGuest = credits?.limit === 10;
   const noCredits = credits !== null && credits.remaining <= 0;
 
   return (
@@ -54,8 +54,8 @@ export function AiDialog({ open, onClose, onGenerate, openAuth }: AiDialogProps)
           <p className="text-xs text-gray-500">
             {isGuest
               ? credits.remaining > 0
-                ? "1 free AI credit remaining"
-                : "Free · Create a free account to get 5 more AI credits"
+                ? `${credits.remaining} free AI credits remaining`
+                : "Free · Create a free account to get 10 AI credits"
               : `${credits.remaining} / ${credits.limit} credits remaining`
             }
           </p>

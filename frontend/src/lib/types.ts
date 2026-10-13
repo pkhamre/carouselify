@@ -1,4 +1,5 @@
 export type SlideType = "cover" | "content-b1" | "content-b2" | "list" | "cta";
+export type DesignVariant = "signal" | "studio" | "index";
 
 export interface BaseSlide {
   id: string;

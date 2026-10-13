@@ -133,7 +133,7 @@ class ShowcaseListItem(BaseModel):
     id: uuid.UUID
     title: str
     showcase_author: str | None = None
-    share_token: uuid.UUID
+    share_token: uuid.UUID | None = None
     created_at: datetime
     slide_count: int = 0
     like_count: int = 0

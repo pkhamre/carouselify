@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import type { Slide, SlideType, ColorScheme, FontPairing, LogoConfig } from "@/lib/types";
+import type { Slide, SlideType, ColorScheme, FontPairing, LogoConfig, DesignVariant } from "@/lib/types";
 import { defaultScheme, defaultFonts, colorSchemes, fontPairings } from "@/lib/themes";
 import { defaultLogo } from "@/lib/types";
 import { createDefaultSlides, createSlide } from "@/lib/utils";
+import { hydrate, serialize, CAROUSEL_DOCUMENT_VERSION } from "@/lib/carouselDocument";
+import type { CarouselContent } from "@/lib/carouselDocument";
 import { SlideCanvas } from "@/components/slides/SlideCanvas";
 import { SlideEditor } from "@/components/SlideEditor";
 import { ThemePicker } from "@/components/ThemePicker";
@@ -70,6 +72,7 @@ function HomeContent() {
     return defaultLogo;
   });
   const [inverted, setInverted] = useState(false);
+  const [designVariant, setDesignVariant] = useState<DesignVariant>("signal");
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [mobileTab, setMobileTab] = useState<"preview" | "edit" | "design">("preview");
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -184,13 +187,13 @@ function HomeContent() {
     const cloneData = sessionStorage.getItem("clone-data");
     if (cloneData) {
       try {
-        const parsed = JSON.parse(cloneData);
-        if (parsed.slides) setSlides(parsed.slides);
-        if (parsed.scheme?.background) setScheme(parsed.scheme);
-        else if (parsed.schemeIndex !== undefined) setScheme(colorSchemes[parsed.schemeIndex] || defaultScheme);
-        if (parsed.fontIndex !== undefined) setFonts(fontPairings[parsed.fontIndex] || defaultFonts);
-        if (parsed.logo) setLogo(parsed.logo);
-        if (parsed.inverted !== undefined) setInverted(parsed.inverted);
+        const doc = hydrate(JSON.parse(cloneData));
+        setSlides(doc.slides);
+        setScheme(doc.scheme);
+        setFonts(fontPairings[doc.fontIndex]);
+        setLogo(doc.logo);
+        setInverted(doc.inverted);
+        setDesignVariant(doc.designVariant);
       } catch {}
       sessionStorage.removeItem("clone-data");
     }
@@ -341,13 +344,13 @@ function HomeContent() {
   }, [slides, toast, undoDelete]);
 
   const handleLoadCarousel = useCallback((data: any) => {
-    const d = data.data;
-    if (d.slides) setSlides(d.slides);
-    if (d.scheme?.background) setScheme(d.scheme);
-    else if (d.schemeIndex !== undefined) setScheme(colorSchemes[d.schemeIndex] || defaultScheme);
-    if (d.fontIndex !== undefined) setFonts(fontPairings[d.fontIndex] || defaultFonts);
-    if (d.logo) setLogo(d.logo);
-    if (d.inverted !== undefined) setInverted(d.inverted);
+    const doc = hydrate(data.data);
+    setSlides(doc.slides);
+    setScheme(doc.scheme);
+    setFonts(fontPairings[doc.fontIndex]);
+    setLogo(doc.logo);
+    setInverted(doc.inverted);
+    setDesignVariant(doc.designVariant);
     setSavedCarouselId(data.id);
     setSavedTitle(data.title || "");
     setShareUrl(data.share_token ? `/showcase/${data.share_token}` : null);
@@ -375,15 +378,17 @@ function HomeContent() {
     }
   }, [user?.is_premium]);
 
-  const carouselData = {
+  const carouselContent: CarouselContent = {
+    version: CAROUSEL_DOCUMENT_VERSION,
     slides,
     scheme,
     schemeIndex: colorSchemes.indexOf(scheme),
     fontIndex: fontPairings.indexOf(fonts),
     logo,
     inverted,
-    presentationTitle: "My Deck",
+    designVariant,
   };
+  const carouselData = serialize(carouselContent);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
@@ -432,6 +437,7 @@ function HomeContent() {
                           logo={logo}
                           slideNumber={index + 1}
                           totalSlides={slides.length}
+                          designVariant={designVariant}
                         />
                       </div>
                     </div>
@@ -529,6 +535,7 @@ function HomeContent() {
                         logo={logo}
                         slideNumber={activeSlideIndex + 1}
                         totalSlides={slides.length}
+                        designVariant={designVariant}
                       />
                     </div>
                 ) : (
@@ -549,6 +556,8 @@ function HomeContent() {
                 onSchemeChange={setScheme}
                 onFontsChange={setFonts}
                 onInvertChange={setInverted}
+                designVariant={designVariant}
+                onDesignVariantChange={setDesignVariant}
               />
               <LogoSettings
                 logo={logo}
@@ -575,7 +584,7 @@ function HomeContent() {
             {credits !== null && (
               <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                 {user?.isGuest
-                  ? credits.remaining > 0 ? "1 free AI credit" : "Free"
+                  ? credits.remaining > 0 ? `${credits.remaining} free AI credits` : "Free"
                   : `AI: ${credits.remaining}/${credits.limit}`
                 }
               </span>
@@ -652,6 +661,7 @@ function HomeContent() {
                           logo={logo}
                           slideNumber={activeSlideIndex + 1}
                           totalSlides={slides.length}
+                          designVariant={designVariant}
                         />
                       </div>
                   ) : (
@@ -831,6 +841,8 @@ function HomeContent() {
                 onSchemeChange={setScheme}
                 onFontsChange={setFonts}
                 onInvertChange={setInverted}
+                designVariant={designVariant}
+                onDesignVariantChange={setDesignVariant}
               />
               <LogoSettings logo={logo} onChange={setLogo} />
             </div>
@@ -883,6 +895,7 @@ function HomeContent() {
               logo={logo}
               slideNumber={index + 1}
               totalSlides={slides.length}
+              designVariant={designVariant}
             />
           </div>
         ))}

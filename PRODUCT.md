@@ -39,7 +39,7 @@ Confident, precise, effortless. The tool should feel like a well-built instrumen
 - **10 color schemes** plus a custom scheme builder (saved per account)
 - **4 font pairings** by default; **56 curated Google Fonts** for premium subscribers (any display + body combination)
 - **Customizable logo** with 5 blob shapes, 4 positions, letter input, and premium image upload (PNG, JPEG, WebP, GIF, 2MB limit)
-- **AI generation** (gpt-4o-mini): premium users get 50 credits per month; registered users get 5; guests get 1 free use
+- **AI generation** (gpt-5-mini): guests get 5 credits; free accounts get 10; premium users get 100 credits per month
 - **Export** as individual PNG files or multi-page PDF via html-to-image
 - **Showcase gallery** at `/showcase` with community submissions and featured examples
 - **Share** via permanent public link (one click, copies URL to clipboard); publishing to the showcase gallery is separate

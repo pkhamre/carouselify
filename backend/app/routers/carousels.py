@@ -6,6 +6,7 @@ from fastapi_users.password import PasswordHelper
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.carousel_store import CarouselStore, get_carousel_store
 from app.database import get_session
 from app.limiter import limiter
 from app.models import Carousel, CarouselLike, User
@@ -49,12 +50,9 @@ async def list_carousels(
 async def get_carousel(
     carousel_id: uuid.UUID,
     user: User = Depends(current_active_user),
-    session: AsyncSession = Depends(get_session),
+    store: CarouselStore = Depends(get_carousel_store),
 ):
-    result = await session.execute(
-        select(Carousel).where(Carousel.id == carousel_id, Carousel.user_id == user.id)
-    )
-    carousel = result.scalar_one_or_none()
+    carousel = await store.get_owned(carousel_id, user.id)
     if not carousel:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Carousel not found")
     return carousel
@@ -66,11 +64,9 @@ async def update_carousel(
     data: CarouselUpdate,
     user: User = Depends(current_active_user),
     session: AsyncSession = Depends(get_session),
+    store: CarouselStore = Depends(get_carousel_store),
 ):
-    result = await session.execute(
-        select(Carousel).where(Carousel.id == carousel_id, Carousel.user_id == user.id)
-    )
-    carousel = result.scalar_one_or_none()
+    carousel = await store.get_owned(carousel_id, user.id)
     if not carousel:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Carousel not found")
     if data.title is not None:
@@ -87,11 +83,9 @@ async def delete_carousel(
     carousel_id: uuid.UUID,
     user: User = Depends(current_active_user),
     session: AsyncSession = Depends(get_session),
+    store: CarouselStore = Depends(get_carousel_store),
 ):
-    result = await session.execute(
-        select(Carousel).where(Carousel.id == carousel_id, Carousel.user_id == user.id)
-    )
-    carousel = result.scalar_one_or_none()
+    carousel = await store.get_owned(carousel_id, user.id)
     if not carousel:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Carousel not found")
     await session.delete(carousel)
@@ -103,11 +97,9 @@ async def share_carousel(
     carousel_id: uuid.UUID,
     user: User = Depends(current_active_user),
     session: AsyncSession = Depends(get_session),
+    store: CarouselStore = Depends(get_carousel_store),
 ):
-    result = await session.execute(
-        select(Carousel).where(Carousel.id == carousel_id, Carousel.user_id == user.id)
-    )
-    carousel = result.scalar_one_or_none()
+    carousel = await store.get_owned(carousel_id, user.id)
     if not carousel:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Carousel not found")
     carousel.share_token = uuid.uuid4()
@@ -123,11 +115,9 @@ async def revoke_share(
     carousel_id: uuid.UUID,
     user: User = Depends(current_active_user),
     session: AsyncSession = Depends(get_session),
+    store: CarouselStore = Depends(get_carousel_store),
 ):
-    result = await session.execute(
-        select(Carousel).where(Carousel.id == carousel_id, Carousel.user_id == user.id)
-    )
-    carousel = result.scalar_one_or_none()
+    carousel = await store.get_owned(carousel_id, user.id)
     if not carousel:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Carousel not found")
     carousel.share_token = None
@@ -142,11 +132,9 @@ async def publish_showcase(
     body: PublishShowcaseRequest,
     user: User = Depends(current_active_user),
     session: AsyncSession = Depends(get_session),
+    store: CarouselStore = Depends(get_carousel_store),
 ):
-    result = await session.execute(
-        select(Carousel).where(Carousel.id == carousel_id, Carousel.user_id == user.id)
-    )
-    carousel = result.scalar_one_or_none()
+    carousel = await store.get_owned(carousel_id, user.id)
     if not carousel:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Carousel not found")
     if not carousel.share_token:
@@ -165,11 +153,9 @@ async def unpublish_showcase(
     carousel_id: uuid.UUID,
     user: User = Depends(current_active_user),
     session: AsyncSession = Depends(get_session),
+    store: CarouselStore = Depends(get_carousel_store),
 ):
-    result = await session.execute(
-        select(Carousel).where(Carousel.id == carousel_id, Carousel.user_id == user.id)
-    )
-    carousel = result.scalar_one_or_none()
+    carousel = await store.get_owned(carousel_id, user.id)
     if not carousel:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Carousel not found")
     carousel.showcased = False
@@ -310,4 +296,5 @@ async def get_shared_carousel(
     if not carousel:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shared carousel not found")
     await track_event(session, "carousel_viewed", carousel_id=carousel.id)
+    await session.commit()
     return carousel

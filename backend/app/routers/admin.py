@@ -8,6 +8,7 @@ from app.database import get_session
 from app.limiter import limiter
 from app.models import Carousel, CarouselLike, ContactMessage, Event, User
 from app.schemas import ContactMessageCreate, ContactMessageOut, StatsResponse, TrackEventRequest, ShowcaseListItem
+from app.showcase_items import list_showcase_items
 from app.users import current_active_user, require_admin
 from app.events import track_event
 
@@ -106,28 +107,7 @@ async def list_showcased(
     user: User = Depends(require_admin),
     session: AsyncSession = Depends(get_session),
 ):
-    result = await session.execute(
-        select(Carousel)
-        .where(Carousel.showcased == True)
-        .order_by(Carousel.updated_at.desc())
-    )
-    carousels = result.scalars().all()
-    items = []
-    for c in carousels:
-        slides = c.data.get("slides", []) if c.data else []
-        like_count = await session.scalar(
-            select(func.count(CarouselLike.id)).where(CarouselLike.carousel_id == c.id)
-        ) or 0
-        items.append(ShowcaseListItem(
-            id=c.id,
-            title=c.title,
-            showcase_author=c.showcase_author,
-            share_token=c.share_token,
-            created_at=c.created_at,
-            slide_count=len(slides),
-            like_count=like_count,
-        ))
-    return items
+    return await list_showcase_items(session, include_unshared=True)
 
 
 @router.post("/showcase/{carousel_id}/remove", status_code=status.HTTP_200_OK)
@@ -221,4 +201,6 @@ async def track_client_event(
         carousel_id=body.carousel_id,
         metadata=body.metadata,
     )
+    await session.commit()
+    return {"ok": True}
     return {"ok": True}
